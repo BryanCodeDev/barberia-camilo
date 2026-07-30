@@ -1,167 +1,133 @@
-// src/hooks/useAppointments.js
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { APP_CONFIG } from '../../utils/constants';
 
-// Mock data inicial - en producción esto vendría del backend
-const initialAppointments = [
-  {
-    id: 1,
-    name: "Juan Pérez",
-    phone: "3101234567",
-    service: "Corte y Barba (Perfilada)",
-    date: "2025-08-10",
-    time: "14:00",
-    message: "Prefiero corte clásico, no muy corto a los lados",
-    status: "pending",
-    createdAt: "2025-08-06T10:30:00Z"
-  },
-  {
-    id: 2,
-    name: "Carlos López",
-    phone: "3109876543",
-    service: "Corte Básico",
-    date: "2025-08-11",
-    time: "16:30",
-    message: "Primera vez en la barbería, espero el mejor servicio",
-    status: "pending",
-    createdAt: "2025-08-06T11:15:00Z"
-  },
-  {
-    id: 3,
-    name: "Miguel Rodríguez",
-    phone: "3158765432",
-    service: "Corte y Barba + Exfoliación y Mascarilla Puntos Negros",
-    date: "2025-08-12",
-    time: "10:00",
-    message: "Quiero probar el servicio premium completo",
-    status: "confirmed",
-    createdAt: "2025-08-05T14:20:00Z"
-  },
-  {
-    id: 4,
-    name: "Andrea Torres",
-    phone: "3209876543",
-    service: "Corte y Cejas",
-    date: "2025-08-06",
-    time: "15:30",
-    message: "",
-    status: "pending",
-    createdAt: "2025-08-06T09:00:00Z"
-  },
-  {
-    id: 5,
-    name: "Luis Martínez",
-    phone: "3187654321",
-    service: "Corte Básico",
-    date: "2025-08-06",
-    time: "17:00",
-    message: "Corte ejecutivo por favor",
-    status: "confirmed",
-    createdAt: "2025-08-05T16:30:00Z"
-  }
-];
+const apiBaseUrl = APP_CONFIG.apiBaseUrl;
 
 export const useAppointments = () => {
-  const [appointments, setAppointments] = useState(initialAppointments);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Agregar nueva cita
-  const addAppointment = (appointmentData) => {
-    const newAppointment = {
-      ...appointmentData,
-      id: Date.now() + Math.random(), // Simple ID generation
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    };
-    
-    setAppointments(prev => [newAppointment, ...prev]);
-    return newAppointment;
-  };
+  const fetchAppointments = useCallback(async (date) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const url = date ? `${apiBaseUrl}/admin/appointments?date=${date}` : `${apiBaseUrl}/admin/appointments`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Error al cargar las citas');
+      const data = await response.json();
+      setAppointments(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  // Eliminar cita
-  const removeAppointment = (appointmentId) => {
-    setAppointments(prev => prev.filter(apt => apt.id !== appointmentId));
-  };
+  const addAppointment = useCallback(async (appointmentData) => {
+    try {
+      setError(null);
+      const response = await fetch(`${apiBaseUrl}/appointments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(appointmentData),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Error al crear la cita');
+      }
+      const data = await response.json();
+      await fetchAppointments();
+      return data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  }, [fetchAppointments]);
 
-  // Actualizar estado de cita
-  const updateAppointmentStatus = (appointmentId, newStatus) => {
-    setAppointments(prev => 
-      prev.map(apt => 
-        apt.id === appointmentId 
-          ? { ...apt, status: newStatus }
-          : apt
-      )
-    );
-  };
+  const removeAppointment = useCallback(async (appointmentId) => {
+    try {
+      setError(null);
+      const response = await fetch(`${apiBaseUrl}/appointments/${appointmentId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Error al eliminar la cita');
+      await fetchAppointments();
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  }, [fetchAppointments]);
 
-  // Obtener citas por fecha
-  const getAppointmentsByDate = (date) => {
-    return appointments.filter(apt => apt.date === date);
-  };
+  const updateAppointmentStatus = useCallback(async (appointmentId, newStatus, cancelledReason = null) => {
+    try {
+      setError(null);
+      const response = await fetch(`${apiBaseUrl}/appointments/${appointmentId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, cancelled_reason: cancelledReason }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Error al actualizar la cita');
+      }
+      await fetchAppointments();
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  }, [fetchAppointments]);
 
-  // Obtener citas por estado
-  const getAppointmentsByStatus = (status) => {
-    return appointments.filter(apt => apt.status === status);
-  };
+  const getOccupiedTimeSlots = useCallback(async (date) => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/appointments/occupied-slots?date=${date}`);
+      if (!response.ok) throw new Error('Error al cargar horarios ocupados');
+      const data = await response.json();
+      return data.slots || [];
+    } catch (err) {
+      console.error('Error fetching occupied slots:', err);
+      return [];
+    }
+  }, []);
 
-  // Obtener citas de hoy
-  const getTodayAppointments = () => {
-    const today = new Date().toISOString().split('T')[0];
-    return getAppointmentsByDate(today);
-  };
+  const getAppointmentsByDate = useCallback(async (date) => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/admin/appointments?date=${date}`);
+      if (!response.ok) throw new Error('Error al cargar citas');
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      console.error('Error fetching by date:', err);
+      return [];
+    }
+  }, []);
 
-  // Obtener citas de la semana
-  const getWeekAppointments = () => {
-    const today = new Date();
-    const weekStart = new Date(today);
-    weekStart.setDate(today.getDate() - today.getDay());
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
+  const getStats = useCallback(async () => {
+    try {
+      const response = await fetch(`${apiBaseUrl}/admin/stats`);
+      if (!response.ok) throw new Error('Error al cargar estadísticas');
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+      return { total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 };
+    }
+  }, []);
 
-    return appointments.filter(apt => {
-      const aptDate = new Date(apt.date);
-      return aptDate >= weekStart && aptDate <= weekEnd;
-    });
-  };
-
-  // Estadísticas
-  const getStats = () => {
-    return {
-      total: appointments.length,
-      pending: getAppointmentsByStatus('pending').length,
-      confirmed: getAppointmentsByStatus('confirmed').length,
-      cancelled: getAppointmentsByStatus('cancelled').length,
-      today: getTodayAppointments().length,
-      week: getWeekAppointments().length
-    };
-  };
-
-  // Verificar disponibilidad de horario
-  const isTimeSlotAvailable = (date, time) => {
-    return !appointments.some(apt => 
-      apt.date === date && 
-      apt.time === time && 
-      apt.status !== 'cancelled'
-    );
-  };
-
-  // Obtener horarios ocupados para una fecha
-  const getOccupiedTimeSlots = (date) => {
-    return appointments
-      .filter(apt => apt.date === date && apt.status !== 'cancelled')
-      .map(apt => apt.time);
-  };
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
 
   return {
     appointments,
     addAppointment,
     removeAppointment,
     updateAppointmentStatus,
+    getOccupiedTimeSlots,
     getAppointmentsByDate,
-    getAppointmentsByStatus,
-    getTodayAppointments,
-    getWeekAppointments,
     getStats,
-    isTimeSlotAvailable,
-    getOccupiedTimeSlots
+    loading,
+    error,
   };
 };
 

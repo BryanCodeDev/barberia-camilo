@@ -85,11 +85,11 @@ export const STATUS_COLORS = {
 
 // Configuración de la aplicación
 export const APP_CONFIG = {
-  maxAdvanceBookingDays: 30, // Máximo días para agendar con anticipación
-  minAdvanceBookingHours: 2, // Mínimo horas para agendar con anticipación
-  defaultAdminPassword: 'admin123', // Cambiar en producción
+  maxAdvanceBookingDays: 30,
+  minAdvanceBookingHours: 2,
   appointmentsPerPage: 10,
-  autoRefreshInterval: 30000 // 30 segundos
+  autoRefreshInterval: 30000,
+  apiBaseUrl: 'http://localhost:3001/api',
 };
 
 // Mensajes de la aplicación
