@@ -1,20 +1,67 @@
 // src/components/layout/Footer.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Scissors, Phone, MapPin, Instagram, Facebook, Clock } from 'lucide-react';
-import { BUSINESS_INFO } from '../../utils/constants';
+
+const defaultBusinessInfo = {
+  name: "Barber Trebol",
+  phone: "+57 300 123 4567",
+  whatsapp: "573001234567",
+  email: "contacto@barbertrebol.com",
+  address: {
+    street: "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01",
+    city: "Mosquera",
+    state: "Cundinamarca",
+    country: "Colombia",
+    full: "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01, Mosquera, Cundinamarca"
+  },
+  socialMedia: {
+    instagram: "@barbertrebol",
+    facebook: "Barber Trebol",
+    tiktok: "@barbertrebol"
+  }
+};
 
 const Footer = () => {
+  const [businessInfo, setBusinessInfo] = useState(defaultBusinessInfo);
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+    fetch(`${apiBaseUrl}/business-settings`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.business_name) {
+          setBusinessInfo({
+            name: data.business_name,
+            phone: data.phone || defaultBusinessInfo.phone,
+            whatsapp: data.whatsapp_number || defaultBusinessInfo.whatsapp,
+            email: data.email || defaultBusinessInfo.email,
+            address: {
+              street: data.address || defaultBusinessInfo.address.street,
+              city: "Mosquera",
+              state: "Cundinamarca",
+              country: "Colombia",
+              full: data.address || defaultBusinessInfo.address.full
+            },
+            socialMedia: {
+              instagram: data.instagram || defaultBusinessInfo.socialMedia.instagram,
+              facebook: data.facebook || defaultBusinessInfo.socialMedia.facebook,
+              tiktok: data.tiktok || defaultBusinessInfo.socialMedia.tiktok
+            }
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <footer className="bg-black text-white py-8 md:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {/* Información de la Empresa */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Scissors className="h-6 w-6 md:h-8 md:w-8 text-amber-400" />
-              <span className="font-bold text-lg md:text-xl">Barber Trebol</span>
+              <span className="font-bold text-lg md:text-xl">{businessInfo.name}</span>
             </div>
             <p className="text-gray-400 mb-4 text-sm md:text-base leading-relaxed">
               Master Barber - Experiencia VIP en barbería masculina con más de 10 años de experiencia 
@@ -22,7 +69,7 @@ const Footer = () => {
             </p>
             <div className="flex space-x-4">
               <a 
-                href={`https://instagram.com/${BUSINESS_INFO.socialMedia.instagram.replace('@', '')}`}
+                href={`https://instagram.com/${businessInfo.socialMedia.instagram.replace('@', '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-amber-400 transition-colors"
@@ -31,7 +78,7 @@ const Footer = () => {
                 <Instagram className="h-5 w-5 md:h-6 md:w-6" />
               </a>
               <a 
-                href={`https://facebook.com/${BUSINESS_INFO.socialMedia.facebook.replace(/\s+/g, '')}`}
+                href={`https://facebook.com/${businessInfo.socialMedia.facebook.replace(/\s+/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-amber-400 transition-colors"
@@ -42,30 +89,28 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Información de Contacto */}
           <div>
             <h3 className="font-bold text-lg mb-4 text-amber-400">Contacto</h3>
             <div className="space-y-3">
               <div className="flex items-center">
                 <Phone className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
                 <a 
-                  href={`tel:${BUSINESS_INFO.phone}`}
+                  href={`tel:${businessInfo.phone}`}
                   className="text-gray-300 hover:text-amber-400 transition-colors text-sm md:text-base"
                 >
-                  {BUSINESS_INFO.phone}
+                  {businessInfo.phone}
                 </a>
               </div>
               <div className="flex items-start">
                 <MapPin className="h-4 w-4 text-gray-400 mr-3 mt-1 flex-shrink-0" />
                 <div className="text-gray-300 text-sm md:text-base">
-                  <p>{BUSINESS_INFO.address.street}</p>
-                  <p>{BUSINESS_INFO.address.city}, {BUSINESS_INFO.address.state}</p>
+                  <p>{businessInfo.address.street}</p>
+                  <p>{businessInfo.address.city}, {businessInfo.address.state}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Horarios de Atención */}
           <div>
             <h3 className="font-bold text-lg mb-4 text-amber-400">Horarios de Atención</h3>
             <div className="space-y-2 text-gray-300 text-sm md:text-base">
@@ -94,11 +139,10 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Separador y Copyright */}
         <div className="border-t border-gray-800 mt-8 pt-6 md:pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-xs md:text-sm text-center md:text-left">
-              © {currentYear} Barber Trebol. Todos los derechos reservados.
+              © {currentYear} {businessInfo.name}. Todos los derechos reservados.
             </p>
             <p className="text-gray-400 text-xs md:text-sm text-center md:text-right">
               Desarrollado con ❤️ para la mejor experiencia de barbería

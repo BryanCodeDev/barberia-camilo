@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, X, Check, ChevronRight, User, Phone, MessageSquare, Loader2 } from 'lucide-react';
-import { services } from '../../data/services';
 import { APP_CONFIG } from '../../utils/constants';
+import { fetchServices } from '../../data/services';
 
 const apiBaseUrl = APP_CONFIG.apiBaseUrl;
+
+const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
 
 const BookingForm = ({ onClose, preselectedService = null }) => {
   const [currentStep, setCurrentStep] = useState(preselectedService ? 2 : 1);
   const [selectedService, setSelectedService] = useState(preselectedService);
+  const [services, setServices] = useState([]);
+  const [business, setBusiness] = useState(defaultBusiness);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -18,6 +22,26 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [servicesLoading, setServicesLoading] = useState(true);
+
+  useEffect(() => {
+    fetchServices().then((data) => {
+      setServices(data);
+      setServicesLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    const url = `${apiBaseUrl}/business-settings`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.business_name) {
+          setBusiness({ name: data.business_name, title: data.title || "Master Barber" });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const steps = [
     { id: 1, name: 'Servicios', active: currentStep === 1, completed: currentStep > 1 },
@@ -59,6 +83,13 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
       });
     }
   }, [selectedDate, selectedService]);
+
+  useEffect(() => {
+    fetchServices().then((data) => {
+      setServices(data);
+      setServicesLoading(false);
+    });
+  }, []);
 
   const formatDate = (date) => {
     const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -263,8 +294,8 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                 <div>
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Selecciona tu Servicio</h2>
                   <div className="text-gray-600">
-                    <h3 className="text-base sm:text-lg font-medium">Barber Trebol</h3>
-                    <p className="text-sm text-gray-500">Master Barber - Experiencia VIP</p>
+                    <h3 className="text-base sm:text-lg font-medium">{business.name}</h3>
+                    <p className="text-sm text-gray-500">{business.title} - Experiencia VIP</p>
                   </div>
                 </div>
                 <div className="text-left sm:text-right">
@@ -272,37 +303,46 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                   <div className="text-xs text-gray-400">CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01</div>
                 </div>
               </div>
-              <div className="space-y-3">
-                {services.map((service) => (
-                  <div
-                    key={service.id}
-                    onClick={() => handleServiceSelect(service)}
-                    className="border border-gray-200 rounded-lg p-4 hover:border-amber-400 hover:bg-amber-50 cursor-pointer transition-all duration-200 hover:shadow-md"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between sm:block">
-                          <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{service.name}</h4>
-                          <div className="text-right ml-4 sm:hidden">
-                            <div className="font-semibold text-amber-600 text-sm">${service.price.toLocaleString('es-CO')}</div>
+<div className="space-y-3">
+                  {servicesLoading ? (
+                    <div className="text-center py-8">
+                      <Loader2 className="h-6 w-6 animate-spin text-amber-500 mx-auto" />
+                      <p className="text-gray-500 mt-2">Cargando servicios...</p>
+                    </div>
+                  ) : services.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">No hay servicios disponibles en este momento.</p>
+                  ) : (
+                    services.map((service) => (
+                      <div
+                        key={service.id}
+                        onClick={() => handleServiceSelect(service)}
+                        className="border border-gray-200 rounded-lg p-4 hover:border-amber-400 hover:bg-amber-50 cursor-pointer transition-all duration-200 hover:shadow-md"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between sm:block">
+                              <h4 className="font-semibold text-gray-900 text-sm sm:text-base">{service.name}</h4>
+                              <div className="text-right ml-4 sm:hidden">
+                                <div className="font-semibold text-amber-600 text-sm">${service.price.toLocaleString('es-CO')}</div>
+                              </div>
+                            </div>
+                            <div className="flex items-center text-xs sm:text-sm text-gray-500 mt-1 space-x-3">
+                              <span>⏱️ {service.duration}</span>
+                              {service.popular && (
+                                <span className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-xs font-medium">⭐ Popular</span>
+                              )}
+                            </div>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-2 line-clamp-2">{service.description}</p>
+                          </div>
+                          <div className="hidden sm:block text-right ml-4">
+                            <div className="font-bold text-amber-600 text-lg">${service.price.toLocaleString('es-CO')}</div>
+                            <div className="text-xs text-gray-500">COP</div>
                           </div>
                         </div>
-                        <div className="flex items-center text-xs sm:text-sm text-gray-500 mt-1 space-x-3">
-                          <span>⏱️ {service.duration}</span>
-                          {service.popular && (
-                            <span className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-xs font-medium">⭐ Popular</span>
-                          )}
-                        </div>
-                        <p className="text-xs sm:text-sm text-gray-600 mt-2 line-clamp-2">{service.description}</p>
                       </div>
-                      <div className="hidden sm:block text-right ml-4">
-                        <div className="font-bold text-amber-600 text-lg">${service.price.toLocaleString('es-CO')}</div>
-                        <div className="text-xs text-gray-500">COP</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    ))
+                  )}
+                </div>
             </div>
           )}
 
@@ -314,7 +354,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                   <div className="text-gray-600"><div className="text-base sm:text-lg font-medium">{formatDateForCalendar(new Date())}</div></div>
                 </div>
                 <div className="text-left sm:text-right">
-                  <div className="text-sm text-gray-500">Barber Trebol</div>
+                  <div className="text-sm text-gray-500">{business.name}</div>
                   <div className="flex items-center mt-1"><div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div><span className="text-sm text-green-600">Disponible</span></div>
                 </div>
               </div>

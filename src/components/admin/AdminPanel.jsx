@@ -8,6 +8,8 @@ import { APP_CONFIG, STATUS_LABELS } from '../../utils/constants';
 
 const apiBaseUrl = APP_CONFIG.apiBaseUrl;
 
+const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
+
 const AdminPanel = ({ onClose }) => {
   const [adminCredentials, setAdminCredentials] = useState({ username: '', password: '' });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -19,6 +21,7 @@ const AdminPanel = ({ onClose }) => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
   const [selectedDate, setSelectedDate] = useState('');
+  const [business, setBusiness] = useState(defaultBusiness);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -86,6 +89,18 @@ const AdminPanel = ({ onClose }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    const url = `${apiBaseUrl}/business-settings`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.business_name) {
+          setBusiness({ name: data.business_name, title: data.title || "Master Barber" });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleDeleteAppointment = async (id) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar esta cita?')) return;
@@ -155,72 +170,72 @@ const AdminPanel = ({ onClose }) => {
     }
   };
 
-  if (!isAuthenticated) {
+if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="w-full min-h-screen bg-white">
-          <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 flex flex-col">
-            <div className="bg-white shadow-sm border-b border-gray-200 p-4 sm:p-6 lg:p-8">
+          <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
+            <div className="bg-black/50 backdrop-blur-sm border-b border-gray-800 p-4 sm:p-6 lg:p-8">
               <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-center">
                 <div className="flex items-center mb-4 sm:mb-0">
-                  <div className="bg-amber-100 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mr-4">
-                    <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-amber-600" />
+                  <div className="bg-amber-400 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mr-4">
+                    <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-black" />
                   </div>
                   <div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Panel de Administración</h1>
-                    <p className="text-sm sm:text-base text-gray-600">Iniciar sesión para gestionar tu barbería</p>
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Panel de Administración</h1>
+                    <p className="text-sm sm:text-base text-gray-400">{business.name} - Gestiona tu barbería</p>
                   </div>
                 </div>
-                <button onClick={onClose} className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-gray-500 hover:text-gray-700 transition-colors p-2 hover:bg-gray-100 rounded-lg">
+                <button onClick={onClose} className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg">
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
               </div>
             </div>
             <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
               <div className="w-full max-w-md">
-                <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200">
+                <div className="bg-gray-900 rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-700">
                   <div className="text-center mb-8">
-                    <div className="bg-amber-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Shield className="h-8 w-8 text-white" />
+                    <div className="bg-amber-400 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Shield className="h-8 w-8 text-black" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Acceso Administrativo</h2>
-                    <p className="text-gray-600">Ingresa tus credenciales para continuar</p>
+                    <h2 className="text-2xl font-bold text-white mb-2">Acceso Administrativo</h2>
+                    <p className="text-gray-400">Ingresa tus credenciales para continuar</p>
                   </div>
                   <form onSubmit={handleLogin} className="space-y-6">
                     {errors.general && (
-                      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{errors.general}</div>
+                      <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">{errors.general}</div>
                     )}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Usuario</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Usuario</label>
                       <input
                         type="text" name="username" value={adminCredentials.username} onChange={handleInputChange}
-                        className={`w-full px-4 py-3 text-base border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors ${errors.username ? 'border-red-500' : 'border-gray-300'}`}
+                        className={`w-full px-4 py-3 text-base border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors bg-gray-800 text-white placeholder-gray-500 ${errors.username ? 'border-red-500' : 'border-gray-600'}`}
                         placeholder="Ingresa tu usuario"
                       />
-                      {errors.username && <p className="mt-1 text-sm text-red-600">{errors.username}</p>}
+                      {errors.username && <p className="mt-1 text-sm text-red-400">{errors.username}</p>}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Contraseña</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Contraseña</label>
                       <div className="relative">
                         <input
                           type={showPassword ? 'text' : 'password'} name="password" value={adminCredentials.password} onChange={handleInputChange}
-                          className={`w-full px-4 py-3 text-base border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent pr-12 transition-colors ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
+                          className={`w-full px-4 py-3 text-base border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent pr-12 transition-colors bg-gray-800 text-white placeholder-gray-500 ${errors.password ? 'border-red-500' : 'border-gray-600'}`}
                           placeholder="Ingresa tu contraseña"
                         />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1">
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white p-1">
                           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                       </div>
-                      {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
+                      {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
                     </div>
-                    <button type="submit" className="w-full bg-amber-500 text-white px-4 py-3 rounded-lg font-bold hover:bg-amber-600 transition-colors flex items-center justify-center text-base shadow-lg">
+                    <button type="submit" className="w-full bg-amber-400 text-black px-4 py-3 rounded-lg font-bold hover:bg-amber-500 transition-colors flex items-center justify-center text-base shadow-lg">
                       <Shield className="h-5 w-5 mr-2" /> Acceder al Panel
                     </button>
                   </form>
-                  <div className="text-center text-sm text-gray-500 mt-6 p-4 bg-gray-50 rounded-lg">
-                    <p><strong>Credenciales de prueba:</strong></p>
-                    <p className="mt-1">Usuario: <code className="bg-white px-2 py-1 rounded text-xs">barbertrebol</code></p>
-                    <p className="mt-1">Contraseña: <code className="bg-white px-2 py-1 rounded text-xs">bartrebol123</code></p>
+                  <div className="text-center text-sm text-gray-500 mt-6 p-4 bg-gray-800 rounded-lg">
+                    <p><strong className="text-gray-300">Credenciales de prueba:</strong></p>
+                    <p className="mt-1">Usuario: <code className="bg-gray-700 px-2 py-1 rounded text-xs text-amber-400">barbertrebol</code></p>
+                    <p className="mt-1">Contraseña: <code className="bg-gray-700 px-2 py-1 rounded text-xs text-amber-400">bartrebol123</code></p>
                   </div>
                 </div>
               </div>

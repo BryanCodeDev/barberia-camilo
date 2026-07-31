@@ -1,13 +1,36 @@
 // src/components/sections/HeroSection.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, MapPin, Phone } from 'lucide-react';
 
+const defaultBusiness = {
+  name: "Barber Trebol",
+  title: "Master Barber",
+  address: "Mosquera, Cundinamarca"
+};
+
 const HeroSection = ({ onBookingClick }) => {
+  const [business, setBusiness] = useState(defaultBusiness);
   const stats = [
     { number: "1+", label: "Años de Experiencia" },
     { number: "1000+", label: "Clientes Satisfechos" },
     { number: "5★", label: "Calificación Promedio" }
   ];
+
+  useEffect(() => {
+    const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+    fetch(`${apiBaseUrl}/business-settings`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.business_name) {
+          setBusiness({
+            name: data.business_name,
+            title: data.title || "Master Barber",
+            address: data.address || "Mosquera, Cundinamarca"
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const scrollToServices = () => {
     const servicesSection = document.getElementById('servicios');
@@ -18,7 +41,6 @@ const HeroSection = ({ onBookingClick }) => {
 
   return (
     <section className="relative bg-gradient-to-r from-black via-gray-900 to-black text-white py-20 overflow-hidden">
-      {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-10 w-32 h-32 border border-amber-400 rounded-full"></div>
         <div className="absolute bottom-20 right-10 w-24 h-24 border border-amber-400 rounded-full"></div>
@@ -28,26 +50,23 @@ const HeroSection = ({ onBookingClick }) => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center">
-          {/* Main Title */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 bg-clip-text text-transparent animate-pulse">
-            Barber Trebol
+            {business.name}
           </h1>
           
-          {/* Subtitle */}
           <div className="flex items-center justify-center mb-6">
             <div className="flex items-center">
               <Star className="h-6 w-6 text-amber-400 fill-current mr-2" />
               <h2 className="text-xl md:text-3xl lg:text-4xl font-semibold text-amber-400">
-                Master Barber
+                {business.title}
               </h2>
               <Star className="h-6 w-6 text-amber-400 fill-current ml-2" />
             </div>
           </div>
 
-          {/* Description */}
           <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-4xl mx-auto text-gray-300 leading-relaxed px-4">
             Experiencia <span className="text-amber-400 font-semibold">VIP</span> en barbería masculina. 
-            Cortes precisos, estilo impecable y el mejor servicio en Mosquera, Cundinamarca.
+            Cortes precisos, estilo impecable y el mejor servicio en {business.address}.
           </p>
 
           {/* Stats */}
