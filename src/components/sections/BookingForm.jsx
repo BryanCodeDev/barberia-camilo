@@ -263,7 +263,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                 <div>
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Selecciona tu Servicio</h2>
                   <div className="text-gray-600">
-                    <h3 className="text-base sm:text-lg font-medium">Camilo Correa Barber</h3>
+                    <h3 className="text-base sm:text-lg font-medium">Barber Trebol</h3>
                     <p className="text-sm text-gray-500">Master Barber - Experiencia VIP</p>
                   </div>
                 </div>
@@ -314,7 +314,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                   <div className="text-gray-600"><div className="text-base sm:text-lg font-medium">{formatDateForCalendar(new Date())}</div></div>
                 </div>
                 <div className="text-left sm:text-right">
-                  <div className="text-sm text-gray-500">Camilo Correa Barber</div>
+                  <div className="text-sm text-gray-500">Barber Trebol</div>
                   <div className="flex items-center mt-1"><div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div><span className="text-sm text-green-600">Disponible</span></div>
                 </div>
               </div>

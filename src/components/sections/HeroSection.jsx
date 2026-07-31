@@ -30,7 +30,7 @@ const HeroSection = ({ onBookingClick }) => {
         <div className="text-center">
           {/* Main Title */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 bg-clip-text text-transparent animate-pulse">
-            Camilo Correa
+            Barber Trebol
           </h1>
           
           {/* Subtitle */}

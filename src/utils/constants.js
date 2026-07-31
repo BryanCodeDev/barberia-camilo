@@ -2,12 +2,12 @@
 
 // Información del negocio
 export const BUSINESS_INFO = {
-  name: "Camilo Correa Barber",
-  owner: "Camilo Correa",
+  name: "Barber Trebol",
+  owner: "Barber Trebol",
   title: "Master Barber",
   phone: "+57 300 123 4567",
   whatsapp: "573001234567",
-  email: "contacto@camilocorreabarber.com",
+  email: "contacto@barbertrebol.com",
   address: {
     street: "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01",
     city: "Mosquera",
@@ -16,9 +16,9 @@ export const BUSINESS_INFO = {
     full: "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01, Mosquera, Cundinamarca"
   },
   socialMedia: {
-    instagram: "@camilocorreabarber",
-    facebook: "Camilo Correa Barber",
-    tiktok: "@camilocorreabarber"
+    instagram: "@barbertrebol",
+    facebook: "Barber Trebol",
+    tiktok: "@barbertrebol"
   }
 };
 

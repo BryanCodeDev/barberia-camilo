@@ -219,8 +219,8 @@ const AdminPanel = ({ onClose }) => {
                   </form>
                   <div className="text-center text-sm text-gray-500 mt-6 p-4 bg-gray-50 rounded-lg">
                     <p><strong>Credenciales de prueba:</strong></p>
-                    <p className="mt-1">Usuario: <code className="bg-white px-2 py-1 rounded text-xs">camilo</code></p>
-                    <p className="mt-1">Contraseña: <code className="bg-white px-2 py-1 rounded text-xs">camilo123</code></p>
+                    <p className="mt-1">Usuario: <code className="bg-white px-2 py-1 rounded text-xs">barbertrebol</code></p>
+                    <p className="mt-1">Contraseña: <code className="bg-white px-2 py-1 rounded text-xs">bartrebol123</code></p>
                   </div>
                 </div>
               </div>

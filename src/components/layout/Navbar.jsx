@@ -39,7 +39,7 @@ const Navbar = ({ onBookingClick, onServicesClick, onAdminClick }) => {
             onClick={scrollToTop}
           >
             <Scissors className="h-8 w-8 text-amber-400" />
-            <span className="font-bold text-xl">Camilo Correa Barber</span>
+            <span className="font-bold text-xl">Barber Trebol</span>
           </div>
           
           {/* Desktop Menu */}

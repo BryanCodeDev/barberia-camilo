@@ -14,7 +14,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center space-x-2 mb-4">
               <Scissors className="h-6 w-6 md:h-8 md:w-8 text-amber-400" />
-              <span className="font-bold text-lg md:text-xl">Camilo Correa Barber</span>
+              <span className="font-bold text-lg md:text-xl">Barber Trebol</span>
             </div>
             <p className="text-gray-400 mb-4 text-sm md:text-base leading-relaxed">
               Master Barber - Experiencia VIP en barbería masculina con más de 10 años de experiencia 
@@ -98,7 +98,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-8 pt-6 md:pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-xs md:text-sm text-center md:text-left">
-              © {currentYear} Camilo Correa Barber. Todos los derechos reservados.
+              © {currentYear} Barber Trebol. Todos los derechos reservados.
             </p>
             <p className="text-gray-400 text-xs md:text-sm text-center md:text-right">
               Desarrollado con ❤️ para la mejor experiencia de barbería
