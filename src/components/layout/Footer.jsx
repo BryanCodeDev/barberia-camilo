@@ -55,97 +55,99 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className="bg-black text-white py-8 md:py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+    <footer className="bg-[#121113] text-[#F6F2EA]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <Scissors className="h-6 w-6 md:h-8 md:w-8 text-amber-400" />
-              <span className="font-bold text-lg md:text-xl">{businessInfo.name}</span>
+            <div className="flex items-center space-x-3 mb-4">
+              <span className="flex items-center justify-center w-9 h-9 rounded-full border border-[#A9812E]/60 text-[#C9A860]">
+                <Scissors className="h-4 w-4" />
+              </span>
+              <span className="font-serif text-lg md:text-xl tracking-wide">{businessInfo.name}</span>
             </div>
-            <p className="text-gray-400 mb-4 text-sm md:text-base leading-relaxed">
-              Master Barber - Experiencia VIP en barbería masculina con más de 10 años de experiencia 
-              ofreciendo servicios de calidad premium en Mosquera, Cundinamarca.
+            <p className="text-[#9A9488] mb-5 text-sm leading-relaxed">
+              Master Barber — experiencia VIP en barbería masculina, con más de 10 años
+              ofreciendo cortes precisos y servicio premium en Mosquera, Cundinamarca.
             </p>
             <div className="flex space-x-4">
-              <a 
+              <a
                 href={`https://instagram.com/${businessInfo.socialMedia.instagram.replace('@', '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-amber-400 transition-colors"
+                className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
                 aria-label="Instagram"
               >
-                <Instagram className="h-5 w-5 md:h-6 md:w-6" />
+                <Instagram className="h-4 w-4" />
               </a>
-              <a 
+              <a
                 href={`https://facebook.com/${businessInfo.socialMedia.facebook.replace(/\s+/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-amber-400 transition-colors"
+                className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
                 aria-label="Facebook"
               >
-                <Facebook className="h-5 w-5 md:h-6 md:w-6" />
+                <Facebook className="h-4 w-4" />
               </a>
             </div>
           </div>
 
           <div>
-            <h3 className="font-bold text-lg mb-4 text-amber-400">Contacto</h3>
-            <div className="space-y-3">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C9A860] mb-5">Contacto</h3>
+            <div className="space-y-3.5">
               <div className="flex items-center">
-                <Phone className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
-                <a 
+                <Phone className="h-4 w-4 text-[#6E6A61] mr-3 flex-shrink-0" />
+                <a
                   href={`tel:${businessInfo.phone}`}
-                  className="text-gray-300 hover:text-amber-400 transition-colors text-sm md:text-base"
+                  className="text-[#D8D3C7] hover:text-[#C9A860] transition-colors text-sm"
                 >
                   {businessInfo.phone}
                 </a>
               </div>
               <div className="flex items-start">
-                <MapPin className="h-4 w-4 text-gray-400 mr-3 mt-1 flex-shrink-0" />
-                <div className="text-gray-300 text-sm md:text-base">
+                <MapPin className="h-4 w-4 text-[#6E6A61] mr-3 mt-0.5 flex-shrink-0" />
+                <div className="text-[#D8D3C7] text-sm leading-relaxed">
                   <p>{businessInfo.address.street}</p>
-                  <p>{businessInfo.address.city}, {businessInfo.address.state}</p>
+                  <p className="text-[#9A9488]">{businessInfo.address.city}, {businessInfo.address.state}</p>
                 </div>
               </div>
             </div>
           </div>
 
           <div>
-            <h3 className="font-bold text-lg mb-4 text-amber-400">Horarios de Atención</h3>
-            <div className="space-y-2 text-gray-300 text-sm md:text-base">
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
-                <div>
-                  <div className="font-medium">Lunes - Viernes</div>
-                  <div className="text-xs md:text-sm text-gray-400">8:00 AM - 7:00 PM</div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C9A860] mb-5">Horarios de Atención</h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between border-b border-[#221F1B] pb-2.5">
+                <div className="flex items-center text-[#D8D3C7]">
+                  <Clock className="h-3.5 w-3.5 text-[#6E6A61] mr-2.5 flex-shrink-0" />
+                  Lunes – Viernes
                 </div>
+                <span className="text-[#9A9488]">8:00 AM – 7:00 PM</span>
               </div>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
-                <div>
-                  <div className="font-medium">Sábados</div>
-                  <div className="text-xs md:text-sm text-gray-400">8:00 AM - 6:00 PM</div>
+              <div className="flex items-center justify-between border-b border-[#221F1B] pb-2.5">
+                <div className="flex items-center text-[#D8D3C7]">
+                  <Clock className="h-3.5 w-3.5 text-[#6E6A61] mr-2.5 flex-shrink-0" />
+                  Sábados
                 </div>
+                <span className="text-[#9A9488]">8:00 AM – 6:00 PM</span>
               </div>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
-                <div>
-                  <div className="font-medium">Domingos</div>
-                  <div className="text-xs md:text-sm text-gray-400">9:00 AM - 4:00 PM</div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-[#D8D3C7]">
+                  <Clock className="h-3.5 w-3.5 text-[#6E6A61] mr-2.5 flex-shrink-0" />
+                  Domingos
                 </div>
+                <span className="text-[#9A9488]">9:00 AM – 4:00 PM</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-6 md:pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-400 text-xs md:text-sm text-center md:text-left">
+        <div className="border-t border-[#221F1B] mt-10 pt-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-2">
+            <p className="text-[#6E6A61] text-xs text-center md:text-left">
               © {currentYear} {businessInfo.name}. Todos los derechos reservados.
             </p>
-            <p className="text-gray-400 text-xs md:text-sm text-center md:text-right">
-              Desarrollado con ❤️ para la mejor experiencia de barbería
+            <p className="text-[#6E6A61] text-xs text-center md:text-right">
+              Barbería de autor en Mosquera, Cundinamarca
             </p>
           </div>
         </div>

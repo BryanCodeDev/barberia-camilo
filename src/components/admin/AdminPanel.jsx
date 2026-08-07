@@ -10,6 +10,17 @@ const apiBaseUrl = APP_CONFIG.apiBaseUrl;
 
 const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
 
+// Static class map — Tailwind's JIT compiler can't detect classes built with
+// template strings (e.g. `bg-${color}-50`), so those get purged from the
+// production build and silently fail to render. Mapping to full class names
+// keeps the styling intact after a production build.
+const STAT_STYLES = {
+  blue: { card: 'bg-[#EEF3FB] border-[#C9D9F0]', label: 'text-[#3B5B8C]', value: 'text-[#1E3352]', icon: 'bg-[#3B5B8C]' },
+  yellow: { card: 'bg-[#FBF3E4] border-[#EAD9AE]', label: 'text-[#8B6A22]', value: 'text-[#4A3812]', icon: 'bg-[#A9812E]' },
+  green: { card: 'bg-[#EEF5EE] border-[#C7DEC7]', label: 'text-[#3E6B3E]', value: 'text-[#274627]', icon: 'bg-[#4E7A4E]' },
+  amber: { card: 'bg-[#FBF3E4] border-[#EAD9AE]', label: 'text-[#8B6A22]', value: 'text-[#4A3812]', icon: 'bg-[#A9812E]' },
+};
+
 const AdminPanel = ({ onClose }) => {
   const [adminCredentials, setAdminCredentials] = useState({ username: '', password: '' });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -152,11 +163,11 @@ const AdminPanel = ({ onClose }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      case 'no_show': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-yellow-100 text-yellow-800';
+      case 'confirmed': return 'bg-[#EEF5EE] text-[#3E6B3E]';
+      case 'cancelled': return 'bg-[#FBEAEA] text-[#8B2E2E]';
+      case 'completed': return 'bg-[#EEF3FB] text-[#3B5B8C]';
+      case 'no_show': return 'bg-[#F1EFEB] text-[#6B6459]';
+      default: return 'bg-[#FBF3E4] text-[#8B6A22]';
     }
   };
 
@@ -170,73 +181,71 @@ const AdminPanel = ({ onClose }) => {
     }
   };
 
-if (!isAuthenticated) {
+  if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="w-full min-h-screen bg-white">
-          <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
-            <div className="bg-black/50 backdrop-blur-sm border-b border-gray-800 p-4 sm:p-6 lg:p-8">
-              <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                <div className="flex items-center mb-4 sm:mb-0">
-                  <div className="bg-amber-400 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mr-4">
-                    <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-black" />
+      <div className="min-h-screen bg-[#121113]">
+        <div className="min-h-screen flex flex-col">
+          <div className="bg-black/30 backdrop-blur-sm border-b border-[#2A2723] p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-center">
+              <div className="flex items-center mb-4 sm:mb-0">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[#A9812E]/60 flex items-center justify-center mr-4">
+                  <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-[#C9A860]" />
+                </div>
+                <div>
+                  <h1 className="font-serif text-2xl sm:text-3xl text-[#F6F2EA]">Panel de Administración</h1>
+                  <p className="text-sm text-[#9A9488]">{business.name} — gestiona tu barbería</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-[#9A9488] hover:text-[#F6F2EA] transition-colors p-2 hover:bg-[#1B1A1B] rounded-sm">
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+            <div className="w-full max-w-md">
+              <div className="bg-[#1B1A1B] rounded-sm shadow-xl p-6 sm:p-8 border border-[#2A2723]">
+                <div className="text-center mb-8">
+                  <div className="w-14 h-14 rounded-full border border-[#A9812E]/60 flex items-center justify-center mx-auto mb-4">
+                    <Shield className="h-6 w-6 text-[#C9A860]" />
+                  </div>
+                  <h2 className="font-serif text-xl text-[#F6F2EA] mb-2">Acceso Administrativo</h2>
+                  <p className="text-sm text-[#9A9488]">Ingresa tus credenciales para continuar</p>
+                </div>
+                <form onSubmit={handleLogin} className="space-y-6">
+                  {errors.general && (
+                    <div className="bg-[#3A1F1F] border border-[#5A2E2E] text-[#E3B8B8] px-4 py-3 rounded-sm text-sm">{errors.general}</div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-[#D8D3C7] mb-2">Usuario</label>
+                    <input
+                      type="text" name="username" value={adminCredentials.username} onChange={handleInputChange}
+                      className={`w-full px-4 py-3 text-base border rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none bg-[#121113] text-[#F6F2EA] placeholder-[#6E6A61] ${errors.username ? 'border-[#C25555]' : 'border-[#2A2723]'}`}
+                      placeholder="Ingresa tu usuario"
+                    />
+                    {errors.username && <p className="mt-1 text-sm text-[#E3B8B8]">{errors.username}</p>}
                   </div>
                   <div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Panel de Administración</h1>
-                    <p className="text-sm sm:text-base text-gray-400">{business.name} - Gestiona tu barbería</p>
-                  </div>
-                </div>
-                <button onClick={onClose} className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-800 rounded-lg">
-                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-              <div className="w-full max-w-md">
-                <div className="bg-gray-900 rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-700">
-                  <div className="text-center mb-8">
-                    <div className="bg-amber-400 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Shield className="h-8 w-8 text-black" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">Acceso Administrativo</h2>
-                    <p className="text-gray-400">Ingresa tus credenciales para continuar</p>
-                  </div>
-                  <form onSubmit={handleLogin} className="space-y-6">
-                    {errors.general && (
-                      <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">{errors.general}</div>
-                    )}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Usuario</label>
+                    <label className="block text-sm font-medium text-[#D8D3C7] mb-2">Contraseña</label>
+                    <div className="relative">
                       <input
-                        type="text" name="username" value={adminCredentials.username} onChange={handleInputChange}
-                        className={`w-full px-4 py-3 text-base border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors bg-gray-800 text-white placeholder-gray-500 ${errors.username ? 'border-red-500' : 'border-gray-600'}`}
-                        placeholder="Ingresa tu usuario"
+                        type={showPassword ? 'text' : 'password'} name="password" value={adminCredentials.password} onChange={handleInputChange}
+                        className={`w-full px-4 py-3 text-base border rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] pr-12 outline-none bg-[#121113] text-[#F6F2EA] placeholder-[#6E6A61] ${errors.password ? 'border-[#C25555]' : 'border-[#2A2723]'}`}
+                        placeholder="Ingresa tu contraseña"
                       />
-                      {errors.username && <p className="mt-1 text-sm text-red-400">{errors.username}</p>}
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#6E6A61] hover:text-[#F6F2EA] p-1">
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Contraseña</label>
-                      <div className="relative">
-                        <input
-                          type={showPassword ? 'text' : 'password'} name="password" value={adminCredentials.password} onChange={handleInputChange}
-                          className={`w-full px-4 py-3 text-base border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent pr-12 transition-colors bg-gray-800 text-white placeholder-gray-500 ${errors.password ? 'border-red-500' : 'border-gray-600'}`}
-                          placeholder="Ingresa tu contraseña"
-                        />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white p-1">
-                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                        </button>
-                      </div>
-                      {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
-                    </div>
-                    <button type="submit" className="w-full bg-amber-400 text-black px-4 py-3 rounded-lg font-bold hover:bg-amber-500 transition-colors flex items-center justify-center text-base shadow-lg">
-                      <Shield className="h-5 w-5 mr-2" /> Acceder al Panel
-                    </button>
-                  </form>
-                  <div className="text-center text-sm text-gray-500 mt-6 p-4 bg-gray-800 rounded-lg">
-                    <p><strong className="text-gray-300">Credenciales de prueba:</strong></p>
-                    <p className="mt-1">Usuario: <code className="bg-gray-700 px-2 py-1 rounded text-xs text-amber-400">barbertrebol</code></p>
-                    <p className="mt-1">Contraseña: <code className="bg-gray-700 px-2 py-1 rounded text-xs text-amber-400">bartrebol123</code></p>
+                    {errors.password && <p className="mt-1 text-sm text-[#E3B8B8]">{errors.password}</p>}
                   </div>
+                  <button type="submit" className="w-full bg-[#A9812E] text-[#121113] px-4 py-3 rounded-sm font-semibold uppercase tracking-wide hover:bg-[#C9A860] transition-colors flex items-center justify-center text-sm">
+                    <Shield className="h-4 w-4 mr-2" /> Acceder al Panel
+                  </button>
+                </form>
+                <div className="text-center text-sm text-[#6E6A61] mt-6 p-4 bg-[#121113] rounded-sm border border-[#2A2723]">
+                  <p><strong className="text-[#D8D3C7]">Credenciales de prueba:</strong></p>
+                  <p className="mt-1">Usuario: <code className="bg-[#1B1A1B] px-2 py-1 rounded-sm text-xs text-[#C9A860]">barbertrebol</code></p>
+                  <p className="mt-1">Contraseña: <code className="bg-[#1B1A1B] px-2 py-1 rounded-sm text-xs text-[#C9A860]">bartrebol123</code></p>
                 </div>
               </div>
             </div>
@@ -247,166 +256,169 @@ if (!isAuthenticated) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="w-full min-h-screen bg-white">
-        <div className="bg-gradient-to-r from-amber-400 to-amber-500 shadow-lg">
-          <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-              <div className="flex items-center text-black mb-4 sm:mb-0">
-                <Users className="h-6 w-6 sm:h-7 sm:w-7 mr-3" />
-                <div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">Panel de Administración</h1>
-                  <p className="text-sm sm:text-base opacity-80">Gestiona las citas de tu barbería</p>
-                </div>
+    <div className="min-h-screen bg-[#F6F2EA]">
+      <div className="bg-[#121113]">
+        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <div className="flex items-center text-[#F6F2EA] mb-4 sm:mb-0">
+              <div className="w-11 h-11 rounded-full border border-[#A9812E]/60 flex items-center justify-center mr-3">
+                <Users className="h-5 w-5 text-[#C9A860]" />
               </div>
-              <div className="flex items-center space-x-2">
-                <button onClick={handleLogout} className="bg-black bg-opacity-20 text-black px-4 py-2 rounded-lg hover:bg-opacity-30 transition-colors flex items-center text-sm font-medium">
-                  <LogOut className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Cerrar Sesión</span>
-                </button>
-                <button onClick={onClose} className="bg-black bg-opacity-20 text-black p-2 rounded-lg hover:bg-opacity-30 transition-colors">
-                  <X className="h-5 w-5" />
-                </button>
+              <div>
+                <h1 className="font-serif text-2xl sm:text-3xl">Panel de Administración</h1>
+                <p className="text-sm text-[#9A9488]">Gestiona las citas de tu barbería</p>
               </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button onClick={handleLogout} className="border border-[#2A2723] text-[#D8D3C7] px-4 py-2 rounded-sm hover:border-[#A9812E]/60 hover:text-[#C9A860] transition-colors flex items-center text-sm font-medium">
+                <LogOut className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Cerrar Sesión</span>
+              </button>
+              <button onClick={onClose} className="border border-[#2A2723] text-[#D8D3C7] p-2 rounded-sm hover:border-[#A9812E]/60 hover:text-[#C9A860] transition-colors">
+                <X className="h-5 w-5" />
+              </button>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4 flex items-center justify-between">
-              <span>{error}</span>
-              <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600"><X className="h-4 w-4" /></button>
-            </div>
-          )}
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {error && (
+          <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm mb-4 flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="text-[#8B2E2E] hover:opacity-70"><X className="h-4 w-4" /></button>
+          </div>
+        )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
-            {[
-              { label: 'Total Citas', value: appointments.length, color: 'blue', icon: Calendar },
-              { label: 'Pendientes', value: appointments.filter((a) => a.status === 'pending').length, color: 'yellow', icon: Clock },
-              { label: 'Confirmadas', value: appointments.filter((a) => a.status === 'confirmed').length, color: 'green', icon: Check },
-              { label: 'Hoy', value: appointments.filter((a) => a.appointment_date === new Date().toISOString().split('T')[0]).length, color: 'amber', icon: User },
-            ].map((stat, index) => (
-              <div key={index} className={`bg-white bg-gradient-to-br from-${stat.color}-50 to-${stat.color}-100 p-4 sm:p-6 rounded-xl border border-${stat.color}-200 hover:shadow-lg transition-shadow`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-8">
+          {[
+            { label: 'Total Citas', value: appointments.length, color: 'blue', icon: Calendar },
+            { label: 'Pendientes', value: appointments.filter((a) => a.status === 'pending').length, color: 'yellow', icon: Clock },
+            { label: 'Confirmadas', value: appointments.filter((a) => a.status === 'confirmed').length, color: 'green', icon: Check },
+            { label: 'Hoy', value: appointments.filter((a) => a.appointment_date === new Date().toISOString().split('T')[0]).length, color: 'amber', icon: User },
+          ].map((stat, index) => {
+            const style = STAT_STYLES[stat.color];
+            return (
+              <div key={index} className={`p-4 sm:p-6 rounded-sm border ${style.card}`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-${stat.color}-600 text-sm font-medium mb-1`}>{stat.label}</p>
-                    <p className={`text-2xl sm:text-3xl lg:text-4xl font-bold text-${stat.color}-900`}>{stat.value}</p>
+                    <p className={`text-sm font-medium mb-1 ${style.label}`}>{stat.label}</p>
+                    <p className={`text-2xl sm:text-3xl font-serif ${style.value}`}>{stat.value}</p>
                   </div>
-                  <div className={`bg-${stat.color}-500 p-3 rounded-full`}>
-                    <stat.icon className="h-6 w-6 lg:h-7 lg:w-7 text-white" />
+                  <div className={`p-3 rounded-full ${style.icon}`}>
+                    <stat.icon className="h-5 w-5 text-white" />
                   </div>
                 </div>
               </div>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex flex-wrap gap-2">
+            {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-3 py-1.5 rounded-sm text-sm font-medium transition-colors ${
+                  activeTab === tab ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60'
+                }`}
+              >
+                {tab === 'all' ? 'Todas' : STATUS_LABELS[tab] || tab}
+              </button>
             ))}
           </div>
+          <div>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="px-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+            />
+            {selectedDate && (
+              <button onClick={() => setSelectedDate('')} className="ml-2 text-sm text-[#8B6A22] hover:underline">Limpiar</button>
+            )}
+          </div>
+        </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div className="flex space-x-2">
-              {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    activeTab === tab ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {tab === 'all' ? 'Todas' : STATUS_LABELS[tab] || tab}
-                </button>
-              ))}
-            </div>
-            <div>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              />
-              {selectedDate && (
-                <button onClick={() => setSelectedDate('')} className="ml-2 text-sm text-amber-600 hover:underline">Limpiar</button>
-              )}
-            </div>
+        <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
+          <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9]">
+            <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
+              <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Citas Agendadas ({appointments.length})
+            </h3>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-            <div className="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 flex items-center">
-                <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mr-2" /> Citas Agendadas ({appointments.length})
-              </h3>
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" />
             </div>
-
-            {loading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
-              </div>
-            ) : appointments.length > 0 ? (
-              <div className="divide-y divide-gray-200">
-                {filteredAppointments.map((appointment) => (
-                  <div key={appointment.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                      <div className="flex-1 space-y-3">
-                        <div className="flex items-start sm:items-center space-x-3">
-                          <div className="bg-amber-100 p-2 rounded-full flex-shrink-0">
-                            <User className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-gray-900 text-base sm:text-lg truncate">{appointment.client_name}</h4>
-                            <div className="flex items-center text-sm text-gray-600 mt-1">
-                              <Phone className="h-3 w-3 mr-1 flex-shrink-0" />
-                              <span className="truncate">{appointment.client_phone}</span>
-                            </div>
+          ) : appointments.length > 0 ? (
+            <div className="divide-y divide-[#E4DCC9]">
+              {filteredAppointments.map((appointment) => (
+                <div key={appointment.id} className="p-4 sm:p-6 hover:bg-[#F6F2EA]/50 transition-colors">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-start sm:items-center space-x-3">
+                        <div className="bg-[#A9812E]/10 p-2 rounded-full flex-shrink-0">
+                          <User className="h-4 w-4 sm:h-5 sm:w-5 text-[#8B6A22]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-[#1C1A16] text-base sm:text-lg truncate">{appointment.client_name}</h4>
+                          <div className="flex items-center text-sm text-[#6B6459] mt-1">
+                            <Phone className="h-3 w-3 mr-1 flex-shrink-0" />
+                            <span className="truncate">{appointment.client_phone}</span>
                           </div>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                          <div className="font-medium text-gray-900 bg-gray-50 px-3 py-2 rounded-lg">
-                            <span className="text-gray-600">Servicio: </span>{appointment.service_name}
-                          </div>
-                          <div className="flex items-center text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
-                            <Calendar className="h-3 w-3 mr-2 flex-shrink-0" />
-                            <span className="truncate">{formatDate(appointment.appointment_date)} - {appointment.appointment_time}</span>
-                          </div>
-                        </div>
-                        {appointment.client_message && (
-                          <div className="flex items-start text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                            <MessageSquare className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-blue-500" />
-                            <span className="break-words">{appointment.client_message}</span>
-                          </div>
-                        )}
                       </div>
-                      <div className="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
-                          {getStatusText(appointment.status)}
-                        </span>
-                        <div className="flex items-center space-x-2">
-                          {appointment.status === 'pending' && (
-                            <button onClick={() => handleStatusChange(appointment.id, 'confirmed')} className="text-green-600 hover:text-green-800 hover:bg-green-50 p-2 rounded-lg transition-colors" title="Confirmar cita">
-                              <Check className="h-4 w-4 sm:h-5 sm:w-5" />
-                            </button>
-                          )}
-                          {appointment.status === 'pending' && (
-                            <button onClick={() => {
-                              const reason = window.prompt('Motivo de cancelación:');
-                              if (reason !== null) handleStatusChange(appointment.id, 'cancelled', reason);
-                            }} className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Cancelar cita">
-                              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
-                            </button>
-                          )}
-                          <button onClick={() => handleDeleteAppointment(appointment.id)} className="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Eliminar cita">
-                            <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                          </button>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                        <div className="font-medium text-[#1C1A16] bg-[#F6F2EA] px-3 py-2 rounded-sm">
+                          <span className="text-[#6B6459]">Servicio: </span>{appointment.service_name}
                         </div>
+                        <div className="flex items-center text-[#6B6459] bg-[#F6F2EA] px-3 py-2 rounded-sm">
+                          <Calendar className="h-3 w-3 mr-2 flex-shrink-0" />
+                          <span className="truncate">{formatDate(appointment.appointment_date)} - {appointment.appointment_time}</span>
+                        </div>
+                      </div>
+                      {appointment.client_message && (
+                        <div className="flex items-start text-sm text-[#1C1A16] bg-[#EEF3FB] p-3 rounded-sm">
+                          <MessageSquare className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-[#3B5B8C]" />
+                          <span className="break-words">{appointment.client_message}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-sm text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                        {getStatusText(appointment.status)}
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        {appointment.status === 'pending' && (
+                          <button onClick={() => handleStatusChange(appointment.id, 'confirmed')} className="text-[#3E6B3E] hover:bg-[#EEF5EE] p-2 rounded-sm transition-colors" title="Confirmar cita">
+                            <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                          </button>
+                        )}
+                        {appointment.status === 'pending' && (
+                          <button onClick={() => {
+                            const reason = window.prompt('Motivo de cancelación:');
+                            if (reason !== null) handleStatusChange(appointment.id, 'cancelled', reason);
+                          }} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Cancelar cita">
+                            <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
+                          </button>
+                        )}
+                        <button onClick={() => handleDeleteAppointment(appointment.id)} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Eliminar cita">
+                          <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                        </button>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16 px-4">
-                <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">No hay citas agendadas</h3>
-                <p className="text-gray-500 max-w-md mx-auto">Las citas aparecerán aquí cuando los clientes las agenden.</p>
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 px-4">
+              <Calendar className="h-12 w-12 text-[#D8D3C7] mx-auto mb-4" />
+              <h3 className="font-serif text-lg text-[#1C1A16] mb-2">No hay citas agendadas</h3>
+              <p className="text-[#6B6459] max-w-md mx-auto text-sm">Las citas aparecerán aquí cuando los clientes las agenden.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

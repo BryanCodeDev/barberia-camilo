@@ -20,13 +20,13 @@ const ServicesSection = ({ onBookingClick }) => {
 
   if (loading) {
     return (
-      <section className="py-16 bg-gray-50">
+      <section id="servicios" className="py-16 md:py-24 bg-[#F6F2EA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="animate-pulse flex space-x-4 justify-center">
-              <div className="h-4 bg-gray-200 rounded w-48"></div>
+              <div className="h-4 bg-[#E4DCC9] rounded w-48"></div>
             </div>
-            <p className="mt-4 text-gray-500">Cargando servicios...</p>
+            <p className="mt-4 text-[#6B6459] text-sm">Cargando servicios...</p>
           </div>
         </div>
       </section>
@@ -34,20 +34,22 @@ const ServicesSection = ({ onBookingClick }) => {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section id="servicios" className="py-16 md:py-24 bg-[#F6F2EA]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-14">
+          <span className="text-xs uppercase tracking-[0.35em] text-[#A9812E]">
+            Carta de servicios
+          </span>
+          <h2 className="font-serif text-3xl md:text-5xl text-[#1C1A16] mt-3 mb-4">
             Nuestros Servicios
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
-            Servicios premium para el hombre moderno. Cada servicio está diseñado 
-            para brindarte la mejor experiencia y resultados excepcionales.
+          <p className="text-base md:text-lg text-[#6B6459] max-w-xl mx-auto">
+            Servicios pensados para el hombre moderno, con resultados consistentes en
+            cada visita.
           </p>
-          <div className="mt-6 w-24 h-1 bg-amber-400 mx-auto rounded-full"></div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
           {services.map((service) => (
             <ServiceCard
               key={service.id}
@@ -57,12 +59,12 @@ const ServicesSection = ({ onBookingClick }) => {
           ))}
         </div>
 
-        <div className="mt-12 text-center">
+        <div className="mt-14 text-center">
           <button
             onClick={handleGeneralBooking}
-            className="bg-amber-400 text-black px-8 py-3 rounded-lg font-bold text-lg hover:bg-amber-500 transition-colors shadow-lg hover:shadow-amber-400/25"
+            className="bg-[#121113] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#A9812E] hover:text-[#121113] transition-colors"
           >
-            ✂️ Agendar Cita
+            Agendar Cita
           </button>
         </div>
       </div>

@@ -13,7 +13,7 @@ const HeroSection = ({ onBookingClick }) => {
   const stats = [
     { number: "1+", label: "Años de Experiencia" },
     { number: "1000+", label: "Clientes Satisfechos" },
-    { number: "5★", label: "Calificación Promedio" }
+    { number: "5.0", label: "Calificación Promedio" }
   ];
 
   useEffect(() => {
@@ -40,43 +40,51 @@ const HeroSection = ({ onBookingClick }) => {
   };
 
   return (
-    <section className="relative bg-gradient-to-r from-black via-gray-900 to-black text-white py-20 overflow-hidden">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-10 w-32 h-32 border border-amber-400 rounded-full"></div>
-        <div className="absolute bottom-20 right-10 w-24 h-24 border border-amber-400 rounded-full"></div>
-        <div className="absolute top-40 right-20 w-16 h-16 bg-amber-400 rounded-full blur-sm"></div>
-        <div className="absolute bottom-40 left-20 w-20 h-20 bg-amber-400 rounded-full blur-sm"></div>
-      </div>
+    <section className="relative bg-[#121113] text-[#F6F2EA] py-20 md:py-28 overflow-hidden">
+      {/* Signature accent: fine diagonal stripes referencing the barber pole, kept quiet */}
+      <div
+        className="absolute inset-y-0 right-0 w-24 md:w-40 opacity-[0.07] pointer-events-none"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(45deg, #C9A860 0px, #C9A860 2px, transparent 2px, transparent 18px)'
+        }}
+      />
+      <div
+        className="absolute inset-y-0 left-0 w-24 md:w-40 opacity-[0.05] pointer-events-none"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(45deg, #8B2E2E 0px, #8B2E2E 2px, transparent 2px, transparent 18px)'
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 bg-clip-text text-transparent animate-pulse">
-            {business.name}
-          </h1>
-          
-          <div className="flex items-center justify-center mb-6">
-            <div className="flex items-center">
-              <Star className="h-6 w-6 text-amber-400 fill-current mr-2" />
-              <h2 className="text-xl md:text-3xl lg:text-4xl font-semibold text-amber-400">
-                {business.title}
-              </h2>
-              <Star className="h-6 w-6 text-amber-400 fill-current ml-2" />
-            </div>
+          {/* Eyebrow */}
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="h-px w-8 bg-[#3A362F]" />
+            <span className="text-xs uppercase tracking-[0.35em] text-[#C9A860]">
+              {business.title} · {business.address.split(',')[0]}
+            </span>
+            <span className="h-px w-8 bg-[#3A362F]" />
           </div>
 
-          <p className="text-lg md:text-xl lg:text-2xl mb-8 max-w-4xl mx-auto text-gray-300 leading-relaxed px-4">
-            Experiencia <span className="text-amber-400 font-semibold">VIP</span> en barbería masculina. 
-            Cortes precisos, estilo impecable y el mejor servicio en {business.address}.
+          <h1 className="font-serif text-5xl md:text-7xl font-medium mb-6 tracking-tight">
+            {business.name}
+          </h1>
+
+          <p className="text-base md:text-lg text-[#B7B1A3] max-w-2xl mx-auto leading-relaxed mb-12 px-4">
+            Cortes precisos, arreglo de barba y una experiencia de barbería cuidada al
+            detalle, en {business.address}.
           </p>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-10 max-w-3xl mx-auto px-4">
+          <div className="flex items-center justify-center divide-x divide-[#2A2723] mb-12">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center py-4">
-                <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-amber-400 mb-2">
+              <div key={index} className="px-6 md:px-10 text-center">
+                <div className="font-serif text-2xl md:text-3xl text-[#C9A860] mb-1">
                   {stat.number}
                 </div>
-                <div className="text-gray-300 font-medium text-sm md:text-base">
+                <div className="text-[#8A8579] text-[11px] md:text-xs uppercase tracking-wide">
                   {stat.label}
                 </div>
               </div>
@@ -84,39 +92,40 @@ const HeroSection = ({ onBookingClick }) => {
           </div>
 
           {/* Call to Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-10 px-4">
-            <button 
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12 px-4">
+            <button
               onClick={onBookingClick}
-              className="group bg-amber-400 text-black px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-amber-500 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-amber-400/25"
+              className="bg-[#A9812E] text-[#121113] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:bg-[#C9A860] transition-colors shadow-[0_8px_24px_-8px_rgba(169,129,46,0.5)]"
             >
-              <span className="mr-2">✂️</span>
-              Agendar Cita Ahora
+              Agendar Cita
             </button>
-            <button 
+            <button
               onClick={scrollToServices}
-              className="border-2 border-amber-400 text-amber-400 px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold text-base md:text-lg hover:bg-amber-400 hover:text-black transition-all duration-300"
+              className="border border-[#3A362F] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:border-[#A9812E] hover:text-[#C9A860] transition-colors"
             >
               Ver Servicios
             </button>
           </div>
 
           {/* Contact Info */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 text-gray-300 px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-[#8A8579] text-sm px-4">
             <div className="flex items-center">
-              <Phone className="h-4 w-4 md:h-5 md:w-5 text-amber-400 mr-2" />
-              <span className="text-sm md:text-base">+57 300 123 4567</span>
+              <Phone className="h-4 w-4 text-[#C9A860] mr-2" />
+              +57 300 123 4567
             </div>
-            <div className="hidden sm:block w-1 h-1 bg-amber-400 rounded-full"></div>
+            <div className="hidden sm:block w-1 h-1 bg-[#3A362F] rounded-full" />
             <div className="flex items-center">
-              <MapPin className="h-4 w-4 md:h-5 md:w-5 text-amber-400 mr-2" />
-              <span className="text-sm md:text-base">Mosquera, Cundinamarca</span>
+              <MapPin className="h-4 w-4 text-[#C9A860] mr-2" />
+              Mosquera, Cundinamarca
+            </div>
+            <div className="hidden sm:block w-1 h-1 bg-[#3A362F] rounded-full" />
+            <div className="flex items-center">
+              <Star className="h-4 w-4 text-[#C9A860] mr-2 fill-current" />
+              5.0 de calificación
             </div>
           </div>
         </div>
       </div>
-
-      {/* Animated gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-400/5 to-transparent animate-pulse"></div>
     </section>
   );
 };
