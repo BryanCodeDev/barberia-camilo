@@ -8,29 +8,24 @@ const defaultBusiness = {
   address: "Mosquera, Cundinamarca"
 };
 
-const HeroSection = ({ onBookingClick }) => {
-  const [business, setBusiness] = useState(defaultBusiness);
-  const stats = [
-    { number: "1+", label: "Años de Experiencia" },
-    { number: "1000+", label: "Clientes Satisfechos" },
-    { number: "5.0", label: "Calificación Promedio" }
-  ];
+const stats = [
+  { number: "1+", label: "Años de Experiencia" },
+  { number: "1000+", label: "Clientes Satisfechos" },
+  { number: "5.0", label: "Calificación Promedio" }
+];
+
+const HeroSection = ({ onBookingClick, business }) => {
+  const [localBusiness, setLocalBusiness] = useState(defaultBusiness);
 
   useEffect(() => {
-    const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
-    fetch(`${apiBaseUrl}/business-settings`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.business_name) {
-          setBusiness({
-            name: data.business_name,
-            title: data.title || "Master Barber",
-            address: data.address || "Mosquera, Cundinamarca"
-          });
-        }
-      })
-      .catch(() => {});
-  }, []);
+    if (business) {
+      setLocalBusiness({
+        name: business.name || defaultBusiness.name,
+        title: business.title || defaultBusiness.title,
+        address: business.address || defaultBusiness.address,
+      });
+    }
+  }, [business]);
 
   const scrollToServices = () => {
     const servicesSection = document.getElementById('servicios');
@@ -63,18 +58,18 @@ const HeroSection = ({ onBookingClick }) => {
           <div className="flex items-center justify-center gap-3 mb-6">
             <span className="h-px w-8 bg-[#3A362F]" />
             <span className="text-xs uppercase tracking-[0.35em] text-[#C9A860]">
-              {business.title} · {business.address.split(',')[0]}
+              {localBusiness.title} · {localBusiness.address.split(',')[0]}
             </span>
             <span className="h-px w-8 bg-[#3A362F]" />
           </div>
 
           <h1 className="font-serif text-5xl md:text-7xl font-medium mb-6 tracking-tight">
-            {business.name}
+            {localBusiness.name}
           </h1>
 
           <p className="text-base md:text-lg text-[#B7B1A3] max-w-2xl mx-auto leading-relaxed mb-12 px-4">
             Cortes precisos, arreglo de barba y una experiencia de barbería cuidada al
-            detalle, en {business.address}.
+            detalle, en {localBusiness.address}.
           </p>
 
           {/* Stats */}
@@ -111,12 +106,12 @@ const HeroSection = ({ onBookingClick }) => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-[#8A8579] text-sm px-4">
             <div className="flex items-center">
               <Phone className="h-4 w-4 text-[#C9A860] mr-2" />
-              +57 300 123 4567
+              {localBusiness.address ? '+57 300 123 4567' : '+57 300 123 4567'}
             </div>
             <div className="hidden sm:block w-1 h-1 bg-[#3A362F] rounded-full" />
             <div className="flex items-center">
               <MapPin className="h-4 w-4 text-[#C9A860] mr-2" />
-              Mosquera, Cundinamarca
+              {localBusiness.address}
             </div>
             <div className="hidden sm:block w-1 h-1 bg-[#3A362F] rounded-full" />
             <div className="flex items-center">

@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, X, Check, ChevronRight, User, Phone, MessageSquare, Loader2, Clock, CalendarDays, Info } from 'lucide-react';
-import { APP_CONFIG } from '../../utils/constants';
-import { fetchServices } from '../../data/services';
+import { fetchServices, formatPrice } from '../../data/services';
+import { api } from '../../services/api';
 
-const apiBaseUrl = APP_CONFIG.apiBaseUrl;
-
-const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
-
-const BookingForm = ({ onClose, preselectedService = null }) => {
+const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [currentStep, setCurrentStep] = useState(preselectedService ? 2 : 1);
   const [selectedService, setSelectedService] = useState(preselectedService);
   const [services, setServices] = useState([]);
-  const [business, setBusiness] = useState(defaultBusiness);
+  const [localBusiness, setLocalBusiness] = useState({
+    name: "Barber Trebol",
+    title: "Master Barber",
+  });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -19,28 +18,26 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
   const [clientPhone, setClientPhone] = useState('');
   const [clientMessage, setClientMessage] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [slotsLoading, setSlotsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [servicesLoading, setServicesLoading] = useState(true);
+
+  useEffect(() => {
+    if (business) {
+      setLocalBusiness({
+        name: business.name || 'Barber Trebol',
+        title: business.title || 'Master Barber',
+      });
+    }
+  }, [business]);
 
   useEffect(() => {
     fetchServices().then((data) => {
       setServices(data);
       setServicesLoading(false);
     });
-  }, []);
-
-  useEffect(() => {
-    const url = `${apiBaseUrl}/business-settings`;
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.business_name) {
-          setBusiness({ name: data.business_name, title: data.title || "Master Barber" });
-        }
-      })
-      .catch(() => {});
   }, []);
 
   const steps = [
@@ -61,18 +58,18 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
     return dates;
   };
 
-  const fetchAvailableSlots = async (date, serviceId, workstationId) => {
+  const fetchAvailableSlots = async (date, serviceId) => {
     try {
+      setSlotsLoading(true);
       const params = new URLSearchParams({ date: date.toISOString().split('T')[0] });
       if (serviceId) params.append('service_id', serviceId);
-      if (workstationId) params.append('workstation_id', workstationId);
-      const response = await fetch(`${apiBaseUrl}/appointments/available-slots?${params.toString()}`);
-      if (!response.ok) throw new Error('Error al cargar horarios');
-      const data = await response.json();
+      const data = await api.get(`/appointments/available-slots?${params.toString()}`);
       return data.slots;
     } catch (err) {
       console.error('Error fetching slots:', err);
       return [];
+    } finally {
+      setSlotsLoading(false);
     }
   };
 
@@ -83,13 +80,6 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
       });
     }
   }, [selectedDate, selectedService]);
-
-  useEffect(() => {
-    fetchServices().then((data) => {
-      setServices(data);
-      setServicesLoading(false);
-    });
-  }, []);
 
   const formatDate = (date) => {
     const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -147,27 +137,20 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
   };
 
   const confirmBooking = async () => {
-    setLoading(true);
+    setSubmitLoading(true);
     setError(null);
 
     try {
       let clientId;
-      const clientResponse = await fetch(`${apiBaseUrl}/clients`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: clientName, phone: clientPhone }),
-      });
-
-      if (!clientResponse.ok) {
-        const clientData = await clientResponse.json();
-        if (clientResponse.status === 409 && clientData.clientId) {
-          clientId = clientData.clientId;
-        } else {
-          throw new Error(clientData.error || 'Error al registrar el cliente');
-        }
-      } else {
-        const clientData = await clientResponse.json();
+      try {
+        const clientData = await api.post('/clients', { name: clientName, phone: clientPhone });
         clientId = clientData.id;
+      } catch (clientErr) {
+        if (clientErr.data?.clientId) {
+          clientId = clientErr.data.clientId;
+        } else {
+          throw new Error(clientErr.message || 'Error al registrar el cliente');
+        }
       }
 
       const payload = {
@@ -178,17 +161,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
         client_message: clientMessage,
       };
 
-      const appointmentResponse = await fetch(`${apiBaseUrl}/appointments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const appointmentData = await appointmentResponse.json();
-
-      if (!appointmentResponse.ok) {
-        throw new Error(appointmentData.error || 'Error al crear la cita');
-      }
+      const appointmentData = await api.post('/appointments', payload);
 
       setShowSuccess(true);
       setTimeout(() => {
@@ -198,7 +171,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
     } catch (err) {
       setError(err.message || 'Error al agendar la cita');
     } finally {
-      setLoading(false);
+      setSubmitLoading(false);
     }
   };
 
@@ -295,8 +268,8 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                 <div>
                   <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Selecciona tu Servicio</h2>
                   <div className="text-[#6B6459]">
-                    <h3 className="text-base font-medium text-[#1C1A16]">{business.name}</h3>
-                    <p className="text-sm text-[#6B6459]">{business.title} · Experiencia VIP</p>
+                    <h3 className="text-base font-medium text-[#1C1A16]">{localBusiness.name}</h3>
+                    <p className="text-sm text-[#6B6459]">{localBusiness.title} · Experiencia VIP</p>
                   </div>
                 </div>
                 <div className="text-left sm:text-right">
@@ -324,7 +297,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                           <div className="flex items-start justify-between sm:block">
                             <h4 className="font-semibold text-[#1C1A16] text-sm sm:text-base">{service.name}</h4>
                             <div className="text-right ml-4 sm:hidden">
-                              <div className="font-semibold text-[#8B6A22] text-sm">${service.price.toLocaleString('es-CO')}</div>
+                              <div className="font-semibold text-[#8B6A22] text-sm">{formatPrice(service.price)}</div>
                             </div>
                           </div>
                           <div className="flex items-center text-xs sm:text-sm text-[#6B6459] mt-1 space-x-3">
@@ -336,7 +309,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                           <p className="text-xs sm:text-sm text-[#6B6459] mt-2 line-clamp-2">{service.description}</p>
                         </div>
                         <div className="hidden sm:block text-right ml-4">
-                          <div className="font-semibold text-[#8B6A22] text-lg">${service.price.toLocaleString('es-CO')}</div>
+                          <div className="font-semibold text-[#8B6A22] text-lg">{formatPrice(service.price)}</div>
                           <div className="text-xs text-[#B7B1A3]">COP</div>
                         </div>
                       </div>
@@ -355,7 +328,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                   <div className="text-[#6B6459] text-base font-medium">{formatDateForCalendar(new Date())}</div>
                 </div>
                 <div className="text-left sm:text-right">
-                  <div className="text-sm text-[#6B6459]">{business.name}</div>
+                  <div className="text-sm text-[#6B6459]">{localBusiness.name}</div>
                   <div className="flex items-center mt-1 sm:justify-end"><div className="w-1.5 h-1.5 bg-[#4E7A4E] rounded-full mr-2"></div><span className="text-sm text-[#4E7A4E]">Disponible</span></div>
                 </div>
               </div>
@@ -367,7 +340,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                       <div className="text-sm sm:text-base font-semibold text-[#1C1A16]">{selectedService.name}</div>
                       <div className="text-xs sm:text-sm text-[#6B6459] flex items-center"><Clock className="h-3 w-3 mr-1" />{selectedService.duration}</div>
                     </div>
-                    <div className="text-base sm:text-lg font-semibold text-[#8B6A22]">${selectedService.price.toLocaleString('es-CO')}</div>
+                    <div className="text-base sm:text-lg font-semibold text-[#8B6A22]">{formatPrice(selectedService.price)}</div>
                   </div>
                 </div>
               )}
@@ -399,7 +372,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
               {selectedDate && (
                 <div>
                   <h4 className="text-base font-medium mb-4 text-[#1C1A16]">Horarios disponibles</h4>
-                  {loading ? (
+                  {slotsLoading ? (
                     <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-[#A9812E]" /></div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
@@ -417,7 +390,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                       ))}
                     </div>
                   )}
-                  {availableSlots.length === 0 && !loading && (
+                  {availableSlots.length === 0 && !slotsLoading && (
                     <div className="text-center py-8">
                       <p className="text-[#6B6459] mb-2 text-sm">No hay horarios disponibles para esta fecha</p>
                       <button className="text-[#8B6A22] text-sm hover:underline">Selecciona otra fecha</button>
@@ -500,7 +473,7 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
                       {clientMessage && <div><span className="font-medium text-[#6B6459] flex items-center"><MessageSquare className="h-3.5 w-3.5 mr-1.5" />Mensaje</span>{clientMessage}</div>}
                     </div>
                     <div className="flex flex-col justify-center sm:text-right">
-                      <div className="text-2xl font-semibold text-[#8B6A22]">${selectedService?.price.toLocaleString('es-CO')}</div>
+                      <div className="text-2xl font-semibold text-[#8B6A22]">{formatPrice(selectedService?.price)}</div>
                       <div className="text-sm text-[#B7B1A3]">Pesos Colombianos</div>
                     </div>
                   </div>
@@ -531,10 +504,10 @@ const BookingForm = ({ onClose, preselectedService = null }) => {
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row justify-between items-center text-lg font-semibold space-y-2 sm:space-y-0">
                   <span className="text-[#1C1A16]">Total a pagar:</span>
-                  <span className="text-2xl text-[#8B6A22]">${selectedService?.price.toLocaleString('es-CO')}</span>
+                  <span className="text-2xl text-[#8B6A22]">{formatPrice(selectedService?.price)}</span>
                 </div>
-                <button onClick={confirmBooking} disabled={loading} className="w-full bg-[#121113] text-[#F6F2EA] py-3 sm:py-4 rounded-sm font-semibold text-base uppercase tracking-wide hover:bg-[#1C1A16] transition-colors disabled:opacity-50 flex items-center justify-center">
-                  {loading ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Agendando...</> : 'Confirmar Reserva'}
+                <button onClick={confirmBooking} disabled={submitLoading} className="w-full bg-[#121113] text-[#F6F2EA] py-3 sm:py-4 rounded-sm font-semibold text-base uppercase tracking-wide hover:bg-[#1C1A16] transition-colors disabled:opacity-50 flex items-center justify-center">
+                  {submitLoading ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Agendando...</> : 'Confirmar Reserva'}
                 </button>
               </div>
             )}

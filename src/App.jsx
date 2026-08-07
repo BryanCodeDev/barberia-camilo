@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
-// Import components
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import HeroSection from './components/sections/HeroSection';
 import ServicesSection from './components/sections/ServicesSection';
 import BookingForm from './components/sections/BookingForm';
 import AdminPanel from './components/admin/AdminPanel';
+import { useBusinessSettings } from './hooks/useBusinessSettings';
 
 const App = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [preselectedService, setPreselectedService] = useState(null);
+  const { settings, loading: settingsLoading } = useBusinessSettings();
 
   const handleBookingSuccess = () => {
     setShowBookingForm(false);
@@ -47,37 +48,48 @@ const App = () => {
 
   if (showAdminPanel) {
     return (
-      <AdminPanel onClose={() => setShowAdminPanel(false)} />
+      <AdminPanel onClose={() => setShowAdminPanel(false)} business={businessInfo} />
     );
   }
 
+  const businessInfo = useMemo(() => settings ? {
+    name: settings.business_name || 'Barber Trebol',
+    title: settings.barber_name || 'Master Barber',
+    address: settings.address || 'Mosquera, Cundinamarca',
+    phone: settings.phone || '+57 300 123 4567',
+    whatsapp: settings.whatsapp_number || '573001234567',
+    email: settings.email || 'contacto@barbertrebol.com',
+  } : null, [settings]);
+
   return (
     <div className="min-h-screen bg-white">
-      <Navbar
-        onBookingClick={handleNavbarBooking}
-        onServicesClick={scrollToServices}
-        onAdminClick={() => setShowAdminPanel(true)}
-      />
-
-      {!showBookingForm && (
-        <>
-          <HeroSection onBookingClick={handleHeroBooking} />
-          <div id="servicios">
-            <ServicesSection onBookingClick={handleServiceBooking} />
-          </div>
-        </>
-      )}
-
-      {showBookingForm && (
-        <BookingForm
-          onClose={handleCloseBooking}
-          onSuccess={handleBookingSuccess}
-          preselectedService={preselectedService}
+        <Navbar
+          onBookingClick={handleNavbarBooking}
+          onServicesClick={scrollToServices}
+          onAdminClick={() => setShowAdminPanel(true)}
+          business={businessInfo}
         />
-      )}
 
-      <Footer />
-    </div>
+        {!showBookingForm && (
+          <>
+            <HeroSection onBookingClick={handleHeroBooking} business={businessInfo} />
+            <div id="servicios">
+              <ServicesSection onBookingClick={handleServiceBooking} />
+            </div>
+          </>
+        )}
+
+        {showBookingForm && (
+          <BookingForm
+            onClose={handleCloseBooking}
+            onSuccess={handleBookingSuccess}
+            preselectedService={preselectedService}
+            business={businessInfo}
+          />
+        )}
+
+        <Footer business={businessInfo} />
+      </div>
   );
 };
 

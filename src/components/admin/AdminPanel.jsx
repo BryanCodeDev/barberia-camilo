@@ -5,15 +5,10 @@ import {
   AlertTriangle, Loader2
 } from 'lucide-react';
 import { APP_CONFIG, STATUS_LABELS } from '../../utils/constants';
-
-const apiBaseUrl = APP_CONFIG.apiBaseUrl;
+import { api, setAuthToken, getAuthToken } from '../../services/api';
 
 const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
 
-// Static class map — Tailwind's JIT compiler can't detect classes built with
-// template strings (e.g. `bg-${color}-50`), so those get purged from the
-// production build and silently fail to render. Mapping to full class names
-// keeps the styling intact after a production build.
 const STAT_STYLES = {
   blue: { card: 'bg-[#EEF3FB] border-[#C9D9F0]', label: 'text-[#3B5B8C]', value: 'text-[#1E3352]', icon: 'bg-[#3B5B8C]' },
   yellow: { card: 'bg-[#FBF3E4] border-[#EAD9AE]', label: 'text-[#8B6A22]', value: 'text-[#4A3812]', icon: 'bg-[#A9812E]' },
@@ -21,10 +16,9 @@ const STAT_STYLES = {
   amber: { card: 'bg-[#FBF3E4] border-[#EAD9AE]', label: 'text-[#8B6A22]', value: 'text-[#4A3812]', icon: 'bg-[#A9812E]' },
 };
 
-const AdminPanel = ({ onClose }) => {
+const AdminPanel = ({ onClose, business }) => {
   const [adminCredentials, setAdminCredentials] = useState({ username: '', password: '' });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [token, setToken] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [appointments, setAppointments] = useState([]);
@@ -32,7 +26,22 @@ const AdminPanel = ({ onClose }) => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
   const [selectedDate, setSelectedDate] = useState('');
-  const [business, setBusiness] = useState(defaultBusiness);
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (token) {
+      setAuthToken(token);
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (business) {
+      // Business info available from props
+    }
+  }, [business]);
+
+  const businessInfo = business || defaultBusiness;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -44,20 +53,11 @@ const AdminPanel = ({ onClose }) => {
 
     try {
       setError(null);
-      const response = await fetch(`${apiBaseUrl}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: adminCredentials.username,
-          password: adminCredentials.password,
-        }),
+      const data = await api.post('/auth/login', {
+        username: adminCredentials.username,
+        password: adminCredentials.password,
       });
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Credenciales incorrectas');
-      }
-      const data = await response.json();
-      setToken(data.token);
+      setAuthToken(data.token);
       setIsAuthenticated(true);
       setAdminCredentials({ username: '', password: '' });
       setErrors({});
@@ -67,8 +67,8 @@ const AdminPanel = ({ onClose }) => {
   };
 
   const handleLogout = () => {
+    setAuthToken(null);
     setIsAuthenticated(false);
-    setToken(null);
     setAdminCredentials({ username: '', password: '' });
     setErrors({});
     setAppointments([]);
@@ -79,13 +79,9 @@ const AdminPanel = ({ onClose }) => {
       setLoading(true);
       setError(null);
       const url = selectedDate
-        ? `${apiBaseUrl}/admin/appointments?date=${selectedDate}`
-        : `${apiBaseUrl}/admin/appointments`;
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error('Error al cargar las citas');
-      const data = await response.json();
+        ? `/admin/appointments?date=${selectedDate}`
+        : `/admin/appointments`;
+      const data = await api.get(url);
       setAppointments(data);
     } catch (err) {
       setError(err.message);
@@ -98,30 +94,13 @@ const AdminPanel = ({ onClose }) => {
     if (isAuthenticated) {
       fetchAppointments();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    const url = `${apiBaseUrl}/business-settings`;
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.business_name) {
-          setBusiness({ name: data.business_name, title: data.title || "Master Barber" });
-        }
-      })
-      .catch(() => {});
-  }, []);
+  }, [isAuthenticated, selectedDate]);
 
   const handleDeleteAppointment = async (id) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar esta cita?')) return;
     try {
       setError(null);
-      const response = await fetch(`${apiBaseUrl}/appointments/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!response.ok) throw new Error('Error al eliminar la cita');
+      await api.delete(`/appointments/${id}`);
       await fetchAppointments();
     } catch (err) {
       setError(err.message);
@@ -131,15 +110,10 @@ const AdminPanel = ({ onClose }) => {
   const handleStatusChange = async (id, newStatus, cancelledReason = null) => {
     try {
       setError(null);
-      const response = await fetch(`${apiBaseUrl}/appointments/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ status: newStatus, cancelled_reason: cancelledReason }),
+      await api.patch(`/appointments/${id}/status`, {
+        status: newStatus,
+        cancelled_reason: cancelledReason,
       });
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Error al actualizar el estado');
-      }
       await fetchAppointments();
     } catch (err) {
       setError(err.message);
@@ -193,7 +167,7 @@ const AdminPanel = ({ onClose }) => {
                 </div>
                 <div>
                   <h1 className="font-serif text-2xl sm:text-3xl text-[#F6F2EA]">Panel de Administración</h1>
-                  <p className="text-sm text-[#9A9488]">{business.name} — gestiona tu barbería</p>
+                  <p className="text-sm text-[#9A9488]">{businessInfo.name} — gestiona tu barbería</p>
                 </div>
               </div>
               <button onClick={onClose} className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-[#9A9488] hover:text-[#F6F2EA] transition-colors p-2 hover:bg-[#1B1A1B] rounded-sm">

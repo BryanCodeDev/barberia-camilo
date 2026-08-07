@@ -1,9 +1,7 @@
 // src/utils/constants.js
 
-const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
-
 export const APP_CONFIG = {
-  apiBaseUrl: apiBaseUrl,
+  apiBaseUrl: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
   maxAdvanceBookingDays: 30,
   minAdvanceBookingHours: 2,
   appointmentsPerPage: 10,
@@ -33,6 +31,3 @@ export const STATUS_COLORS = {
   [APPOINTMENT_STATUS.COMPLETED]: 'bg-blue-100 text-blue-800',
   [APPOINTMENT_STATUS.NO_SHOW]: 'bg-gray-100 text-gray-800'
 };
-
-const config = { APP_CONFIG, APPOINTMENT_STATUS, STATUS_LABELS, STATUS_COLORS };
-export default config;

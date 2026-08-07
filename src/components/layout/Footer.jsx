@@ -21,38 +21,33 @@ const defaultBusinessInfo = {
   }
 };
 
-const Footer = () => {
+const Footer = ({ business }) => {
   const [businessInfo, setBusinessInfo] = useState(defaultBusinessInfo);
-  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
-    const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
-    fetch(`${apiBaseUrl}/business-settings`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data && data.business_name) {
-          setBusinessInfo({
-            name: data.business_name,
-            phone: data.phone || defaultBusinessInfo.phone,
-            whatsapp: data.whatsapp_number || defaultBusinessInfo.whatsapp,
-            email: data.email || defaultBusinessInfo.email,
-            address: {
-              street: data.address || defaultBusinessInfo.address.street,
-              city: "Mosquera",
-              state: "Cundinamarca",
-              country: "Colombia",
-              full: data.address || defaultBusinessInfo.address.full
-            },
-            socialMedia: {
-              instagram: data.instagram || defaultBusinessInfo.socialMedia.instagram,
-              facebook: data.facebook || defaultBusinessInfo.socialMedia.facebook,
-              tiktok: data.tiktok || defaultBusinessInfo.socialMedia.tiktok
-            }
-          });
+    if (business) {
+      setBusinessInfo({
+        name: business.name || defaultBusinessInfo.name,
+        phone: business.phone || defaultBusinessInfo.phone,
+        whatsapp: business.whatsapp || defaultBusinessInfo.whatsapp,
+        email: business.email || defaultBusinessInfo.email,
+        address: {
+          street: business.address || defaultBusinessInfo.address.street,
+          city: "Mosquera",
+          state: "Cundinamarca",
+          country: "Colombia",
+          full: business.address || defaultBusinessInfo.address.full
+        },
+        socialMedia: {
+          instagram: business.instagram || defaultBusinessInfo.socialMedia.instagram,
+          facebook: business.facebook || defaultBusinessInfo.socialMedia.facebook,
+          tiktok: business.tiktok || defaultBusinessInfo.socialMedia.tiktok
         }
-      })
-      .catch(() => {});
-  }, []);
+      });
+    }
+  }, [business]);
+
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-[#121113] text-[#F6F2EA]">

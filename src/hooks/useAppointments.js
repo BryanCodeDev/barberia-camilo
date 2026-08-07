@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { APP_CONFIG } from '../../utils/constants';
-
-const apiBaseUrl = APP_CONFIG.apiBaseUrl;
+import { api } from '../services/api';
 
 export const useAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -12,10 +10,8 @@ export const useAppointments = () => {
     try {
       setLoading(true);
       setError(null);
-      const url = date ? `${apiBaseUrl}/admin/appointments?date=${date}` : `${apiBaseUrl}/admin/appointments`;
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Error al cargar las citas');
-      const data = await response.json();
+      const url = date ? `/admin/appointments?date=${date}` : `/admin/appointments`;
+      const data = await api.get(url);
       setAppointments(data);
     } catch (err) {
       setError(err.message);
@@ -27,16 +23,7 @@ export const useAppointments = () => {
   const addAppointment = useCallback(async (appointmentData) => {
     try {
       setError(null);
-      const response = await fetch(`${apiBaseUrl}/appointments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(appointmentData),
-      });
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Error al crear la cita');
-      }
-      const data = await response.json();
+      const data = await api.post('/appointments', appointmentData);
       await fetchAppointments();
       return data;
     } catch (err) {
@@ -48,10 +35,7 @@ export const useAppointments = () => {
   const removeAppointment = useCallback(async (appointmentId) => {
     try {
       setError(null);
-      const response = await fetch(`${apiBaseUrl}/appointments/${appointmentId}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Error al eliminar la cita');
+      await api.delete(`/appointments/${appointmentId}`);
       await fetchAppointments();
     } catch (err) {
       setError(err.message);
@@ -62,15 +46,10 @@ export const useAppointments = () => {
   const updateAppointmentStatus = useCallback(async (appointmentId, newStatus, cancelledReason = null) => {
     try {
       setError(null);
-      const response = await fetch(`${apiBaseUrl}/appointments/${appointmentId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus, cancelled_reason: cancelledReason }),
+      await api.patch(`/appointments/${appointmentId}/status`, {
+        status: newStatus,
+        cancelled_reason: cancelledReason,
       });
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Error al actualizar la cita');
-      }
       await fetchAppointments();
     } catch (err) {
       setError(err.message);
@@ -80,10 +59,8 @@ export const useAppointments = () => {
 
   const getOccupiedTimeSlots = useCallback(async (date) => {
     try {
-      const response = await fetch(`${apiBaseUrl}/appointments/occupied-slots?date=${date}`);
-      if (!response.ok) throw new Error('Error al cargar horarios ocupados');
-      const data = await response.json();
-      return data.slots || [];
+      const data = await api.get(`/appointments/occupied-slots?date=${date}`);
+      return data.occupied_slots || data.slots || [];
     } catch (err) {
       console.error('Error fetching occupied slots:', err);
       return [];
@@ -92,9 +69,7 @@ export const useAppointments = () => {
 
   const getAppointmentsByDate = useCallback(async (date) => {
     try {
-      const response = await fetch(`${apiBaseUrl}/admin/appointments?date=${date}`);
-      if (!response.ok) throw new Error('Error al cargar citas');
-      const data = await response.json();
+      const data = await api.get(`/admin/appointments?date=${date}`);
       return data;
     } catch (err) {
       console.error('Error fetching by date:', err);
@@ -104,9 +79,7 @@ export const useAppointments = () => {
 
   const getStats = useCallback(async () => {
     try {
-      const response = await fetch(`${apiBaseUrl}/admin/stats`);
-      if (!response.ok) throw new Error('Error al cargar estadísticas');
-      const data = await response.json();
+      const data = await api.get('/admin/stats');
       return data;
     } catch (err) {
       console.error('Error fetching stats:', err);

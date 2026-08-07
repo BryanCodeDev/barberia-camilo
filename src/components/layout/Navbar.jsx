@@ -2,8 +2,11 @@
 import React, { useState } from 'react';
 import { Scissors, Menu, X, User } from 'lucide-react';
 
-const Navbar = ({ onBookingClick, onServicesClick, onAdminClick }) => {
+const Navbar = ({ onBookingClick, onServicesClick, onAdminClick, business, loading }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const businessName = business?.name || 'Barber Trebol';
+  const businessTitle = business?.title || 'Master Barber';
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -42,9 +45,9 @@ const Navbar = ({ onBookingClick, onServicesClick, onAdminClick }) => {
               <Scissors className="h-4 w-4" />
             </span>
             <div className="leading-tight">
-              <span className="font-serif text-lg md:text-xl tracking-wide">Barber Trebol</span>
+              <span className="font-serif text-lg md:text-xl tracking-wide">{businessName}</span>
               <span className="hidden sm:block text-[10px] uppercase tracking-[0.25em] text-[#C9A860]/80">
-                Master Barber
+                {businessTitle}
               </span>
             </div>
           </div>
