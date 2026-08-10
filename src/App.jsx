@@ -46,12 +46,6 @@ const App = () => {
     }
   };
 
-  if (showAdminPanel) {
-    return (
-      <AdminPanel onClose={() => setShowAdminPanel(false)} business={businessInfo} />
-    );
-  }
-
   const businessInfo = useMemo(() => settings ? {
     name: settings.business_name || 'Barber Trebol',
     title: settings.barber_name || 'Master Barber',
@@ -60,6 +54,12 @@ const App = () => {
     whatsapp: settings.whatsapp_number || '573001234567',
     email: settings.email || 'contacto@barbertrebol.com',
   } : null, [settings]);
+
+  if (showAdminPanel) {
+    return (
+      <AdminPanel onClose={() => setShowAdminPanel(false)} business={businessInfo} />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
