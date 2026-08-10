@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   User, Phone, Calendar, Clock, MessageSquare, Trash2,
   Eye, EyeOff, LogOut, Shield, Users, X, Check,
@@ -74,7 +74,7 @@ const AdminPanel = ({ onClose, business }) => {
     setAppointments([]);
   };
 
-  const fetchAppointments = async () => {
+  const fetchAppointments = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -88,7 +88,7 @@ const AdminPanel = ({ onClose, business }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate]);
 
   useEffect(() => {
     if (isAuthenticated) {
