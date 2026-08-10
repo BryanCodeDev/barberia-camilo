@@ -161,7 +161,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         client_message: clientMessage,
       };
 
-      const appointmentData = await api.post('/appointments', payload);
+      await api.post('/appointments', payload);
 
       setShowSuccess(true);
       setTimeout(() => {

@@ -12,7 +12,7 @@ const App = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [preselectedService, setPreselectedService] = useState(null);
-  const { settings, loading: settingsLoading } = useBusinessSettings();
+  const { settings } = useBusinessSettings();
 
   const handleBookingSuccess = () => {
     setShowBookingForm(false);

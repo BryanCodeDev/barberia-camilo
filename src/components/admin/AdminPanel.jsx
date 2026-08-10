@@ -4,7 +4,7 @@ import {
   Eye, EyeOff, LogOut, Shield, Users, X, Check,
   AlertTriangle, Loader2
 } from 'lucide-react';
-import { APP_CONFIG, STATUS_LABELS } from '../../utils/constants';
+import { STATUS_LABELS } from '../../utils/constants';
 import { api, setAuthToken, getAuthToken } from '../../services/api';
 
 const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
@@ -94,7 +94,7 @@ const AdminPanel = ({ onClose, business }) => {
     if (isAuthenticated) {
       fetchAppointments();
     }
-  }, [isAuthenticated, selectedDate]);
+  }, [isAuthenticated, selectedDate, fetchAppointments]);
 
   const handleDeleteAppointment = async (id) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar esta cita?')) return;
