@@ -1,6 +1,6 @@
 [build]
-  publish = "barberia-camilo/dist"
-  command = "cd barberia-camilo && npm run build"
+  publish = "dist"
+  command = "npm run build"
 
 [[redirects]]
   from = "/*"
