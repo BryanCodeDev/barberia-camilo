@@ -62,6 +62,7 @@ const AdminPanel = ({ onClose, business }) => {
       setAdminCredentials({ username: '', password: '' });
       setErrors({});
     } catch (err) {
+      console.error('Login error:', err);
       setErrors({ general: err.message });
     }
   };
@@ -216,11 +217,6 @@ const AdminPanel = ({ onClose, business }) => {
                     <Shield className="h-4 w-4 mr-2" /> Acceder al Panel
                   </button>
                 </form>
-                <div className="text-center text-sm text-[#6E6A61] mt-6 p-4 bg-[#121113] rounded-sm border border-[#2A2723]">
-                  <p><strong className="text-[#D8D3C7]">Credenciales de prueba:</strong></p>
-                  <p className="mt-1">Usuario: <code className="bg-[#1B1A1B] px-2 py-1 rounded-sm text-xs text-[#C9A860]">barbertrebol</code></p>
-                  <p className="mt-1">Contraseña: <code className="bg-[#1B1A1B] px-2 py-1 rounded-sm text-xs text-[#C9A860]">bartrebol123</code></p>
-                </div>
               </div>
             </div>
           </div>

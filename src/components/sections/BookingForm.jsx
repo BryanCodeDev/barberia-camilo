@@ -149,6 +149,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         if (clientErr.data?.clientId) {
           clientId = clientErr.data.clientId;
         } else {
+          console.error('Error registering client:', clientErr);
           throw new Error(clientErr.message || 'Error al registrar el cliente');
         }
       }
@@ -161,7 +162,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         client_message: clientMessage,
       };
 
-      await api.post('/appointments', payload);
+      const appointmentData = await api.post('/appointments', payload);
+      console.log('Appointment created:', appointmentData);
 
       setShowSuccess(true);
       setTimeout(() => {
@@ -169,6 +171,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         onClose();
       }, 3000);
     } catch (err) {
+      console.error('Error confirming booking:', err);
       setError(err.message || 'Error al agendar la cita');
     } finally {
       setSubmitLoading(false);
