@@ -1,5 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+const REQUEST_TIMEOUT = 30000;
+
 let adminToken = localStorage.getItem('admin_token');
 let clientToken = localStorage.getItem('client_token');
 
@@ -53,35 +55,83 @@ const handleResponse = async (response) => {
 
 export const api = {
   get: async (url, useClientToken = false) => {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-      headers: getHeaders(useClientToken),
-    });
-    return handleResponse(response);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        headers: getHeaders(useClientToken),
+        signal: controller.signal,
+      });
+      return handleResponse(response);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        throw new Error('La solicitud tardó demasiado. Verifica tu conexión e intenta de nuevo.');
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   },
 
   post: async (url, body, useClientToken = false) => {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-      method: 'POST',
-      headers: getHeaders(useClientToken),
-      body: JSON.stringify(body),
-    });
-    return handleResponse(response);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        method: 'POST',
+        headers: getHeaders(useClientToken),
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      return handleResponse(response);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        throw new Error('La solicitud tardó demasiado. Verifica tu conexión e intenta de nuevo.');
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   },
 
   patch: async (url, body, useClientToken = false) => {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-      method: 'PATCH',
-      headers: getHeaders(useClientToken),
-      body: JSON.stringify(body),
-    });
-    return handleResponse(response);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        method: 'PATCH',
+        headers: getHeaders(useClientToken),
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      return handleResponse(response);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        throw new Error('La solicitud tardó demasiado. Verifica tu conexión e intenta de nuevo.');
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   },
 
   delete: async (url, useClientToken = false) => {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-      method: 'DELETE',
-      headers: getHeaders(useClientToken),
-    });
-    return handleResponse(response);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        method: 'DELETE',
+        headers: getHeaders(useClientToken),
+        signal: controller.signal,
+      });
+      return handleResponse(response);
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        throw new Error('La solicitud tardó demasiado. Verifica tu conexión e intenta de nuevo.');
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   },
 };

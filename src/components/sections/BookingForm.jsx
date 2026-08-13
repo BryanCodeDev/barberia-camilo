@@ -185,9 +185,11 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         appointment_date: selectedDate.toISOString().split('T')[0],
         appointment_time: selectedTime,
         client_message: clientMessage,
-        workstation_id: selectedWorkstation?.id || null,
         source: 'web',
       };
+      if (selectedWorkstation?.id) {
+        payload.workstation_id = selectedWorkstation.id;
+      }
 
       const appointmentData = await api.post('/appointments', payload);
       console.log('Appointment created:', appointmentData);
