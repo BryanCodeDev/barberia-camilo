@@ -1,8 +1,9 @@
 // src/components/common/ServiceCard.jsx
 import React from 'react';
 import { Clock, Scissors, ArrowRight } from 'lucide-react';
+import { openBooking } from '../../utils/booking';
 
-const ServiceCard = ({ service, index, onBookingClick }) => {
+const ServiceCard = ({ service, index }) => {
   const formatPrice = (price) => {
     return price.toLocaleString('es-CO', {
       style: 'currency',
@@ -12,8 +13,7 @@ const ServiceCard = ({ service, index, onBookingClick }) => {
   };
 
   const handleBookingClick = () => {
-    // Pass the specific service to the booking function
-    onBookingClick(service);
+    openBooking(service);
   };
 
   return (

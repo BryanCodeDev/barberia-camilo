@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Scissors, Menu, X, User, ShieldCheck, CalendarDays } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { openBooking } from '../../utils/booking';
 
 const Navbar = ({ business }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,8 +30,8 @@ const Navbar = ({ business }) => {
     }
   };
 
-  const openBooking = () => {
-    window.dispatchEvent(new CustomEvent('openBooking'));
+  const handleOpenBooking = () => {
+    openBooking();
     closeMenu();
   };
 
@@ -68,7 +69,7 @@ const Navbar = ({ business }) => {
             </Link>
 
             <button
-              onClick={openBooking}
+              onClick={handleOpenBooking}
               className="flex items-center gap-2 bg-[#A9812E] text-[#121113] px-5 py-2.5 rounded-sm font-semibold text-sm tracking-wide hover:bg-[#C9A860] transition-colors"
             >
               <CalendarDays className="h-4 w-4" />
@@ -125,7 +126,7 @@ const Navbar = ({ business }) => {
               </Link>
 
               <button
-                onClick={openBooking}
+                onClick={handleOpenBooking}
                 className="flex items-center justify-center gap-2 w-full text-left px-3 py-2.5 bg-[#A9812E] text-[#121113] rounded-sm font-semibold text-sm tracking-wide hover:bg-[#C9A860] transition-colors mt-2"
               >
                 <CalendarDays className="h-4 w-4" />

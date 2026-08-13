@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import ServiceCard from '../common/ServiceCard';
 import { fetchServices } from '../../data/services';
+import { openBooking } from '../../utils/booking';
 
-const ServicesSection = ({ onBookingClick }) => {
+const ServicesSection = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,7 +16,7 @@ const ServicesSection = ({ onBookingClick }) => {
   }, []);
 
   const handleGeneralBooking = () => {
-    onBookingClick();
+    openBooking();
   };
 
   if (loading) {
@@ -54,7 +55,6 @@ const ServicesSection = ({ onBookingClick }) => {
             <ServiceCard
               key={service.id}
               service={service}
-              onBookingClick={onBookingClick}
             />
           ))}
         </div>

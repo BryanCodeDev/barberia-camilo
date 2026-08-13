@@ -8,6 +8,7 @@ import BookingForm from './components/sections/BookingForm';
 import AdminPanel from './components/admin/AdminPanel';
 import ClientPortal from './pages/ClientPortal';
 import { useBusinessSettings } from './hooks/useBusinessSettings';
+import { onBookingRequested } from './utils/booking';
 
 const AppContent = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -15,12 +16,11 @@ const AppContent = () => {
   const { settings } = useBusinessSettings();
 
   useEffect(() => {
-    const handler = () => {
-      setPreselectedService(null);
+    const unsubscribe = onBookingRequested((service) => {
+      setPreselectedService(service);
       setShowBookingForm(true);
-    };
-    window.addEventListener('openBooking', handler);
-    return () => window.removeEventListener('openBooking', handler);
+    });
+    return unsubscribe;
   }, []);
 
   const businessInfo = useMemo(() => ({
@@ -44,11 +44,6 @@ const AppContent = () => {
     setPreselectedService(null);
   };
 
-  const handleServiceBooking = (service = null) => {
-    setPreselectedService(service);
-    setShowBookingForm(true);
-  };
-
   return (
     <div className="min-h-screen bg-white">
       <Navbar
@@ -58,9 +53,9 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={
           <>
-            <HeroSection onBookingClick={() => { setPreselectedService(null); setShowBookingForm(true); }} business={businessInfo} />
+            <HeroSection business={businessInfo} />
             <div id="servicios">
-              <ServicesSection onBookingClick={handleServiceBooking} />
+              <ServicesSection />
             </div>
           </>
         } />

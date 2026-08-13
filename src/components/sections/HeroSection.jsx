@@ -1,6 +1,7 @@
 // src/components/sections/HeroSection.jsx
 import React, { useState, useEffect } from 'react';
 import { Star, MapPin, Phone } from 'lucide-react';
+import { openBooking } from '../../utils/booking';
 
 const defaultBusiness = {
   name: "Barber Trebol",
@@ -14,7 +15,7 @@ const stats = [
   { number: "5.0", label: "Calificación Promedio" }
 ];
 
-const HeroSection = ({ onBookingClick, business }) => {
+const HeroSection = ({ business }) => {
   const [localBusiness, setLocalBusiness] = useState(defaultBusiness);
 
   useEffect(() => {
@@ -86,7 +87,7 @@ const HeroSection = ({ onBookingClick, business }) => {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12 px-4">
             <button
-              onClick={onBookingClick}
+              onClick={() => openBooking()}
               className="bg-[#A9812E] text-[#121113] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:bg-[#C9A860] transition-colors shadow-[0_8px_24px_-8px_rgba(169,129,46,0.5)]"
             >
               Agendar Cita
