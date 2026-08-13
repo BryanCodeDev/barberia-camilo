@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   User, Phone, Calendar, Clock, MessageSquare, Trash2,
   Eye, EyeOff, LogOut, Shield, Users, X, Check,
-  AlertTriangle, Loader2, Scissors
+  AlertTriangle, Loader2, Scissors, LayoutDashboard,
+  BarChart3, Menu, Search, Download, List, CalendarDays
 } from 'lucide-react';
 import { STATUS_LABELS } from '../../utils/constants';
 import { api, setAdminToken, getAdminToken } from '../../services/api';
@@ -10,6 +11,8 @@ import BarberManager from './BarberManager';
 import WorkstationManager from './WorkstationManager';
 import NotificationsCenter from './NotificationsCenter';
 import SettingsEditor from './SettingsEditor';
+import PerformanceView from './PerformanceView';
+import ClientsView from './ClientsView';
 
 const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
 
@@ -20,6 +23,17 @@ const STAT_STYLES = {
   amber: { card: 'bg-[#FBF3E4] border-[#EAD9AE]', label: 'text-[#8B6A22]', value: 'text-[#4A3812]', icon: 'bg-[#A9812E]' },
 };
 
+const NAV_ITEMS = [
+  { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard },
+  { id: 'appointments', label: 'Citas', icon: Calendar },
+  { id: 'barbers', label: 'Barberos', icon: Users },
+  { id: 'workstations', label: 'Estaciones', icon: Scissors },
+  { id: 'clients', label: 'Clientes', icon: Users },
+  { id: 'performance', label: 'Desempeño', icon: BarChart3 },
+  { id: 'notifications', label: 'Notificaciones', icon: MessageSquare },
+  { id: 'settings', label: 'Configuración', icon: Shield },
+];
+
 const AdminPanel = ({ onClose, business }) => {
   const [adminCredentials, setAdminCredentials] = useState({ username: '', password: '' });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -28,11 +42,42 @@ const AdminPanel = ({ onClose, business }) => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('appointments');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedDate, setSelectedDate] = useState('');
+  const [clientSearch, setClientSearch] = useState('');
+  const [appointmentsView, setAppointmentsView] = useState('list');
+  const [calendarWeekStart, setCalendarWeekStart] = useState(() => {
+    const now = new Date();
+    const day = now.getDay() || 7;
+    const diff = now.getDate() - day + 1;
+    return new Date(now.setDate(diff));
+  });
   const [stats, setStats] = useState({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 });
   const [statsLoading, setStatsLoading] = useState(false);
+  const [revenuePeriod, setRevenuePeriod] = useState('today');
+  const [revenueData, setRevenueData] = useState(null);
+  const [revenueLoading, setRevenueLoading] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const formatCOP = (cents) => {
+    if (cents === null || cents === undefined) return '$0';
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(cents / 100);
+  };
+
+  const formatPeriodLabel = (period) => {
+    switch (period) {
+      case 'today': return 'Hoy';
+      case 'week': return 'Esta semana';
+      case 'month': return 'Este mes';
+      default: return period;
+    }
+  };
 
   useEffect(() => {
     const token = getAdminToken();
@@ -93,9 +138,10 @@ const AdminPanel = ({ onClose, business }) => {
     try {
       setLoading(true);
       setError(null);
-      const url = selectedDate
-        ? `/admin/appointments?date=${selectedDate}`
-        : `/admin/appointments`;
+      const params = new URLSearchParams();
+      if (selectedDate) params.set('date', selectedDate);
+      if (clientSearch.trim()) params.set('search', clientSearch.trim());
+      const url = `/admin/appointments${params.toString() ? `?${params.toString()}` : ''}`;
       const data = await api.get(url);
       setAppointments(data);
     } catch (err) {
@@ -103,14 +149,27 @@ const AdminPanel = ({ onClose, business }) => {
     } finally {
       setLoading(false);
     }
-  }, [selectedDate]);
+  }, [selectedDate, clientSearch]);
+
+  const fetchRevenue = useCallback(async () => {
+    try {
+      setRevenueLoading(true);
+      const data = await api.get(`/admin/revenue?period=${revenuePeriod}`);
+      setRevenueData(data);
+    } catch (err) {
+      console.error('Error fetching revenue:', err);
+    } finally {
+      setRevenueLoading(false);
+    }
+  }, [revenuePeriod]);
 
   useEffect(() => {
     if (isAuthenticated) {
       fetchStats();
       fetchAppointments();
+      fetchRevenue();
     }
-  }, [isAuthenticated, selectedDate, fetchStats, fetchAppointments]);
+  }, [isAuthenticated, selectedDate, fetchStats, fetchAppointments, fetchRevenue]);
 
   const handleDeleteAppointment = async (id) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar esta cita?')) return;
@@ -144,6 +203,59 @@ const AdminPanel = ({ onClose, business }) => {
     if (errors[name] || errors.general) setErrors({});
   };
 
+  const exportToCSV = () => {
+    const headers = ['Fecha', 'Hora', 'Cliente', 'Teléfono', 'Servicio', 'Barbero/Estación', 'Estado', 'Precio (COP)'];
+    const rows = appointments.map((apt) => [
+      formatDate(apt.appointment_date),
+      apt.appointment_time,
+      apt.client_name,
+      apt.client_phone,
+      apt.service_name,
+      [apt.barber_name, apt.workstation_name].filter(Boolean).join(' / ') || '—',
+      getStatusText(apt.status),
+      Math.round((apt.price_cents || 0) / 100),
+    ]);
+
+    const csvContent = [
+      headers,
+      ...rows,
+    ]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `citas_${selectedDate || 'todas'}_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const getWeekDates = (startDate) => {
+    const dates = [];
+    const current = new Date(startDate);
+    for (let i = 0; i < 7; i++) {
+      dates.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
+  };
+
+  const formatWeekdayName = (date) => {
+    return date.toLocaleDateString('es-CO', { weekday: 'short' });
+  };
+
+  const formatDayNumber = (date) => {
+    return date.getDate();
+  };
+
+  const isSameDay = (d1, d2) => {
+    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+  };
+
   const filteredAppointments = statusFilter === 'all'
     ? appointments
     : appointments.filter((apt) => apt.status === statusFilter);
@@ -173,6 +285,26 @@ const AdminPanel = ({ onClose, business }) => {
     }
   };
 
+  const NavItem = ({ item, isMobile = false }) => {
+    const isActive = activeTab === item.id;
+    return (
+      <button
+        onClick={() => {
+          setActiveTab(item.id);
+          if (isMobile) setMobileNavOpen(false);
+        }}
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-medium transition-colors ${
+          isActive
+            ? 'bg-[#A9812E]/10 text-[#C9A860]'
+            : 'text-[#9A9488] hover:text-[#D8D3C7] hover:bg-[#2A2723]'
+        }`}
+      >
+        <item.icon className="h-4 w-4 flex-shrink-0" />
+        <span>{item.label}</span>
+      </button>
+    );
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#121113]">
@@ -188,9 +320,11 @@ const AdminPanel = ({ onClose, business }) => {
                   <p className="text-sm text-[#9A9488]">{businessInfo.name} — gestiona tu barbería</p>
                 </div>
               </div>
-              <button onClick={onClose} className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-[#9A9488] hover:text-[#F6F2EA] transition-colors p-2 hover:bg-[#1B1A1B] rounded-sm">
-                <X className="h-5 w-5 sm:h-6 sm:w-6" />
-              </button>
+              {onClose && (
+                <button onClick={onClose} className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-[#9A9488] hover:text-[#F6F2EA] transition-colors p-2 hover:bg-[#1B1A1B] rounded-sm">
+                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                </button>
+              )}
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
@@ -242,221 +376,402 @@ const AdminPanel = ({ onClose, business }) => {
     );
   }
 
-  const tabs = [
-    { id: 'appointments', label: 'Citas', icon: Calendar },
-    { id: 'barbers', label: 'Barberos', icon: Users },
-    { id: 'workstations', label: 'Estaciones', icon: Scissors },
-    { id: 'notifications', label: 'Notificaciones', icon: MessageSquare },
-    { id: 'settings', label: 'Configuración', icon: Shield },
-  ];
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      <div className="p-4 sm:p-6">
+        <div className="flex items-center">
+          <div className="w-10 h-10 rounded-full border border-[#A9812E]/60 flex items-center justify-center mr-3">
+            <Users className="h-5 w-5 text-[#C9A860]" />
+          </div>
+          <div>
+            <h1 className="font-serif text-lg sm:text-xl text-[#F6F2EA] leading-tight">Panel de Admin</h1>
+            <p className="text-xs text-[#9A9488] truncate">{businessInfo.name}</p>
+          </div>
+        </div>
+      </div>
+      <nav className="flex-1 px-3 sm:px-4 py-2 space-y-1 overflow-y-auto">
+        {NAV_ITEMS.map((item) => (
+          <NavItem key={item.id} item={item} />
+        ))}
+      </nav>
+      <div className="p-3 sm:p-4 border-t border-[#2A2723] space-y-2">
+        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-medium text-[#9A9488] hover:text-[#D8D3C7] hover:bg-[#2A2723] transition-colors">
+          <LogOut className="h-4 w-4 flex-shrink-0" />
+          <span>Cerrar Sesión</span>
+        </button>
+        {onClose && (
+          <button onClick={onClose} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-medium text-[#9A9488] hover:text-[#D8D3C7] hover:bg-[#2A2723] transition-colors">
+            <X className="h-4 w-4 flex-shrink-0" />
+            <span>Cerrar Panel</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#F6F2EA]">
-      <div className="bg-[#121113]">
-        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-            <div className="flex items-center text-[#F6F2EA] mb-4 sm:mb-0">
-              <div className="w-11 h-11 rounded-full border border-[#A9812E]/60 flex items-center justify-center mr-3">
-                <Users className="h-5 w-5 text-[#C9A860]" />
-              </div>
-              <div>
-                <h1 className="font-serif text-2xl sm:text-3xl">Panel de Administración</h1>
-                <p className="text-sm text-[#9A9488]">Gestiona tu barbería</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button onClick={handleLogout} className="border border-[#2A2723] text-[#D8D3C7] px-4 py-2 rounded-sm hover:border-[#A9812E]/60 hover:text-[#C9A860] transition-colors flex items-center text-sm font-medium">
-                <LogOut className="h-4 w-4 mr-2" /> <span className="hidden sm:inline">Cerrar Sesión</span>
-              </button>
-              <button onClick={onClose} className="border border-[#2A2723] text-[#D8D3C7] p-2 rounded-sm hover:border-[#A9812E]/60 hover:text-[#C9A860] transition-colors">
+      {/* Header mobile con hamburguesa */}
+      <div className="md:hidden bg-[#121113] border-b border-[#2A2723] px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="w-9 h-9 rounded-full border border-[#A9812E]/60 flex items-center justify-center mr-3">
+            <Users className="h-4 w-4 text-[#C9A860]" />
+          </div>
+          <div>
+            <h1 className="font-serif text-lg text-[#F6F2EA] leading-tight">Panel de Admin</h1>
+            <p className="text-xs text-[#9A9488] truncate">{businessInfo.name}</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setMobileNavOpen(true)}
+          className="p-2 text-[#9A9488] hover:text-[#F6F2EA] hover:bg-[#1B1A1B] rounded-sm transition-colors"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Sidebar desktop (fijo) */}
+      <aside className="hidden md:flex fixed inset-y-0 left-0 w-64 bg-[#121113] border-r border-[#2A2723] z-40">
+        <SidebarContent />
+      </aside>
+
+      {/* Overlay + drawer mobile */}
+      {mobileNavOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileNavOpen(false)} />
+          <div className="absolute inset-y-0 left-0 w-72 bg-[#121113] border-r border-[#2A2723] shadow-xl transform transition-transform">
+            <div className="flex items-center justify-between p-4 border-b border-[#2A2723]">
+              <span className="font-serif text-lg text-[#F6F2EA]">Menú</span>
+              <button onClick={() => setMobileNavOpen(false)} className="p-2 text-[#9A9488] hover:text-[#F6F2EA] hover:bg-[#1B1A1B] rounded-sm transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
+            <SidebarContent />
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Barra de navegación por secciones — visible, con etiquetas, sticky para no perderla al hacer scroll */}
-      <div className="bg-[#1B1A1B] border-b border-[#2A2723] sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-          <div className="flex overflow-x-auto scrollbar-hide">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 sm:px-5 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-[#A9812E] text-[#C9A860]'
-                    : 'border-transparent text-[#9A9488] hover:text-[#D8D3C7] hover:border-[#3A362F]'
-                }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Contenido principal */}
+      <div className="md:ml-64">
+        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+          {error && (
+            <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm mb-4 flex items-center justify-between">
+              <span>{error}</span>
+              <button onClick={() => setError(null)} className="text-[#8B2E2E] hover:opacity-70"><X className="h-4 w-4" /></button>
+            </div>
+          )}
 
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {error && (
-          <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm mb-4 flex items-center justify-between">
-            <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-[#8B2E2E] hover:opacity-70"><X className="h-4 w-4" /></button>
-          </div>
-        )}
+          {activeTab === 'dashboard' && (
+            <>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16]">Resumen</h2>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={revenuePeriod}
+                    onChange={(e) => setRevenuePeriod(e.target.value)}
+                    className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+                  >
+                    <option value="today">Hoy</option>
+                    <option value="week">Esta semana</option>
+                    <option value="month">Este mes</option>
+                  </select>
+                </div>
+              </div>
 
-        {activeTab === 'appointments' && (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-5 mb-8">
-              {[
-                { label: 'Total Citas', value: stats.total, color: 'blue', icon: Calendar },
-                { label: 'Pendientes', value: stats.pending, color: 'yellow', icon: Clock },
-                { label: 'Confirmadas', value: stats.confirmed, color: 'green', icon: Check },
-                { label: 'Canceladas', value: stats.cancelled, color: 'amber', icon: AlertTriangle },
-                { label: 'Hoy', value: stats.today, color: 'blue', icon: User },
-              ].map((stat, index) => {
-                const style = STAT_STYLES[stat.color];
-                return (
-                  <div key={index} className={`p-4 sm:p-6 rounded-sm border ${style.card}`}>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className={`text-sm font-medium mb-1 ${style.label}`}>{stat.label}</p>
-                        <p className={`text-2xl sm:text-3xl font-serif ${style.value}`}>{statsLoading ? '...' : stat.value}</p>
-                      </div>
-                      <div className={`p-3 rounded-full ${style.icon}`}>
-                        <stat.icon className="h-5 w-5 text-white" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-8">
+                <div className="bg-white border border-[#E4DCC9] rounded-sm p-4 sm:p-6">
+                  <p className="text-sm font-medium text-[#6B6459] mb-1">Ingresos {formatPeriodLabel(revenuePeriod)}</p>
+                  <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
+                    {revenueLoading ? '...' : formatCOP(revenueData?.current?.revenue_cents)}
+                  </p>
+                  {revenueData && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className={`text-sm font-medium ${revenueData.change_percent >= 0 ? 'text-[#3E6B3E]' : 'text-[#8B2E2E]'}`}>
+                        {revenueData.change_percent >= 0 ? '↑' : '↓'} {Math.abs(revenueData.change_percent).toFixed(1)}%
+                      </span>
+                      <span className="text-xs text-[#B7B1A3]">vs. período anterior</span>
+                    </div>
+                  )}
+                </div>
+                <div className="bg-white border border-[#E4DCC9] rounded-sm p-4 sm:p-6">
+                  <p className="text-sm font-medium text-[#6B6459] mb-1">Citas completadas</p>
+                  <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
+                    {revenueLoading ? '...' : (revenueData?.current?.appointments ?? 0)}
+                  </p>
+                </div>
+                <div className="bg-white border border-[#E4DCC9] rounded-sm p-4 sm:p-6">
+                  <p className="text-sm font-medium text-[#6B6459] mb-1">Ticket promedio</p>
+                  <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
+                    {revenueLoading ? '...' : formatCOP(revenueData?.current?.average_ticket_cents)}
+                  </p>
+                </div>
+                <div className="bg-white border border-[#E4DCC9] rounded-sm p-4 sm:p-6">
+                  <p className="text-sm font-medium text-[#6B6459] mb-1">Citas período anterior</p>
+                  <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
+                    {revenueLoading ? '...' : (revenueData?.previous?.appointments ?? 0)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-5 mb-8">
+                {[
+                  { label: 'Total Citas', value: stats.total, color: 'blue', icon: Calendar },
+                  { label: 'Pendientes', value: stats.pending, color: 'yellow', icon: Clock },
+                  { label: 'Confirmadas', value: stats.confirmed, color: 'green', icon: Check },
+                  { label: 'Canceladas', value: stats.cancelled, color: 'amber', icon: AlertTriangle },
+                  { label: 'Hoy', value: stats.today, color: 'blue', icon: User },
+                ].map((stat, index) => {
+                  const style = STAT_STYLES[stat.color];
+                  return (
+                    <div key={index} className={`p-4 sm:p-6 rounded-sm border ${style.card}`}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className={`text-sm font-medium mb-1 ${style.label}`}>{stat.label}</p>
+                          <p className={`text-2xl sm:text-3xl font-serif ${style.value}`}>{statsLoading ? '...' : stat.value}</p>
+                        </div>
+                        <div className={`p-3 rounded-full ${style.icon}`}>
+                          <stat.icon className="h-5 w-5 text-white" />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <div className="flex flex-wrap gap-2">
-                {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setStatusFilter(tab)}
-                    className={`px-3 py-1.5 rounded-sm text-sm font-medium transition-colors ${
-                      statusFilter === tab ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60'
-                    }`}
-                  >
-                    {tab === 'all' ? 'Todas' : STATUS_LABELS[tab] || tab}
-                  </button>
-                ))}
+                  );
+                })}
               </div>
-              <div>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="px-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
-                />
-                {selectedDate && (
-                  <button onClick={() => setSelectedDate('')} className="ml-2 text-sm text-[#8B6A22] hover:underline">Limpiar</button>
-                )}
-              </div>
-            </div>
+            </>
+          )}
 
-            <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
-              <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9]">
-                <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
-                  <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Citas Agendadas ({appointments.length})
-                </h3>
-              </div>
-
-              {loading ? (
-                <div className="flex items-center justify-center py-16">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" />
+          {activeTab === 'appointments' && (
+            <>
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+                <div className="flex flex-wrap gap-2">
+                  {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setStatusFilter(tab)}
+                      className={`px-3 py-1.5 rounded-sm text-sm font-medium transition-colors ${
+                        statusFilter === tab ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60'
+                      }`}
+                    >
+                      {tab === 'all' ? 'Todas' : STATUS_LABELS[tab] || tab}
+                    </button>
+                  ))}
                 </div>
-              ) : appointments.length > 0 ? (
-                <div className="divide-y divide-[#E4DCC9]">
-                  {filteredAppointments.map((appointment) => (
-                    <div key={appointment.id} className="p-4 sm:p-6 hover:bg-[#F6F2EA]/50 transition-colors">
-                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                        <div className="flex-1 space-y-3">
-                          <div className="flex items-start sm:items-center space-x-3">
-                            <div className="bg-[#A9812E]/10 p-2 rounded-full flex-shrink-0">
-                              <User className="h-4 w-4 sm:h-5 sm:w-5 text-[#8B6A22]" />
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9A9488]" />
+                    <input
+                      type="text"
+                      value={clientSearch}
+                      onChange={(e) => setClientSearch(e.target.value)}
+                      placeholder="Buscar cliente..."
+                      className="pl-9 pr-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+                    />
+                  </div>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="px-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+                  />
+                  {selectedDate && (
+                    <button onClick={() => setSelectedDate('')} className="text-sm text-[#8B6A22] hover:underline">Limpiar</button>
+                  )}
+                  <div className="flex rounded-sm overflow-hidden border border-[#E4DCC9]">
+                    <button
+                      onClick={() => setAppointmentsView('list')}
+                      className={`px-3 py-2 transition-colors ${appointmentsView === 'list' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
+                      title="Vista lista"
+                    >
+                      <List className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setAppointmentsView('calendar')}
+                      className={`px-3 py-2 transition-colors ${appointmentsView === 'calendar' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
+                      title="Vista calendario semanal"
+                    >
+                      <CalendarDays className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <button
+                    onClick={exportToCSV}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#3B5B8C] text-white rounded-sm text-sm font-medium hover:bg-[#1E3352] transition-colors"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span className="hidden sm:inline">Exportar</span>
+                  </button>
+                </div>
+              </div>
+
+              {appointmentsView === 'list' ? (
+                <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
+                  <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9]">
+                    <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
+                      <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Citas Agendadas ({appointments.length})
+                    </h3>
+                  </div>
+
+                  {loading ? (
+                    <div className="flex items-center justify-center py-16">
+                      <Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" />
+                    </div>
+                  ) : appointments.length > 0 ? (
+                    <div className="divide-y divide-[#E4DCC9]">
+                      {filteredAppointments.map((appointment) => (
+                        <div key={appointment.id} className="p-4 sm:p-6 hover:bg-[#F6F2EA]/50 transition-colors">
+                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-start sm:items-center space-x-3">
+                                <div className="bg-[#A9812E]/10 p-2 rounded-full flex-shrink-0">
+                                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-[#8B6A22]" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-semibold text-[#1C1A16] text-base sm:text-lg truncate">{appointment.client_name}</h4>
+                                  <div className="flex items-center text-sm text-[#6B6459] mt-1">
+                                    <Phone className="h-3 w-3 mr-1 flex-shrink-0" />
+                                    <span className="truncate">{appointment.client_phone}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                                <div className="font-medium text-[#1C1A16] bg-[#F6F2EA] px-3 py-2 rounded-sm">
+                                  <span className="text-[#6B6459]">Servicio: </span>{appointment.service_name}
+                                </div>
+                                <div className="flex items-center text-[#6B6459] bg-[#F6F2EA] px-3 py-2 rounded-sm">
+                                  <Calendar className="h-3 w-3 mr-2 flex-shrink-0" />
+                                  <span className="truncate">{formatDate(appointment.appointment_date)} - {appointment.appointment_time}</span>
+                                </div>
+                              </div>
+                              {appointment.client_message && (
+                                <div className="flex items-start text-sm text-[#1C1A16] bg-[#EEF3FB] p-3 rounded-sm">
+                                  <MessageSquare className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-[#3B5B8C]" />
+                                  <span className="break-words">{appointment.client_message}</span>
+                                </div>
+                              )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-semibold text-[#1C1A16] text-base sm:text-lg truncate">{appointment.client_name}</h4>
-                              <div className="flex items-center text-sm text-[#6B6459] mt-1">
-                                <Phone className="h-3 w-3 mr-1 flex-shrink-0" />
-                                <span className="truncate">{appointment.client_phone}</span>
+                            <div className="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0">
+                              <span className={`inline-flex items-center px-3 py-1 rounded-sm text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                                {getStatusText(appointment.status)}
+                              </span>
+                              <div className="flex items-center space-x-1">
+                                {appointment.status === 'pending' && (
+                                  <button onClick={() => handleStatusChange(appointment.id, 'confirmed')} className="text-[#3E6B3E] hover:bg-[#EEF5EE] p-2 rounded-sm transition-colors" title="Confirmar cita">
+                                    <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                                  </button>
+                                )}
+                                {appointment.status === 'pending' && (
+                                  <button onClick={() => {
+                                    const reason = window.prompt('Motivo de cancelación:');
+                                    if (reason !== null) handleStatusChange(appointment.id, 'cancelled', reason);
+                                  }} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Cancelar cita">
+                                    <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
+                                  </button>
+                                )}
+                                {appointment.status === 'confirmed' && (
+                                  <button onClick={() => handleStatusChange(appointment.id, 'completed')} className="text-[#3B5B8C] hover:bg-[#EEF3FB] p-2 rounded-sm transition-colors" title="Marcar como completada">
+                                    <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                                  </button>
+                                )}
+                                {appointment.status === 'confirmed' && (
+                                  <button onClick={() => handleStatusChange(appointment.id, 'no_show')} className="text-[#6B6459] hover:bg-[#F1EFEB] p-2 rounded-sm transition-colors" title="Marcar como no se presentó">
+                                    <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                                  </button>
+                                )}
+                                <button onClick={() => handleDeleteAppointment(appointment.id)} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Eliminar cita">
+                                  <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                                </button>
                               </div>
                             </div>
                           </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                            <div className="font-medium text-[#1C1A16] bg-[#F6F2EA] px-3 py-2 rounded-sm">
-                              <span className="text-[#6B6459]">Servicio: </span>{appointment.service_name}
-                            </div>
-                            <div className="flex items-center text-[#6B6459] bg-[#F6F2EA] px-3 py-2 rounded-sm">
-                              <Calendar className="h-3 w-3 mr-2 flex-shrink-0" />
-                              <span className="truncate">{formatDate(appointment.appointment_date)} - {appointment.appointment_time}</span>
-                            </div>
-                          </div>
-                          {appointment.client_message && (
-                            <div className="flex items-start text-sm text-[#1C1A16] bg-[#EEF3FB] p-3 rounded-sm">
-                              <MessageSquare className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-[#3B5B8C]" />
-                              <span className="break-words">{appointment.client_message}</span>
-                            </div>
-                          )}
                         </div>
-                        <div className="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-sm text-xs font-medium ${getStatusColor(appointment.status)}`}>
-                            {getStatusText(appointment.status)}
-                          </span>
-                          <div className="flex items-center space-x-1">
-                            {appointment.status === 'pending' && (
-                              <button onClick={() => handleStatusChange(appointment.id, 'confirmed')} className="text-[#3E6B3E] hover:bg-[#EEF5EE] p-2 rounded-sm transition-colors" title="Confirmar cita">
-                                <Check className="h-4 w-4 sm:h-5 sm:w-5" />
-                              </button>
-                            )}
-                            {appointment.status === 'pending' && (
-                              <button onClick={() => {
-                                const reason = window.prompt('Motivo de cancelación:');
-                                if (reason !== null) handleStatusChange(appointment.id, 'cancelled', reason);
-                              }} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Cancelar cita">
-                                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
-                              </button>
-                            )}
-                            {appointment.status === 'confirmed' && (
-                              <button onClick={() => handleStatusChange(appointment.id, 'completed')} className="text-[#3B5B8C] hover:bg-[#EEF3FB] p-2 rounded-sm transition-colors" title="Marcar como completada">
-                                <Check className="h-4 w-4 sm:h-5 sm:w-5" />
-                              </button>
-                            )}
-                            {appointment.status === 'confirmed' && (
-                              <button onClick={() => handleStatusChange(appointment.id, 'no_show')} className="text-[#6B6459] hover:bg-[#F1EFEB] p-2 rounded-sm transition-colors" title="Marcar como no se presentó">
-                                <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
-                              </button>
-                            )}
-                            <button onClick={() => handleDeleteAppointment(appointment.id)} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Eliminar cita">
-                              <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  ) : (
+                    <div className="text-center py-16 px-4">
+                      <Calendar className="h-12 w-12 text-[#D8D3C7] mx-auto mb-4" />
+                      <h3 className="font-serif text-lg text-[#1C1A16] mb-2">No hay citas agendadas</h3>
+                      <p className="text-[#6B6459] max-w-md mx-auto text-sm">Las citas aparecerán aquí cuando los clientes las agenden.</p>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="text-center py-16 px-4">
-                  <Calendar className="h-12 w-12 text-[#D8D3C7] mx-auto mb-4" />
-                  <h3 className="font-serif text-lg text-[#1C1A16] mb-2">No hay citas agendadas</h3>
-                  <p className="text-[#6B6459] max-w-md mx-auto text-sm">Las citas aparecerán aquí cuando los clientes las agenden.</p>
+                <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
+                  <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9] flex items-center justify-between">
+                    <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
+                      <CalendarDays className="h-5 w-5 mr-2 text-[#A9812E]" /> Calendario Semanal
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          const newStart = new Date(calendarWeekStart);
+                          newStart.setDate(newStart.getDate() - 7);
+                          setCalendarWeekStart(newStart);
+                        }}
+                        className="px-3 py-1.5 border border-[#E4DCC9] rounded-sm text-sm hover:border-[#A9812E]/60 transition-colors"
+                      >
+                        ← Anterior
+                      </button>
+                      <button
+                        onClick={() => {
+                          const newStart = new Date(calendarWeekStart);
+                          newStart.setDate(newStart.getDate() + 7);
+                          setCalendarWeekStart(newStart);
+                        }}
+                        className="px-3 py-1.5 border border-[#E4DCC9] rounded-sm text-sm hover:border-[#A9812E]/60 transition-colors"
+                      >
+                        Siguiente →
+                      </button>
+                      <button
+                        onClick={() => setCalendarWeekStart(new Date())}
+                        className="px-3 py-1.5 bg-[#A9812E] text-[#121113] rounded-sm text-sm font-medium hover:bg-[#C9A860] transition-colors"
+                      >
+                        Hoy
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-7 divide-x divide-[#E4DCC9]">
+                    {getWeekDates(calendarWeekStart).map((date, idx) => {
+                      const dayAppointments = appointments.filter((apt) => {
+                        const aptDate = new Date(apt.appointment_date + 'T00:00:00');
+                        return isSameDay(aptDate, date);
+                      });
+                      const isToday = isSameDay(date, new Date());
+                      return (
+                        <div key={idx} className={`flex flex-col ${isToday ? 'bg-[#A9812E]/5' : ''}`}>
+                          <div className={`px-2 py-3 text-center border-b border-[#E4DCC9] ${isToday ? 'bg-[#A9812E]/10' : 'bg-[#F6F2EA]'}`}>
+                            <p className="text-xs font-medium text-[#6B6459] uppercase">{formatWeekdayName(date)}</p>
+                            <p className={`text-lg font-serif ${isToday ? 'text-[#A9812E] font-bold' : 'text-[#1C1A16]'}`}>{formatDayNumber(date)}</p>
+                          </div>
+                          <div className="flex-1 p-2 min-h-[200px] space-y-2">
+                            {dayAppointments.length === 0 ? (
+                              <p className="text-xs text-[#B7B1A3] text-center py-4">Sin citas</p>
+                            ) : (
+                              dayAppointments.map((apt) => (
+                                <div key={apt.id} className={`p-2 rounded-sm border text-xs ${getStatusColor(apt.status)}`}>
+                                  <p className="font-medium truncate">{apt.appointment_time}</p>
+                                  <p className="truncate font-semibold">{apt.client_name}</p>
+                                  <p className="truncate opacity-80">{apt.service_name}</p>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
-            </div>
-          </>
-        )}
+            </>
+          )}
 
-        {activeTab === 'barbers' && <BarberManager business={businessInfo} />}
-        {activeTab === 'workstations' && <WorkstationManager business={businessInfo} />}
-        {activeTab === 'notifications' && <NotificationsCenter business={businessInfo} />}
-        {activeTab === 'settings' && <SettingsEditor business={businessInfo} onUpdate={fetchStats} />}
+          {activeTab === 'barbers' && <BarberManager business={businessInfo} />}
+          {activeTab === 'workstations' && <WorkstationManager business={businessInfo} />}
+          {activeTab === 'notifications' && <NotificationsCenter business={businessInfo} />}
+          {activeTab === 'settings' && <SettingsEditor business={businessInfo} onUpdate={fetchStats} />}
+
+          {activeTab === 'clients' && <ClientsView />}
+
+          {activeTab === 'performance' && <PerformanceView />}
+        </div>
       </div>
     </div>
   );
