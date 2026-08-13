@@ -59,8 +59,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
   const steps = [
     { id: 1, name: 'Servicios', active: currentStep === 1, completed: currentStep > 1 },
-    { id: 2, name: 'Estación y Fecha', active: currentStep === 2, completed: currentStep > 2 },
-    { id: 3, name: 'Tus Datos', active: currentStep === 3, completed: false },
+    { id: 2, name: 'Estación, Fecha y Hora', active: currentStep === 2, completed: currentStep > 2 },
+    { id: 3, name: 'Tus Datos', active: currentStep === 3, completed: currentStep > 3 },
     { id: 4, name: 'Confirmar', active: currentStep === 4, completed: false },
   ];
 
@@ -210,17 +210,15 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const goBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
-      if (currentStep === 3) {
-        setSelectedDate(null);
-        setSelectedTime(null);
-        setAvailableSlots([]);
-      }
-      if (currentStep === 4) {
-        setClientName('');
-        setClientPhone('');
-        setClientMessage('');
-        setFieldErrors({});
-      }
+    }
+  };
+
+  // Permite saltar directamente a un paso ya completado (o al actual) haciendo clic
+  // en el indicador de pasos, sin perder lo que ya se había seleccionado.
+  const goToStep = (stepId) => {
+    const targetStep = steps.find((s) => s.id === stepId);
+    if (targetStep && (targetStep.completed || targetStep.active)) {
+      setCurrentStep(stepId);
     }
   };
 
@@ -238,20 +236,37 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                 </button>
               )}
               <nav className="flex space-x-1 sm:space-x-2 text-xs sm:text-sm">
-                {steps.map((step, index) => (
-                  <React.Fragment key={step.id}>
-                    <span className={`px-2 py-1 rounded-sm transition-colors ${
-                      step.active ? 'text-[#8B6A22] bg-[#F6F2EA] font-semibold' :
-                      step.completed ? 'text-[#6B6459]' :
-                      'text-[#B7B1A3]'
-                    }`}>
-                      {step.name}
-                    </span>
-                    {index < steps.length - 1 && (
-                      <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-[#D8D3C7] self-center" />
-                    )}
-                  </React.Fragment>
-                ))}
+                {steps.map((step, index) => {
+                  const isClickable = step.completed || step.active;
+                  return (
+                    <React.Fragment key={step.id}>
+                      <button
+                        type="button"
+                        onClick={() => goToStep(step.id)}
+                        disabled={!isClickable}
+                        className={`flex items-center gap-1.5 px-2 py-1 rounded-sm transition-colors ${
+                          step.active ? 'text-[#8B6A22] bg-[#F6F2EA] font-semibold' :
+                          step.completed ? 'text-[#6B6459] hover:bg-[#F6F2EA] cursor-pointer' :
+                          'text-[#B7B1A3] cursor-default'
+                        }`}
+                        title={isClickable ? `Ir a ${step.name}` : step.name}
+                      >
+                        <span className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-semibold flex-shrink-0 ${
+                          step.completed ? 'bg-[#A9812E] text-[#121113]' :
+                          step.active ? 'border border-[#A9812E] text-[#8B6A22]' :
+                          'border border-[#D8D3C7] text-[#B7B1A3]'
+                        }`}>
+                          {step.completed ? <Check className="h-3 w-3" /> : step.id}
+                        </span>
+                        <span className="hidden sm:inline">{step.name}</span>
+                        <span className="sm:hidden">{step.name.split(',')[0].split(' y ')[0]}</span>
+                      </button>
+                      {index < steps.length - 1 && (
+                        <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 text-[#D8D3C7] self-center" />
+                      )}
+                    </React.Fragment>
+                  );
+                })}
               </nav>
             </div>
             <button onClick={onClose} className="p-2 hover:bg-[#F6F2EA] rounded-sm transition-colors">

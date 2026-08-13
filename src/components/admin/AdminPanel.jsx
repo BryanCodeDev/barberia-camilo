@@ -29,6 +29,7 @@ const AdminPanel = ({ onClose, business }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('appointments');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedDate, setSelectedDate] = useState('');
   const [stats, setStats] = useState({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 });
   const [statsLoading, setStatsLoading] = useState(false);
@@ -143,9 +144,9 @@ const AdminPanel = ({ onClose, business }) => {
     if (errors[name] || errors.general) setErrors({});
   };
 
-  const filteredAppointments = activeTab === 'all'
+  const filteredAppointments = statusFilter === 'all'
     ? appointments
-    : appointments.filter((apt) => apt.status === activeTab);
+    : appointments.filter((apt) => apt.status === statusFilter);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -275,6 +276,28 @@ const AdminPanel = ({ onClose, business }) => {
         </div>
       </div>
 
+      {/* Barra de navegación por secciones — visible, con etiquetas, sticky para no perderla al hacer scroll */}
+      <div className="bg-[#1B1A1B] border-b border-[#2A2723] sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="flex overflow-x-auto scrollbar-hide">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 sm:px-5 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-[#A9812E] text-[#C9A860]'
+                    : 'border-transparent text-[#9A9488] hover:text-[#D8D3C7] hover:border-[#3A362F]'
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
         {error && (
           <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm mb-4 flex items-center justify-between">
@@ -315,9 +338,9 @@ const AdminPanel = ({ onClose, business }) => {
                 {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab)}
+                    onClick={() => setStatusFilter(tab)}
                     className={`px-3 py-1.5 rounded-sm text-sm font-medium transition-colors ${
-                      activeTab === tab ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60'
+                      statusFilter === tab ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60'
                     }`}
                   >
                     {tab === 'all' ? 'Todas' : STATUS_LABELS[tab] || tab}
@@ -424,21 +447,6 @@ const AdminPanel = ({ onClose, business }) => {
         {activeTab === 'workstations' && <WorkstationManager business={businessInfo} />}
         {activeTab === 'notifications' && <NotificationsCenter business={businessInfo} />}
         {activeTab === 'settings' && <SettingsEditor business={businessInfo} onUpdate={fetchStats} />}
-      </div>
-
-      <div className="fixed bottom-6 right-6 z-40">
-        <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-lg p-2 flex flex-col gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`p-3 rounded-sm transition-colors ${activeTab === tab.id ? 'bg-[#A9812E] text-[#121113]' : 'text-[#6B6459] hover:bg-[#F6F2EA]'}`}
-              title={tab.label}
-            >
-              <tab.icon className="h-5 w-5" />
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );

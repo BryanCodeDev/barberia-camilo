@@ -28,6 +28,7 @@ const ClientPortal = ({ business }) => {
     try {
       const data = await api.get(`/clients/${id}`);
       setClientName(data.name);
+      setAppointments(data.appointments || []);
     } catch (err) {
       setError(err.message);
     } finally {
