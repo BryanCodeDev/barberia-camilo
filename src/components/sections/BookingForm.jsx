@@ -46,7 +46,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   useEffect(() => {
     const fetchWorkstations = async () => {
       try {
-        const data = await api.get('/admin/workstations');
+        const data = await api.get('/workstations');
         setWorkstations(data.filter(w => w.is_active));
       } catch (err) {
         console.error('Error fetching workstations:', err);
