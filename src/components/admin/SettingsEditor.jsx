@@ -64,7 +64,6 @@ const SettingsEditor = ({ onUpdate }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input label="Nombre del Negocio" name="business_name" value={settings?.business_name || ''} onChange={handleChange} />
-          <Input label="Nombre del Barber" name="barber_name" value={settings?.barber_name || ''} onChange={handleChange} />
           <Input label="Teléfono" name="phone" value={settings?.phone || ''} onChange={handleChange} type="tel" />
           <Input label="WhatsApp" name="whatsapp_number" value={settings?.whatsapp_number || ''} onChange={handleChange} type="tel" />
           <Input label="Email" name="email" value={settings?.email || ''} onChange={handleChange} type="email" />
