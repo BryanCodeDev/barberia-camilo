@@ -9,6 +9,7 @@ import AdminPanel from './pages/AdminPanel';
 import ClientPortal from './pages/ClientPortal';
 import { useBusinessSettings } from './hooks/useBusinessSettings';
 import { onBookingRequested } from './utils/booking';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 const AppContent = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -81,7 +82,9 @@ const AppContent = () => {
 
 const App = () => (
   <BrowserRouter>
-    <AppContent />
+    <ErrorBoundary>
+      <AppContent />
+    </ErrorBoundary>
   </BrowserRouter>
 );
 
