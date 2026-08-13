@@ -26,7 +26,7 @@ const Navbar = ({ business }) => {
       navigate('/');
       setTimeout(() => {
         document.getElementById('servicios')?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+      }, 300);
     }
   };
 

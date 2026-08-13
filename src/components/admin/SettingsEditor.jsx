@@ -28,9 +28,9 @@ const SettingsEditor = ({ onUpdate }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Los inputs numéricos entregan e.target.value como string —
-    // sin esto, el backend recibía "14" en vez de 14.
-    const parsedValue = NUMERIC_FIELDS.includes(name) ? (value === '' ? '' : Number(value)) : value;
+    const parsedValue = NUMERIC_FIELDS.includes(name)
+      ? (value === '' ? '' : (Number.isNaN(Number(value)) ? settings[name] : Number(value)))
+      : value;
     setSettings(prev => ({ ...prev, [name]: parsedValue }));
     setSuccess(false);
   };
@@ -89,15 +89,15 @@ const SettingsEditor = ({ onUpdate }) => {
           </div>
           <div>
             <label className="block text-sm font-medium text-[#1C1A16] mb-2">Días máx. de reserva anticipada</label>
-            <input type="number" name="max_advance_booking_days" value={settings?.max_advance_booking_days || 14} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
+            <input type="number" name="max_advance_booking_days" value={settings?.max_advance_booking_days || 14} onChange={handleChange} min="1" max="90" className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
           </div>
           <div>
             <label className="block text-sm font-medium text-[#1C1A16] mb-2">Horas mín. para cancelar</label>
-            <input type="number" name="min_cancel_hours" value={settings?.min_cancel_hours || 24} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
+            <input type="number" name="min_cancel_hours" value={settings?.min_cancel_hours || 24} onChange={handleChange} min="0" max="720" className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
           </div>
           <div>
             <label className="block text-sm font-medium text-[#1C1A16] mb-2">Buffer entre turnos (min)</label>
-            <input type="number" name="buffer_minutes_between_appointments" value={settings?.buffer_minutes_between_appointments || 0} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
+            <input type="number" name="buffer_minutes_between_appointments" value={settings?.buffer_minutes_between_appointments || 0} onChange={handleChange} min="0" max="120" className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
           </div>
         </div>
         <button type="submit" disabled={saving} className="bg-[#A9812E] text-[#121113] px-6 py-3 rounded-sm font-semibold text-sm hover:bg-[#C9A860] transition-colors flex items-center disabled:opacity-50">

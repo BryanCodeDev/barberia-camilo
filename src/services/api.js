@@ -2,11 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_A
 
 const REQUEST_TIMEOUT = 30000;
 
-let adminToken = localStorage.getItem('admin_token');
-let clientToken = localStorage.getItem('client_token');
-
 export const setAdminToken = (token) => {
-  adminToken = token;
   if (token) {
     localStorage.setItem('admin_token', token);
   } else {
@@ -14,10 +10,7 @@ export const setAdminToken = (token) => {
   }
 };
 
-export const getAdminToken = () => adminToken;
-
 export const setClientToken = (token) => {
-  clientToken = token;
   if (token) {
     localStorage.setItem('client_token', token);
   } else {
@@ -25,11 +18,11 @@ export const setClientToken = (token) => {
   }
 };
 
-export const getClientToken = () => clientToken;
-
 const getHeaders = (useClientToken = false) => {
   const headers = { 'Content-Type': 'application/json' };
-  const token = useClientToken ? clientToken : adminToken;
+  const token = useClientToken
+    ? localStorage.getItem('client_token')
+    : localStorage.getItem('admin_token');
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }

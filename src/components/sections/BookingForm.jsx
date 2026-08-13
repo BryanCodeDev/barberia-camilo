@@ -2,6 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, X, Check, ChevronRight, User, Phone, MessageSquare, Loader2, Clock, CalendarDays, Info, Scissors } from 'lucide-react';
 import { fetchServices, formatPrice } from '../../data/services';
 import { api } from '../../services/api';
+import { APP_CONFIG } from '../../utils/constants';
+
+const toLocalDateString = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [currentStep, setCurrentStep] = useState(preselectedService ? 2 : 1);
@@ -39,6 +47,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       setLocalBusiness({
         name: business.name || 'Barber Trebol',
         title: business.title || 'Master Barber',
+        address: business.address || 'Mosquera, Cundinamarca',
+        address_line: business.address_line || 'CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01',
       });
     }
   }, [business]);
@@ -46,6 +56,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   useEffect(() => {
     fetchServices().then((data) => {
       setServices(data);
+      setServicesLoading(false);
+    }).catch(() => {
       setServicesLoading(false);
     });
   }, []);
@@ -74,7 +86,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const getAvailableDates = () => {
     const dates = [];
     const today = new Date();
-    for (let i = 1; i <= 14; i++) {
+    today.setHours(0, 0, 0, 0);
+    for (let i = 1; i <= APP_CONFIG.maxAdvanceBookingDays; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       dates.push(date);
@@ -85,7 +98,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const fetchAvailableSlots = async (date, serviceId, workstationId) => {
     try {
       setSlotsLoading(true);
-      const params = new URLSearchParams({ date: date.toISOString().split('T')[0] });
+      const params = new URLSearchParams({ date: toLocalDateString(date) });
       if (serviceId) params.append('service_id', serviceId);
       if (workstationId) params.append('workstation_id', workstationId);
       const data = await api.get(`/appointments/available-slots?${params.toString()}`);
@@ -185,7 +198,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       const payload = {
         client_id: clientId,
         service_id: selectedService.id,
-        appointment_date: selectedDate.toISOString().split('T')[0],
+        appointment_date: toLocalDateString(selectedDate),
         appointment_time: selectedTime,
         client_message: clientMessage,
         source: 'web',
@@ -338,8 +351,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                   </div>
                 </div>
                 <div className="text-left sm:text-right">
-                  <div className="text-sm text-[#6B6459]">Mosquera, Cundinamarca</div>
-                  <div className="text-xs text-[#B7B1A3]">CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01</div>
+                  <div className="text-sm text-[#6B6459]">{localBusiness.address || 'Mosquera, Cundinamarca'}</div>
+                  <div className="text-xs text-[#B7B1A3]">{localBusiness.address_line || 'CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01'}</div>
                 </div>
               </div>
               <div className="space-y-3">

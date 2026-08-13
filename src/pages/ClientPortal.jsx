@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Loader2, Send, RefreshCw } from 'lucide-react';
-import { api, setClientToken, getClientToken } from '../services/api';
+import { api, setClientToken } from '../services/api';
 
 const ClientPortal = ({ business }) => {
   const [loginStep, setLoginStep] = useState('phone');
@@ -174,8 +174,8 @@ const ClientPortal = ({ business }) => {
       case 'confirmed': return 'bg-[#EEF5EE] text-[#3E6B3E]';
       case 'cancelled': return 'bg-[#FBEAEA] text-[#8B2E2E]';
       case 'completed': return 'bg-[#EEF3FB] text-[#3B5B8C]';
-      case 'no_show': return 'bg-[#F1EFEB] text-[#6B6459]';
-      default: return 'bg-[#FBF3E4] text-[#8B6A22]';
+      case 'no-show': return 'bg-[#F1EFEB] text-[#6B6459]';
+       default: return 'bg-[#FBF3E4] text-[#8B6A22]';
     }
   };
 
@@ -184,8 +184,8 @@ const ClientPortal = ({ business }) => {
       case 'confirmed': return 'Confirmada';
       case 'cancelled': return 'Cancelada';
       case 'completed': return 'Completada';
-      case 'no_show': return 'No se presentó';
-      default: return 'Pendiente';
+      case 'no-show': return 'No se presentó';
+       default: return 'Pendiente';
     }
   };
 

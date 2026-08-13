@@ -5,6 +5,11 @@ let cachedSettings = null;
 let settingsCacheTime = 0;
 const CACHE_DURATION = 5 * 60 * 1000;
 
+export const invalidateBusinessSettingsCache = () => {
+  cachedSettings = null;
+  settingsCacheTime = 0;
+};
+
 export const useBusinessSettings = () => {
   const [settings, setSettings] = useState(cachedSettings);
   const [loading, setLoading] = useState(!cachedSettings);

@@ -1,6 +1,5 @@
 import { APP_CONFIG } from '../utils/constants';
-
-const API_BASE_URL = APP_CONFIG.apiBaseUrl;
+import { api } from '../services/api';
 
 let cachedServices = null;
 let servicesCacheTime = 0;
@@ -32,16 +31,15 @@ export async function fetchServices() {
     return cachedServices;
   }
 
-  const response = await fetch(`${API_BASE_URL}/services`);
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Error al cargar servicios: ${response.status} ${text}`);
+  try {
+    const data = await api.get('/services');
+    const transformed = data.map(transformService).filter(Boolean);
+    cachedServices = transformed;
+    servicesCacheTime = now;
+    return transformed;
+  } catch (err) {
+    throw new Error(err.message || 'Error al cargar servicios');
   }
-  const data = await response.json();
-  const transformed = data.map(transformService).filter(Boolean);
-  cachedServices = transformed;
-  servicesCacheTime = now;
-  return transformed;
 }
 
 export const serviceCategories = {

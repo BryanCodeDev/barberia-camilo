@@ -12,6 +12,8 @@ const ServicesSection = () => {
     fetchServices().then((data) => {
       setServices(data);
       setLoading(false);
+    }).catch(() => {
+      setLoading(false);
     });
   }, []);
 

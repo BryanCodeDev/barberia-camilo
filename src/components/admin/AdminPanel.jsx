@@ -6,7 +6,8 @@ import {
   BarChart3, Menu, Search, Download, List, CalendarDays
 } from 'lucide-react';
 import { STATUS_LABELS } from '../../utils/constants';
-import { api, setAdminToken, getAdminToken } from '../../services/api';
+import { api, setAdminToken } from '../../services/api';
+import { invalidateBusinessSettingsCache } from '../../hooks/useBusinessSettings';
 import BarberManager from './BarberManager';
 import WorkstationManager from './WorkstationManager';
 import NotificationsCenter from './NotificationsCenter';
@@ -46,12 +47,14 @@ const AdminPanel = ({ onClose, business }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedDate, setSelectedDate] = useState('');
   const [clientSearch, setClientSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [appointmentsView, setAppointmentsView] = useState('list');
+  const searchTimeoutRef = useRef(null);
   const [calendarWeekStart, setCalendarWeekStart] = useState(() => {
     const now = new Date();
     const day = now.getDay() || 7;
     const diff = now.getDate() - day + 1;
-    return new Date(now.setDate(diff));
+    return new Date(now.getFullYear(), now.getMonth(), diff);
   });
   const [stats, setStats] = useState({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 });
   const [statsLoading, setStatsLoading] = useState(false);
@@ -80,7 +83,7 @@ const AdminPanel = ({ onClose, business }) => {
   };
 
   useEffect(() => {
-    const token = getAdminToken();
+    const token = localStorage.getItem('admin_token');
     if (token) {
       setAdminToken(token);
       setIsAuthenticated(true);
@@ -140,7 +143,7 @@ const AdminPanel = ({ onClose, business }) => {
       setError(null);
       const params = new URLSearchParams();
       if (selectedDate) params.set('date', selectedDate);
-      if (clientSearch.trim()) params.set('search', clientSearch.trim());
+      if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim());
       const url = `/admin/appointments${params.toString() ? `?${params.toString()}` : ''}`;
       const data = await api.get(url);
       setAppointments(data);
@@ -149,7 +152,7 @@ const AdminPanel = ({ onClose, business }) => {
     } finally {
       setLoading(false);
     }
-  }, [selectedDate, clientSearch]);
+  }, [selectedDate, debouncedSearch]);
 
   const fetchRevenue = useCallback(async () => {
     try {
@@ -196,6 +199,21 @@ const AdminPanel = ({ onClose, business }) => {
       setError(err.message);
     }
   };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setClientSearch(value);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearch(value);
+    }, 300);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -270,8 +288,8 @@ const AdminPanel = ({ onClose, business }) => {
       case 'confirmed': return 'bg-[#EEF5EE] text-[#3E6B3E]';
       case 'cancelled': return 'bg-[#FBEAEA] text-[#8B2E2E]';
       case 'completed': return 'bg-[#EEF3FB] text-[#3B5B8C]';
-      case 'no_show': return 'bg-[#F1EFEB] text-[#6B6459]';
-      default: return 'bg-[#FBF3E4] text-[#8B6A22]';
+      case 'no-show': return 'bg-[#F1EFEB] text-[#6B6459]';
+       default: return 'bg-[#FBF3E4] text-[#8B6A22]';
     }
   };
 
@@ -280,8 +298,8 @@ const AdminPanel = ({ onClose, business }) => {
       case 'confirmed': return 'Confirmada';
       case 'cancelled': return 'Cancelada';
       case 'completed': return 'Completada';
-      case 'no_show': return 'No se presentó';
-      default: return 'Pendiente';
+      case 'no-show': return 'No se presentó';
+       default: return 'Pendiente';
     }
   };
 
@@ -559,13 +577,13 @@ const AdminPanel = ({ onClose, business }) => {
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9A9488]" />
-                    <input
-                      type="text"
-                      value={clientSearch}
-                      onChange={(e) => setClientSearch(e.target.value)}
-                      placeholder="Buscar cliente..."
-                      className="pl-9 pr-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
-                    />
+                     <input
+                       type="text"
+                       value={clientSearch}
+                       onChange={handleSearchChange}
+                       placeholder="Buscar cliente..."
+                       className="pl-9 pr-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+                     />
                   </div>
                   <input
                     type="date"
@@ -661,7 +679,7 @@ const AdminPanel = ({ onClose, business }) => {
                                 {appointment.status === 'pending' && (
                                   <button onClick={() => {
                                     const reason = window.prompt('Motivo de cancelación:');
-                                    if (reason !== null) handleStatusChange(appointment.id, 'cancelled', reason);
+                                    if (reason !== null && reason.trim().length > 0) handleStatusChange(appointment.id, 'cancelled', reason.trim());
                                   }} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Cancelar cita">
                                     <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
                                   </button>
@@ -672,7 +690,7 @@ const AdminPanel = ({ onClose, business }) => {
                                   </button>
                                 )}
                                 {appointment.status === 'confirmed' && (
-                                  <button onClick={() => handleStatusChange(appointment.id, 'no_show')} className="text-[#6B6459] hover:bg-[#F1EFEB] p-2 rounded-sm transition-colors" title="Marcar como no se presentó">
+                                  <button onClick={() => handleStatusChange(appointment.id, 'no-show')} className="text-[#6B6459] hover:bg-[#F1EFEB] p-2 rounded-sm transition-colors" title="Marcar como no se presentó">
                                     <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
                                   </button>
                                 )}
@@ -766,7 +784,7 @@ const AdminPanel = ({ onClose, business }) => {
           {activeTab === 'barbers' && <BarberManager business={businessInfo} />}
           {activeTab === 'workstations' && <WorkstationManager business={businessInfo} />}
           {activeTab === 'notifications' && <NotificationsCenter business={businessInfo} />}
-          {activeTab === 'settings' && <SettingsEditor business={businessInfo} onUpdate={fetchStats} />}
+          {activeTab === 'settings' && <SettingsEditor business={businessInfo} onUpdate={() => { invalidateBusinessSettingsCache(); fetchStats(); fetchAppointments(); }} />}
 
           {activeTab === 'clients' && <ClientsView />}
 
