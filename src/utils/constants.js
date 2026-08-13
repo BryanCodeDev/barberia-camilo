@@ -1,7 +1,7 @@
 // src/utils/constants.js
 
 export const APP_CONFIG = {
-  apiBaseUrl: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  apiBaseUrl: import.meta.env.VITE_API_URL || import.meta.env.REACT_APP_API_URL || 'http://localhost:3001/api',
   maxAdvanceBookingDays: 30,
   minAdvanceBookingHours: 2,
   appointmentsPerPage: 10,

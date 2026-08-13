@@ -146,10 +146,6 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     setSelectedDate(date);
     setSelectedTime(null);
     setAvailableSlots([]);
-    if (selectedService) {
-      const slots = await fetchAvailableSlots(date, selectedService.id, selectedWorkstation?.id);
-      setAvailableSlots(slots);
-    }
   };
 
   const handleTimeSelect = (time) => {
