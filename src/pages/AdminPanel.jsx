@@ -82,6 +82,11 @@ const AdminPanel = ({ onClose, business }) => {
   const [revenueData, setRevenueData] = useState(null);
   const [revenueLoading, setRevenueLoading] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [loginError, setLoginError] = useState(null);
+  const [adminCredentials, setAdminCredentials] = useState({ username: '', password: '' });
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [appointmentForm, setAppointmentForm] = useState({ appointment_date: '', appointment_time: '', duration_minutes: 30, client_message: '', status: 'pending' });
   const [appointmentSaving, setAppointmentSaving] = useState(false);
