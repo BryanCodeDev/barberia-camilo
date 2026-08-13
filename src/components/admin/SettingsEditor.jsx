@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { api } from '../../services/api';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import ErrorBanner from '../ui/ErrorBanner';
+import Loader from '../ui/Loader';
 
 const NUMERIC_FIELDS = ['max_advance_booking_days', 'min_cancel_hours', 'buffer_minutes_between_appointments'];
 
@@ -50,60 +54,29 @@ const SettingsEditor = ({ onUpdate }) => {
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-12"><Loader size="lg" /></div>;
 
   return (
-    <div className="bg-white border border-[#E4DCC9] rounded-sm p-6">
+    <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm p-6">
       <h3 className="font-serif text-xl text-[#1C1A16] mb-6">Configuración del Negocio</h3>
-      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm mb-4">{error}</div>}
-      {success && <div className="bg-[#EEF5EE] border border-[#C7DEC7] text-[#3E6B3E] px-4 py-3 rounded-sm text-sm mb-4">Configuración actualizada correctamente</div>}
+      {error && <ErrorBanner message={error} className="mb-4" />}
+      {success && <ErrorBanner message="Configuración actualizada correctamente" type="success" className="mb-4" />}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">Nombre del Negocio</label>
-            <input type="text" name="business_name" value={settings?.business_name || ''} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">Nombre del Barber</label>
-            <input type="text" name="barber_name" value={settings?.barber_name || ''} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">Teléfono</label>
-            <input type="tel" name="phone" value={settings?.phone || ''} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">WhatsApp</label>
-            <input type="tel" name="whatsapp_number" value={settings?.whatsapp_number || ''} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">Email</label>
-            <input type="email" name="email" value={settings?.email || ''} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">Dirección</label>
-            <input type="text" name="address" value={settings?.address || ''} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">Zona horaria</label>
-            <input type="text" name="timezone" value={settings?.timezone || 'America/Bogota'} onChange={handleChange} className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">Días máx. de reserva anticipada</label>
-            <input type="number" name="max_advance_booking_days" value={settings?.max_advance_booking_days || 14} onChange={handleChange} min="1" max="90" className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">Horas mín. para cancelar</label>
-            <input type="number" name="min_cancel_hours" value={settings?.min_cancel_hours || 24} onChange={handleChange} min="0" max="720" className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-[#1C1A16] mb-2">Buffer entre turnos (min)</label>
-            <input type="number" name="buffer_minutes_between_appointments" value={settings?.buffer_minutes_between_appointments || 0} onChange={handleChange} min="0" max="120" className="w-full px-4 py-2 border border-[#E4DCC9] rounded-sm bg-white" />
-          </div>
+          <Input label="Nombre del Negocio" name="business_name" value={settings?.business_name || ''} onChange={handleChange} />
+          <Input label="Nombre del Barber" name="barber_name" value={settings?.barber_name || ''} onChange={handleChange} />
+          <Input label="Teléfono" name="phone" value={settings?.phone || ''} onChange={handleChange} type="tel" />
+          <Input label="WhatsApp" name="whatsapp_number" value={settings?.whatsapp_number || ''} onChange={handleChange} type="tel" />
+          <Input label="Email" name="email" value={settings?.email || ''} onChange={handleChange} type="email" />
+          <Input label="Dirección" name="address" value={settings?.address || ''} onChange={handleChange} />
+          <Input label="Zona horaria" name="timezone" value={settings?.timezone || 'America/Bogota'} onChange={handleChange} />
+          <Input label="Días máx. de reserva anticipada" name="max_advance_booking_days" value={settings?.max_advance_booking_days || 14} onChange={handleChange} type="number" min="1" max="90" />
+          <Input label="Horas mín. para cancelar" name="min_cancel_hours" value={settings?.min_cancel_hours || 24} onChange={handleChange} type="number" min="0" max="720" />
+          <Input label="Buffer entre turnos (min)" name="buffer_minutes_between_appointments" value={settings?.buffer_minutes_between_appointments || 0} onChange={handleChange} type="number" min="0" max="120" />
         </div>
-        <button type="submit" disabled={saving} className="bg-[#A9812E] text-[#121113] px-6 py-3 rounded-sm font-semibold text-sm hover:bg-[#C9A860] transition-colors flex items-center disabled:opacity-50">
-          {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+        <Button type="submit" disabled={saving} loading={saving} size="sm">
           {saving ? 'Guardando...' : 'Guardar Cambios'}
-        </button>
+        </Button>
       </form>
     </div>
   );

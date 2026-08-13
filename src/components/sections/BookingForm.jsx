@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, X, Check, ChevronRight, User, Phone, MessageSquare, Loader2, Clock, CalendarDays, Info, Scissors } from 'lucide-react';
+import { ArrowLeft, X, Check, ChevronRight, User, Phone, MessageSquare, Clock, CalendarDays, Info, Scissors, Send } from 'lucide-react';
 import { fetchServices, formatPrice } from '../../data/services';
 import { api } from '../../services/api';
 import { APP_CONFIG } from '../../utils/constants';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
+import TextArea from '../ui/TextArea';
+import ErrorBanner from '../ui/ErrorBanner';
+import Loader from '../ui/Loader';
 
 const toLocalDateString = (date) => {
   const year = date.getFullYear();
@@ -211,8 +216,6 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       console.log('Appointment created:', appointmentData);
 
       setShowSuccess(true);
-      // 8s en vez de 3s — tiempo suficiente para leer el resumen o hacer captura.
-      // El usuario también puede cerrar antes con el botón "Listo".
       successTimeoutRef.current = setTimeout(() => {
         setShowSuccess(false);
         onClose();
@@ -237,8 +240,6 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     }
   };
 
-  // Permite saltar directamente a un paso ya completado (o al actual) haciendo clic
-  // en el indicador de pasos, sin perder lo que ya se había seleccionado.
   const goToStep = (stepId) => {
     const targetStep = steps.find((s) => s.id === stepId);
     if (targetStep && (targetStep.completed || targetStep.active)) {
@@ -358,7 +359,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
               <div className="space-y-3">
                 {servicesLoading ? (
                   <div className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-[#A9812E] mx-auto" />
+                    <Loader size="lg" className="mx-auto" />
                     <p className="text-[#6B6459] mt-2 text-sm">Cargando servicios...</p>
                   </div>
                 ) : services.length === 0 ? (
@@ -424,7 +425,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
               )}
 
               {workstationsLoading ? (
-                <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-[#A9812E]" /></div>
+                <div className="flex items-center justify-center py-8"><Loader size="lg" /></div>
               ) : (
                 <div className="mb-6">
                   <h3 className="text-base font-medium mb-4 text-[#1C1A16]">Selecciona una estación</h3>
@@ -477,7 +478,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                 <div>
                   <h4 className="text-base font-medium mb-4 text-[#1C1A16]">Horarios disponibles</h4>
                   {slotsLoading ? (
-                    <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-[#A9812E]" /></div>
+                    <div className="flex items-center justify-center py-8"><Loader size="lg" /></div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
                       {availableSlots.map((time, index) => (
@@ -515,40 +516,30 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="flex items-center text-sm font-medium text-[#1C1A16] mb-2"><User className="h-4 w-4 mr-2 text-[#A9812E]" />Nombre completo</label>
-                  <input
-                    type="text"
-                    value={clientName}
-                    onChange={(e) => { setClientName(e.target.value); setFieldErrors(prev => ({ ...prev, name: null })); }}
-                    className={`w-full px-4 py-3 border rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none ${fieldErrors.name ? 'border-[#C25555]' : 'border-[#E4DCC9]'}`}
-                    placeholder="Tu nombre completo"
-                  />
-                  {fieldErrors.name && <p className="mt-1 text-sm text-[#C25555]">{fieldErrors.name}</p>}
-                </div>
-                <div>
-                  <label className="flex items-center text-sm font-medium text-[#1C1A16] mb-2"><Phone className="h-4 w-4 mr-2 text-[#A9812E]" />Teléfono</label>
-                  <input
-                    type="tel"
-                    value={clientPhone}
-                    onChange={(e) => { setClientPhone(e.target.value); setFieldErrors(prev => ({ ...prev, phone: null })); }}
-                    className={`w-full px-4 py-3 border rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none ${fieldErrors.phone ? 'border-[#C25555]' : 'border-[#E4DCC9]'}`}
-                    placeholder="3101234567"
-                    maxLength={10}
-                  />
-                  {fieldErrors.phone && <p className="mt-1 text-sm text-[#C25555]">{fieldErrors.phone}</p>}
-                </div>
-                <div>
-                  <label className="flex items-center text-sm font-medium text-[#1C1A16] mb-2"><MessageSquare className="h-4 w-4 mr-2 text-[#A9812E]" />Mensaje (opcional)</label>
-                  <textarea
-                    value={clientMessage}
-                    onChange={(e) => setClientMessage(e.target.value)}
-                    className="w-full px-4 py-3 border border-[#E4DCC9] rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
-                    rows={3}
-                    placeholder="Algún detalle especial para tu cita..."
-                    maxLength={500}
-                  />
-                </div>
+                <Input
+                  label={<span className="flex items-center"><User className="h-4 w-4 mr-2 text-[#A9812E]" />Nombre completo</span>}
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => { setClientName(e.target.value); setFieldErrors(prev => ({ ...prev, name: null })); }}
+                  placeholder="Tu nombre completo"
+                  error={fieldErrors.name}
+                />
+                <Input
+                  label={<span className="flex items-center"><Phone className="h-4 w-4 mr-2 text-[#A9812E]" />Teléfono</span>}
+                  type="tel"
+                  value={clientPhone}
+                  onChange={(e) => { setClientPhone(e.target.value); setFieldErrors(prev => ({ ...prev, phone: null })); }}
+                  placeholder="3101234567"
+                  maxLength={10}
+                  error={fieldErrors.phone}
+                />
+                <TextArea
+                  label={<span className="flex items-center"><MessageSquare className="h-4 w-4 mr-2 text-[#A9812E]" />Mensaje (opcional)</span>}
+                  value={clientMessage}
+                  onChange={(e) => setClientMessage(e.target.value)}
+                  placeholder="Algún detalle especial para tu cita..."
+                  maxLength={500}
+                />
               </div>
             </div>
           )}
@@ -600,10 +591,10 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         {!showSuccess && (
           <div className="flex-shrink-0 border-t border-[#E4DCC9] p-4 sm:p-6 bg-white">
             {currentStep === 2 && canContinueStep2 && (
-              <button onClick={() => setCurrentStep(3)} className="w-full bg-[#A9812E] text-[#121113] py-3 sm:py-4 rounded-sm font-semibold text-base uppercase tracking-wide hover:bg-[#C9A860] transition-colors">Continuar</button>
+              <Button onClick={() => setCurrentStep(3)} className="w-full" size="lg">Continuar</Button>
             )}
             {currentStep === 3 && (
-              <button onClick={() => { if (validateClientForm()) setCurrentStep(4); }} className="w-full bg-[#A9812E] text-[#121113] py-3 sm:py-4 rounded-sm font-semibold text-base uppercase tracking-wide hover:bg-[#C9A860] transition-colors">Continuar</button>
+              <Button onClick={() => { if (validateClientForm()) setCurrentStep(4); }} className="w-full" size="lg">Continuar</Button>
             )}
             {currentStep === 4 && (
               <div className="space-y-4">
@@ -611,9 +602,9 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                   <span className="text-[#1C1A16]">Total a pagar:</span>
                   <span className="text-2xl text-[#8B6A22]">{formatPrice(selectedService?.price)}</span>
                 </div>
-                <button onClick={confirmBooking} disabled={submitLoading} className="w-full bg-[#121113] text-[#F6F2EA] py-3 sm:py-4 rounded-sm font-semibold text-base uppercase tracking-wide hover:bg-[#1C1A16] transition-colors disabled:opacity-50 flex items-center justify-center">
-                  {submitLoading ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Agendando...</> : 'Confirmar Reserva'}
-                </button>
+                <Button onClick={confirmBooking} loading={submitLoading} disabled={submitLoading} className="w-full" variant="dark" size="lg">
+                  {submitLoading ? 'Agendando...' : 'Confirmar Reserva'}
+                </Button>
               </div>
             )}
           </div>

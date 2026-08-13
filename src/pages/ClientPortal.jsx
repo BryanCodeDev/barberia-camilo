@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Loader2, Send, RefreshCw } from 'lucide-react';
+import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw } from 'lucide-react';
 import { api, setClientToken } from '../services/api';
+import useAuth from '../hooks/useAuth';
+import LoginForm from '../components/auth/LoginForm';
+import Button from '../components/ui/Button';
+import ErrorBanner from '../components/ui/ErrorBanner';
+import Loader from '../components/ui/Loader';
 
 const ClientPortal = ({ business }) => {
+  const { isAuthenticated, login: authLogin, logout: authLogout } = useAuth('client');
   const [loginStep, setLoginStep] = useState('phone');
   const [clientPhone, setClientPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -19,13 +25,9 @@ const ClientPortal = ({ business }) => {
   useEffect(() => {
     const storedId = localStorage.getItem('client_id');
     const storedPhone = localStorage.getItem('client_phone');
-    const storedToken = localStorage.getItem('client_token');
     if (storedId && storedPhone) {
       setClientId(storedId);
       setClientPhone(storedPhone);
-      if (storedToken) {
-        setClientToken(storedToken);
-      }
       fetchMyAppointments(storedId);
       setIsLoggedIn(true);
     }
@@ -64,16 +66,17 @@ const ClientPortal = ({ business }) => {
     }
   };
 
-  const handleRequestOtp = async (e) => {
-    e.preventDefault();
+  const handleRequestOtp = async (values) => {
     setError(null);
-    if (!clientPhone.trim() || !/^\d{10}$/.test(clientPhone.trim())) {
+    const phone = values.phone.trim();
+    if (!phone || !/^\d{10}$/.test(phone)) {
       setError('Ingresa un número de teléfono válido de 10 dígitos');
       return;
     }
     try {
       setLoading(true);
-      await api.post('/auth/client/request-otp', { phone: clientPhone });
+      await api.post('/auth/client/request-otp', { phone });
+      setClientPhone(phone);
       setLoginStep('otp');
       setOtpCode('');
       setRemainingAttempts(null);
@@ -89,10 +92,10 @@ const ClientPortal = ({ business }) => {
     }
   };
 
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
+  const handleVerifyOtp = async (values) => {
     setError(null);
-    if (!otpCode.trim() || !/^\d{6}$/.test(otpCode.trim())) {
+    const code = values.code.trim();
+    if (!code || !/^\d{6}$/.test(code)) {
       setError('Ingresa el código de 6 dígitos que recibiste por WhatsApp');
       return;
     }
@@ -100,16 +103,15 @@ const ClientPortal = ({ business }) => {
       setLoading(true);
       const data = await api.post('/auth/client/verify-otp', {
         phone: clientPhone,
-        code: otpCode,
+        code: code,
       });
 
       if (data.token) {
-        setClientToken(data.token);
-        localStorage.setItem('client_token', data.token);
+        authLogin(data.token);
       }
-      setClientId(data.id);
       localStorage.setItem('client_id', data.id);
       localStorage.setItem('client_phone', clientPhone);
+      setClientId(data.id);
       setClientName(data.name);
       setIsLoggedIn(true);
       setLoginStep('logged_in');
@@ -134,7 +136,7 @@ const ClientPortal = ({ business }) => {
     setRemainingAttempts(null);
     try {
       setLoading(true);
-      const data = await api.post('/auth/client/request-otp', { phone: clientPhone });
+      await api.post('/auth/client/request-otp', { phone: clientPhone });
       startCooldown(60);
     } catch (err) {
       if (err.data?.error) {
@@ -148,6 +150,7 @@ const ClientPortal = ({ business }) => {
   };
 
   const handleLogout = () => {
+    authLogout();
     setIsLoggedIn(false);
     setClientId(null);
     setClientPhone('');
@@ -160,8 +163,6 @@ const ClientPortal = ({ business }) => {
     setResendCooldown(0);
     localStorage.removeItem('client_id');
     localStorage.removeItem('client_phone');
-    localStorage.removeItem('client_token');
-    setClientToken(null);
   };
 
   const formatDate = (dateString) => {
@@ -198,72 +199,47 @@ const ClientPortal = ({ business }) => {
         </div>
 
         {!isLoggedIn ? (
-          <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm p-6 sm:p-8 max-w-md mx-auto">
+          <div>
             {loginStep === 'phone' && (
-              <>
-                <div className="text-center mb-8">
-                  <div className="w-14 h-14 rounded-full border border-[#A9812E]/60 flex items-center justify-center mx-auto mb-4">
-                    <User className="h-6 w-6 text-[#8B6A22]" />
-                  </div>
-                  <h2 className="font-serif text-xl text-[#1C1A16] mb-2">Iniciar Sesión</h2>
-                  <p className="text-sm text-[#6B6459]">Ingresa tu número de teléfono y te enviaremos un código de verificación por WhatsApp</p>
-                </div>
-                <form onSubmit={handleRequestOtp} className="space-y-6">
-                  {error && (
-                    <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm">{error}</div>
-                  )}
-                  <div>
-                    <label className="flex items-center text-sm font-medium text-[#1C1A16] mb-2"><Phone className="h-4 w-4 mr-2 text-[#A9812E]" />Teléfono</label>
-                    <input
-                      type="tel"
-                      value={clientPhone}
-                      onChange={(e) => setClientPhone(e.target.value)}
-                      className="w-full px-4 py-3 border border-[#E4DCC9] rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
-                      placeholder="3101234567"
-                      maxLength={10}
-                    />
-                  </div>
-                  <button type="submit" disabled={loading} className="w-full bg-[#A9812E] text-[#121113] py-3 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#C9A860] transition-colors disabled:opacity-50 flex items-center justify-center">
-                    {loading ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Enviando...</> : <><Send className="h-5 w-5 mr-2" /> Enviar Código</>}
-                  </button>
-                </form>
-              </>
+              <LoginForm
+                fields={[
+                  { name: 'phone', label: 'Teléfono', type: 'tel', placeholder: '3101234567', required: true, maxLength: 10 },
+                ]}
+                onSubmit={handleRequestOtp}
+                loading={loading}
+                error={error}
+                submitLabel={
+                  <span className="flex items-center justify-center gap-2">
+                    <Send className="h-5 w-5" /> Enviar Código
+                  </span>
+                }
+                headerIcon={User}
+                headerTitle="Iniciar Sesión"
+                headerSubtitle="Ingresa tu número de teléfono y te enviaremos un código de verificación por WhatsApp"
+              />
             )}
 
             {loginStep === 'otp' && (
               <>
-                <div className="text-center mb-8">
-                  <div className="w-14 h-14 rounded-full border border-[#A9812E]/60 flex items-center justify-center mx-auto mb-4">
-                    <Phone className="h-6 w-6 text-[#8B6A22]" />
-                  </div>
-                  <h2 className="font-serif text-xl text-[#1C1A16] mb-2">Código de Verificación</h2>
-                  <p className="text-sm text-[#6B6459]">Ingresa el código de 6 dígitos que recibiste por WhatsApp en <strong>{clientPhone}</strong></p>
-                </div>
-                <form onSubmit={handleVerifyOtp} className="space-y-6">
-                  {error && (
-                    <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm">{error}</div>
-                  )}
-                  <div>
-                    <label className="flex items-center text-sm font-medium text-[#1C1A16] mb-2"><User className="h-4 w-4 mr-2 text-[#A9812E]" />Código</label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]{6}"
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      className="w-full px-4 py-3 border border-[#E4DCC9] rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none text-center text-2xl tracking-[0.5em] font-mono"
-                      placeholder="______"
-                      autoComplete="one-time-code"
-                    />
-                    {remainingAttempts !== null && (
-                      <p className="mt-1 text-xs text-[#8B2E2E]">{remainingAttempts} intento(s) restante(s)</p>
-                    )}
-                  </div>
-                  <button type="submit" disabled={loading} className="w-full bg-[#A9812E] text-[#121113] py-3 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#C9A860] transition-colors disabled:opacity-50 flex items-center justify-center">
-                    {loading ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Verificando...</> : <><LogIn className="h-5 w-5 mr-2" /> Verificar Código</>}
-                  </button>
-                </form>
+                <LoginForm
+                  fields={[
+                    { name: 'code', label: 'Código', type: 'text', placeholder: '______', required: true, maxLength: 6, inputMode: 'numeric', autoComplete: 'one-time-code', className: 'text-center text-2xl tracking-[0.5em] font-mono' },
+                  ]}
+                  onSubmit={handleVerifyOtp}
+                  loading={loading}
+                  error={error}
+                  submitLabel={
+                    <span className="flex items-center justify-center gap-2">
+                      <LogIn className="h-5 w-5" /> Verificar Código
+                    </span>
+                  }
+                  headerIcon={Phone}
+                  headerTitle="Código de Verificación"
+                  headerSubtitle={`Ingresa el código de 6 dígitos que recibiste por WhatsApp en <strong>${clientPhone}</strong>`}
+                />
+                {remainingAttempts !== null && (
+                  <p className="mt-2 text-xs text-[#8B2E2E] text-center">{remainingAttempts} intento(s) restante(s)</p>
+                )}
                 <div className="mt-4 text-center">
                   {resendCooldown > 0 ? (
                     <p className="text-sm text-[#6B6459]">Reenviar código en <strong>{resendCooldown}</strong>s</p>
@@ -282,7 +258,7 @@ const ClientPortal = ({ business }) => {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="bg-white border border-[#E4DCC9] rounded-sm p-6 flex items-center justify-between">
+            <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm p-6 flex items-center justify-between">
               <div>
                 <h2 className="font-serif text-xl text-[#1C1A16]">Bienvenido, {clientName || 'Cliente'}</h2>
                 <p className="text-sm text-[#6B6459] mt-1">Teléfono: {clientPhone}</p>
@@ -292,9 +268,9 @@ const ClientPortal = ({ business }) => {
                   </p>
                 )}
               </div>
-              <button onClick={handleLogout} className="border border-[#E4DCC9] text-[#6B6459] px-4 py-2 rounded-sm text-sm hover:border-[#A9812E] hover:text-[#8B6A22] transition-colors">
+              <Button variant="secondary" onClick={handleLogout} size="sm">
                 Cerrar Sesión
-              </button>
+              </Button>
             </div>
             <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
               <div className="px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9]">
@@ -302,7 +278,11 @@ const ClientPortal = ({ business }) => {
                   <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Mis Citas
                 </h3>
               </div>
-              {appointments.length > 0 ? (
+              {loading ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader size="lg" />
+                </div>
+              ) : appointments.length > 0 ? (
                 <div className="divide-y divide-[#E4DCC9]">
                   {appointments.map((apt) => (
                     <div key={apt.id} className="p-4 sm:p-6 hover:bg-[#F6F2EA]/50 transition-colors">

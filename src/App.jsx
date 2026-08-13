@@ -5,7 +5,7 @@ import Footer from './components/layout/Footer';
 import HeroSection from './components/sections/HeroSection';
 import ServicesSection from './components/sections/ServicesSection';
 import BookingForm from './components/sections/BookingForm';
-import AdminPanel from './components/admin/AdminPanel';
+import AdminPanel from './pages/AdminPanel';
 import ClientPortal from './pages/ClientPortal';
 import { useBusinessSettings } from './hooks/useBusinessSettings';
 import { onBookingRequested } from './utils/booking';
