@@ -23,6 +23,7 @@ const HeroSection = ({ onBookingClick, business }) => {
         name: business.name || defaultBusiness.name,
         title: business.title || defaultBusiness.title,
         address: business.address || defaultBusiness.address,
+        phone: business.phone || '+57 300 123 4567',
       });
     }
   }, [business]);
@@ -36,7 +37,6 @@ const HeroSection = ({ onBookingClick, business }) => {
 
   return (
     <section className="relative bg-[#121113] text-[#F6F2EA] py-20 md:py-28 overflow-hidden">
-      {/* Signature accent: fine diagonal stripes referencing the barber pole, kept quiet */}
       <div
         className="absolute inset-y-0 right-0 w-24 md:w-40 opacity-[0.07] pointer-events-none"
         style={{
@@ -54,7 +54,6 @@ const HeroSection = ({ onBookingClick, business }) => {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center">
-          {/* Eyebrow */}
           <div className="flex items-center justify-center gap-3 mb-6">
             <span className="h-px w-8 bg-[#3A362F]" />
             <span className="text-xs uppercase tracking-[0.35em] text-[#C9A860]">
@@ -72,7 +71,6 @@ const HeroSection = ({ onBookingClick, business }) => {
             detalle, en {localBusiness.address}.
           </p>
 
-          {/* Stats */}
           <div className="flex items-center justify-center divide-x divide-[#2A2723] mb-12">
             {stats.map((stat, index) => (
               <div key={index} className="px-6 md:px-10 text-center">
@@ -86,7 +84,6 @@ const HeroSection = ({ onBookingClick, business }) => {
             ))}
           </div>
 
-          {/* Call to Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12 px-4">
             <button
               onClick={onBookingClick}
@@ -102,11 +99,10 @@ const HeroSection = ({ onBookingClick, business }) => {
             </button>
           </div>
 
-          {/* Contact Info */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-[#8A8579] text-sm px-4">
             <div className="flex items-center">
               <Phone className="h-4 w-4 text-[#C9A860] mr-2" />
-              {localBusiness.address ? '+57 300 123 4567' : '+57 300 123 4567'}
+              {localBusiness.phone || '+57 300 123 4567'}
             </div>
             <div className="hidden sm:block w-1 h-1 bg-[#3A362F] rounded-full" />
             <div className="flex items-center">

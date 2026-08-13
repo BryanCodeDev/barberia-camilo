@@ -2,10 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   User, Phone, Calendar, Clock, MessageSquare, Trash2,
   Eye, EyeOff, LogOut, Shield, Users, X, Check,
-  AlertTriangle, Loader2
+  AlertTriangle, Loader2, Scissors
 } from 'lucide-react';
 import { STATUS_LABELS } from '../../utils/constants';
-import { api, setAuthToken, getAuthToken } from '../../services/api';
+import { api, setAdminToken, getAdminToken } from '../../services/api';
+import BarberManager from './BarberManager';
+import WorkstationManager from './WorkstationManager';
+import NotificationsCenter from './NotificationsCenter';
+import SettingsEditor from './SettingsEditor';
 
 const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
 
@@ -24,22 +28,18 @@ const AdminPanel = ({ onClose, business }) => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('appointments');
   const [selectedDate, setSelectedDate] = useState('');
+  const [stats, setStats] = useState({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 });
+  const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
-    const token = getAuthToken();
+    const token = getAdminToken();
     if (token) {
-      setAuthToken(token);
+      setAdminToken(token);
       setIsAuthenticated(true);
     }
   }, []);
-
-  useEffect(() => {
-    if (business) {
-      // Business info available from props
-    }
-  }, [business]);
 
   const businessInfo = business || defaultBusiness;
 
@@ -57,7 +57,7 @@ const AdminPanel = ({ onClose, business }) => {
         username: adminCredentials.username,
         password: adminCredentials.password,
       });
-      setAuthToken(data.token);
+      setAdminToken(data.token);
       setIsAuthenticated(true);
       setAdminCredentials({ username: '', password: '' });
       setErrors({});
@@ -68,12 +68,25 @@ const AdminPanel = ({ onClose, business }) => {
   };
 
   const handleLogout = () => {
-    setAuthToken(null);
+    setAdminToken(null);
     setIsAuthenticated(false);
     setAdminCredentials({ username: '', password: '' });
     setErrors({});
     setAppointments([]);
+    setStats({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 });
   };
+
+  const fetchStats = useCallback(async () => {
+    try {
+      setStatsLoading(true);
+      const data = await api.get('/admin/stats');
+      setStats(data);
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    } finally {
+      setStatsLoading(false);
+    }
+  }, []);
 
   const fetchAppointments = useCallback(async () => {
     try {
@@ -93,9 +106,10 @@ const AdminPanel = ({ onClose, business }) => {
 
   useEffect(() => {
     if (isAuthenticated) {
+      fetchStats();
       fetchAppointments();
     }
-  }, [isAuthenticated, selectedDate, fetchAppointments]);
+  }, [isAuthenticated, selectedDate, fetchStats, fetchAppointments]);
 
   const handleDeleteAppointment = async (id) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar esta cita?')) return;
@@ -103,6 +117,7 @@ const AdminPanel = ({ onClose, business }) => {
       setError(null);
       await api.delete(`/appointments/${id}`);
       await fetchAppointments();
+      await fetchStats();
     } catch (err) {
       setError(err.message);
     }
@@ -116,6 +131,7 @@ const AdminPanel = ({ onClose, business }) => {
         cancelled_reason: cancelledReason,
       });
       await fetchAppointments();
+      await fetchStats();
     } catch (err) {
       setError(err.message);
     }
@@ -225,6 +241,14 @@ const AdminPanel = ({ onClose, business }) => {
     );
   }
 
+  const tabs = [
+    { id: 'appointments', label: 'Citas', icon: Calendar },
+    { id: 'barbers', label: 'Barberos', icon: Users },
+    { id: 'workstations', label: 'Estaciones', icon: Scissors },
+    { id: 'notifications', label: 'Notificaciones', icon: MessageSquare },
+    { id: 'settings', label: 'Configuración', icon: Shield },
+  ];
+
   return (
     <div className="min-h-screen bg-[#F6F2EA]">
       <div className="bg-[#121113]">
@@ -236,7 +260,7 @@ const AdminPanel = ({ onClose, business }) => {
               </div>
               <div>
                 <h1 className="font-serif text-2xl sm:text-3xl">Panel de Administración</h1>
-                <p className="text-sm text-[#9A9488]">Gestiona las citas de tu barbería</p>
+                <p className="text-sm text-[#9A9488]">Gestiona tu barbería</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -259,136 +283,161 @@ const AdminPanel = ({ onClose, business }) => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-8">
-          {[
-            { label: 'Total Citas', value: appointments.length, color: 'blue', icon: Calendar },
-            { label: 'Pendientes', value: appointments.filter((a) => a.status === 'pending').length, color: 'yellow', icon: Clock },
-            { label: 'Confirmadas', value: appointments.filter((a) => a.status === 'confirmed').length, color: 'green', icon: Check },
-            { label: 'Hoy', value: appointments.filter((a) => a.appointment_date === new Date().toISOString().split('T')[0]).length, color: 'amber', icon: User },
-          ].map((stat, index) => {
-            const style = STAT_STYLES[stat.color];
-            return (
-              <div key={index} className={`p-4 sm:p-6 rounded-sm border ${style.card}`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className={`text-sm font-medium mb-1 ${style.label}`}>{stat.label}</p>
-                    <p className={`text-2xl sm:text-3xl font-serif ${style.value}`}>{stat.value}</p>
+        {activeTab === 'appointments' && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-5 mb-8">
+              {[
+                { label: 'Total Citas', value: stats.total, color: 'blue', icon: Calendar },
+                { label: 'Pendientes', value: stats.pending, color: 'yellow', icon: Clock },
+                { label: 'Confirmadas', value: stats.confirmed, color: 'green', icon: Check },
+                { label: 'Canceladas', value: stats.cancelled, color: 'amber', icon: AlertTriangle },
+                { label: 'Hoy', value: stats.today, color: 'blue', icon: User },
+              ].map((stat, index) => {
+                const style = STAT_STYLES[stat.color];
+                return (
+                  <div key={index} className={`p-4 sm:p-6 rounded-sm border ${style.card}`}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className={`text-sm font-medium mb-1 ${style.label}`}>{stat.label}</p>
+                        <p className={`text-2xl sm:text-3xl font-serif ${style.value}`}>{statsLoading ? '...' : stat.value}</p>
+                      </div>
+                      <div className={`p-3 rounded-full ${style.icon}`}>
+                        <stat.icon className="h-5 w-5 text-white" />
+                      </div>
+                    </div>
                   </div>
-                  <div className={`p-3 rounded-full ${style.icon}`}>
-                    <stat.icon className="h-5 w-5 text-white" />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div className="flex flex-wrap gap-2">
-            {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-3 py-1.5 rounded-sm text-sm font-medium transition-colors ${
-                  activeTab === tab ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60'
-                }`}
-              >
-                {tab === 'all' ? 'Todas' : STATUS_LABELS[tab] || tab}
-              </button>
-            ))}
-          </div>
-          <div>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="px-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
-            />
-            {selectedDate && (
-              <button onClick={() => setSelectedDate('')} className="ml-2 text-sm text-[#8B6A22] hover:underline">Limpiar</button>
-            )}
-          </div>
-        </div>
-
-        <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
-          <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9]">
-            <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
-              <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Citas Agendadas ({appointments.length})
-            </h3>
-          </div>
-
-          {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" />
+                );
+              })}
             </div>
-          ) : appointments.length > 0 ? (
-            <div className="divide-y divide-[#E4DCC9]">
-              {filteredAppointments.map((appointment) => (
-                <div key={appointment.id} className="p-4 sm:p-6 hover:bg-[#F6F2EA]/50 transition-colors">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-start sm:items-center space-x-3">
-                        <div className="bg-[#A9812E]/10 p-2 rounded-full flex-shrink-0">
-                          <User className="h-4 w-4 sm:h-5 sm:w-5 text-[#8B6A22]" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div className="flex flex-wrap gap-2">
+                {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-3 py-1.5 rounded-sm text-sm font-medium transition-colors ${
+                      activeTab === tab ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60'
+                    }`}
+                  >
+                    {tab === 'all' ? 'Todas' : STATUS_LABELS[tab] || tab}
+                  </button>
+                ))}
+              </div>
+              <div>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="px-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+                />
+                {selectedDate && (
+                  <button onClick={() => setSelectedDate('')} className="ml-2 text-sm text-[#8B6A22] hover:underline">Limpiar</button>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
+              <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9]">
+                <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
+                  <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Citas Agendadas ({appointments.length})
+                </h3>
+              </div>
+
+              {loading ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" />
+                </div>
+              ) : appointments.length > 0 ? (
+                <div className="divide-y divide-[#E4DCC9]">
+                  {filteredAppointments.map((appointment) => (
+                    <div key={appointment.id} className="p-4 sm:p-6 hover:bg-[#F6F2EA]/50 transition-colors">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div className="flex-1 space-y-3">
+                          <div className="flex items-start sm:items-center space-x-3">
+                            <div className="bg-[#A9812E]/10 p-2 rounded-full flex-shrink-0">
+                              <User className="h-4 w-4 sm:h-5 sm:w-5 text-[#8B6A22]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-[#1C1A16] text-base sm:text-lg truncate">{appointment.client_name}</h4>
+                              <div className="flex items-center text-sm text-[#6B6459] mt-1">
+                                <Phone className="h-3 w-3 mr-1 flex-shrink-0" />
+                                <span className="truncate">{appointment.client_phone}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                            <div className="font-medium text-[#1C1A16] bg-[#F6F2EA] px-3 py-2 rounded-sm">
+                              <span className="text-[#6B6459]">Servicio: </span>{appointment.service_name}
+                            </div>
+                            <div className="flex items-center text-[#6B6459] bg-[#F6F2EA] px-3 py-2 rounded-sm">
+                              <Calendar className="h-3 w-3 mr-2 flex-shrink-0" />
+                              <span className="truncate">{formatDate(appointment.appointment_date)} - {appointment.appointment_time}</span>
+                            </div>
+                          </div>
+                          {appointment.client_message && (
+                            <div className="flex items-start text-sm text-[#1C1A16] bg-[#EEF3FB] p-3 rounded-sm">
+                              <MessageSquare className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-[#3B5B8C]" />
+                              <span className="break-words">{appointment.client_message}</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-[#1C1A16] text-base sm:text-lg truncate">{appointment.client_name}</h4>
-                          <div className="flex items-center text-sm text-[#6B6459] mt-1">
-                            <Phone className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="truncate">{appointment.client_phone}</span>
+                        <div className="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-sm text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                            {getStatusText(appointment.status)}
+                          </span>
+                          <div className="flex items-center space-x-1">
+                            {appointment.status === 'pending' && (
+                              <button onClick={() => handleStatusChange(appointment.id, 'confirmed')} className="text-[#3E6B3E] hover:bg-[#EEF5EE] p-2 rounded-sm transition-colors" title="Confirmar cita">
+                                <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                              </button>
+                            )}
+                            {appointment.status === 'pending' && (
+                              <button onClick={() => {
+                                const reason = window.prompt('Motivo de cancelación:');
+                                if (reason !== null) handleStatusChange(appointment.id, 'cancelled', reason);
+                              }} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Cancelar cita">
+                                <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
+                              </button>
+                            )}
+                            <button onClick={() => handleDeleteAppointment(appointment.id)} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Eliminar cita">
+                              <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                            </button>
                           </div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                        <div className="font-medium text-[#1C1A16] bg-[#F6F2EA] px-3 py-2 rounded-sm">
-                          <span className="text-[#6B6459]">Servicio: </span>{appointment.service_name}
-                        </div>
-                        <div className="flex items-center text-[#6B6459] bg-[#F6F2EA] px-3 py-2 rounded-sm">
-                          <Calendar className="h-3 w-3 mr-2 flex-shrink-0" />
-                          <span className="truncate">{formatDate(appointment.appointment_date)} - {appointment.appointment_time}</span>
-                        </div>
-                      </div>
-                      {appointment.client_message && (
-                        <div className="flex items-start text-sm text-[#1C1A16] bg-[#EEF3FB] p-3 rounded-sm">
-                          <MessageSquare className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-[#3B5B8C]" />
-                          <span className="break-words">{appointment.client_message}</span>
-                        </div>
-                      )}
                     </div>
-                    <div className="flex items-center justify-between sm:justify-end space-x-3 flex-shrink-0">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-sm text-xs font-medium ${getStatusColor(appointment.status)}`}>
-                        {getStatusText(appointment.status)}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        {appointment.status === 'pending' && (
-                          <button onClick={() => handleStatusChange(appointment.id, 'confirmed')} className="text-[#3E6B3E] hover:bg-[#EEF5EE] p-2 rounded-sm transition-colors" title="Confirmar cita">
-                            <Check className="h-4 w-4 sm:h-5 sm:w-5" />
-                          </button>
-                        )}
-                        {appointment.status === 'pending' && (
-                          <button onClick={() => {
-                            const reason = window.prompt('Motivo de cancelación:');
-                            if (reason !== null) handleStatusChange(appointment.id, 'cancelled', reason);
-                          }} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Cancelar cita">
-                            <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
-                          </button>
-                        )}
-                        <button onClick={() => handleDeleteAppointment(appointment.id)} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Eliminar cita">
-                          <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div className="text-center py-16 px-4">
+                  <Calendar className="h-12 w-12 text-[#D8D3C7] mx-auto mb-4" />
+                  <h3 className="font-serif text-lg text-[#1C1A16] mb-2">No hay citas agendadas</h3>
+                  <p className="text-[#6B6459] max-w-md mx-auto text-sm">Las citas aparecerán aquí cuando los clientes las agenden.</p>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="text-center py-16 px-4">
-              <Calendar className="h-12 w-12 text-[#D8D3C7] mx-auto mb-4" />
-              <h3 className="font-serif text-lg text-[#1C1A16] mb-2">No hay citas agendadas</h3>
-              <p className="text-[#6B6459] max-w-md mx-auto text-sm">Las citas aparecerán aquí cuando los clientes las agenden.</p>
-            </div>
-          )}
+          </>
+        )}
+
+        {activeTab === 'barbers' && <BarberManager business={businessInfo} />}
+        {activeTab === 'workstations' && <WorkstationManager business={businessInfo} />}
+        {activeTab === 'notifications' && <NotificationsCenter business={businessInfo} />}
+        {activeTab === 'settings' && <SettingsEditor business={businessInfo} onUpdate={fetchStats} />}
+      </div>
+
+      <div className="fixed bottom-6 right-6 z-40">
+        <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-lg p-2 flex flex-col gap-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`p-3 rounded-sm transition-colors ${activeTab === tab.id ? 'bg-[#A9812E] text-[#121113]' : 'text-[#6B6459] hover:bg-[#F6F2EA]'}`}
+              title={tab.label}
+            >
+              <tab.icon className="h-5 w-5" />
+            </button>
+          ))}
         </div>
       </div>
     </div>

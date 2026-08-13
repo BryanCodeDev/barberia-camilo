@@ -1,53 +1,29 @@
 // src/components/layout/Footer.jsx
-import React, { useState, useEffect } from 'react';
-import { Scissors, Phone, MapPin, Instagram, Facebook, Clock } from 'lucide-react';
-
-const defaultBusinessInfo = {
-  name: "Barber Trebol",
-  phone: "+57 300 123 4567",
-  whatsapp: "573001234567",
-  email: "contacto@barbertrebol.com",
-  address: {
-    street: "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01",
-    city: "Mosquera",
-    state: "Cundinamarca",
-    country: "Colombia",
-    full: "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01, Mosquera, Cundinamarca"
-  },
-  socialMedia: {
-    instagram: "@barbertrebol",
-    facebook: "Barber Trebol",
-    tiktok: "@barbertrebol"
-  }
-};
+import React from 'react';
+import { Scissors, Phone, MapPin, Instagram, Facebook, Clock, MessageCircle } from 'lucide-react';
 
 const Footer = ({ business }) => {
-  const [businessInfo, setBusinessInfo] = useState(defaultBusinessInfo);
-
-  useEffect(() => {
-    if (business) {
-      setBusinessInfo({
-        name: business.name || defaultBusinessInfo.name,
-        phone: business.phone || defaultBusinessInfo.phone,
-        whatsapp: business.whatsapp || defaultBusinessInfo.whatsapp,
-        email: business.email || defaultBusinessInfo.email,
-        address: {
-          street: business.address || defaultBusinessInfo.address.street,
-          city: "Mosquera",
-          state: "Cundinamarca",
-          country: "Colombia",
-          full: business.address || defaultBusinessInfo.address.full
-        },
-        socialMedia: {
-          instagram: business.instagram || defaultBusinessInfo.socialMedia.instagram,
-          facebook: business.facebook || defaultBusinessInfo.socialMedia.facebook,
-          tiktok: business.tiktok || defaultBusinessInfo.socialMedia.tiktok
-        }
-      });
+  const businessInfo = {
+    name: business?.name || "Barber Trebol",
+    phone: business?.phone || "+57 300 123 4567",
+    whatsapp: business?.whatsapp || "573001234567",
+    email: business?.email || "contacto@barbertrebol.com",
+    address: {
+      street: business?.address || "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01",
+      city: "Mosquera",
+      state: "Cundinamarca",
+      country: "Colombia",
+      full: business?.address || "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01, Mosquera, Cundinamarca"
+    },
+    socialMedia: {
+      instagram: business?.instagram || "@barbertrebol",
+      facebook: business?.facebook || "Barber Trebol",
+      tiktok: "@barbertrebol"
     }
-  }, [business]);
+  };
 
   const currentYear = new Date().getFullYear();
+  const whatsappLink = `https://wa.me/${businessInfo.whatsapp.replace(/[^0-9]/g, '')}`;
 
   return (
     <footer className="bg-[#121113] text-[#F6F2EA]">
@@ -83,21 +59,25 @@ const Footer = ({ business }) => {
               >
                 <Facebook className="h-4 w-4" />
               </a>
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
+                aria-label="WhatsApp"
+              >
+                <MessageCircle className="h-4 w-4" />
+              </a>
             </div>
           </div>
 
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C9A860] mb-5">Contacto</h3>
             <div className="space-y-3.5">
-              <div className="flex items-center">
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center text-[#D8D3C7] hover:text-[#C9A860] transition-colors text-sm">
                 <Phone className="h-4 w-4 text-[#6E6A61] mr-3 flex-shrink-0" />
-                <a
-                  href={`tel:${businessInfo.phone}`}
-                  className="text-[#D8D3C7] hover:text-[#C9A860] transition-colors text-sm"
-                >
-                  {businessInfo.phone}
-                </a>
-              </div>
+                {businessInfo.phone}
+              </a>
               <div className="flex items-start">
                 <MapPin className="h-4 w-4 text-[#6E6A61] mr-3 mt-0.5 flex-shrink-0" />
                 <div className="text-[#D8D3C7] text-sm leading-relaxed">

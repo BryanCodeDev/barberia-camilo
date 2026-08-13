@@ -1,9 +1,10 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-let authToken = localStorage.getItem('admin_token');
+let adminToken = localStorage.getItem('admin_token');
+let clientToken = localStorage.getItem('client_token');
 
-export const setAuthToken = (token) => {
-  authToken = token;
+export const setAdminToken = (token) => {
+  adminToken = token;
   if (token) {
     localStorage.setItem('admin_token', token);
   } else {
@@ -11,12 +12,24 @@ export const setAuthToken = (token) => {
   }
 };
 
-export const getAuthToken = () => authToken;
+export const getAdminToken = () => adminToken;
 
-const getHeaders = () => {
+export const setClientToken = (token) => {
+  clientToken = token;
+  if (token) {
+    localStorage.setItem('client_token', token);
+  } else {
+    localStorage.removeItem('client_token');
+  }
+};
+
+export const getClientToken = () => clientToken;
+
+const getHeaders = (useClientToken = false) => {
   const headers = { 'Content-Type': 'application/json' };
-  if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
+  const token = useClientToken ? clientToken : adminToken;
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
   return headers;
 };
@@ -39,35 +52,35 @@ const handleResponse = async (response) => {
 };
 
 export const api = {
-  get: async (url) => {
+  get: async (url, useClientToken = false) => {
     const response = await fetch(`${API_BASE_URL}${url}`, {
-      headers: getHeaders(),
+      headers: getHeaders(useClientToken),
     });
     return handleResponse(response);
   },
 
-  post: async (url, body) => {
+  post: async (url, body, useClientToken = false) => {
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'POST',
-      headers: getHeaders(),
+      headers: getHeaders(useClientToken),
       body: JSON.stringify(body),
     });
     return handleResponse(response);
   },
 
-  patch: async (url, body) => {
+  patch: async (url, body, useClientToken = false) => {
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'PATCH',
-      headers: getHeaders(),
+      headers: getHeaders(useClientToken),
       body: JSON.stringify(body),
     });
     return handleResponse(response);
   },
 
-  delete: async (url) => {
+  delete: async (url, useClientToken = false) => {
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'DELETE',
-      headers: getHeaders(),
+      headers: getHeaders(useClientToken),
     });
     return handleResponse(response);
   },

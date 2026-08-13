@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, X, Check, ChevronRight, User, Phone, MessageSquare, Loader2, Clock, CalendarDays, Info } from 'lucide-react';
+import { ArrowLeft, X, Check, ChevronRight, User, Phone, MessageSquare, Loader2, Clock, CalendarDays, Info, Scissors } from 'lucide-react';
 import { fetchServices, formatPrice } from '../../data/services';
 import { api } from '../../services/api';
 
@@ -14,6 +14,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [selectedWorkstation, setSelectedWorkstation] = useState(null);
+  const [workstations, setWorkstations] = useState([]);
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [clientMessage, setClientMessage] = useState('');
@@ -23,6 +25,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [servicesLoading, setServicesLoading] = useState(true);
+  const [workstationsLoading, setWorkstationsLoading] = useState(true);
 
   useEffect(() => {
     if (business) {
@@ -40,9 +43,23 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     });
   }, []);
 
+  useEffect(() => {
+    const fetchWorkstations = async () => {
+      try {
+        const data = await api.get('/admin/workstations');
+        setWorkstations(data.filter(w => w.is_active));
+      } catch (err) {
+        console.error('Error fetching workstations:', err);
+      } finally {
+        setWorkstationsLoading(false);
+      }
+    };
+    fetchWorkstations();
+  }, []);
+
   const steps = [
     { id: 1, name: 'Servicios', active: currentStep === 1, completed: currentStep > 1 },
-    { id: 2, name: 'Fecha y Hora', active: currentStep === 2, completed: currentStep > 2 },
+    { id: 2, name: 'Estación y Fecha', active: currentStep === 2, completed: currentStep > 2 },
     { id: 3, name: 'Tus Datos', active: currentStep === 3, completed: false },
     { id: 4, name: 'Confirmar', active: currentStep === 4, completed: false },
   ];
@@ -58,11 +75,12 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     return dates;
   };
 
-  const fetchAvailableSlots = async (date, serviceId) => {
+  const fetchAvailableSlots = async (date, serviceId, workstationId) => {
     try {
       setSlotsLoading(true);
       const params = new URLSearchParams({ date: date.toISOString().split('T')[0] });
       if (serviceId) params.append('service_id', serviceId);
+      if (workstationId) params.append('workstation_id', workstationId);
       const data = await api.get(`/appointments/available-slots?${params.toString()}`);
       return data.slots;
     } catch (err) {
@@ -75,11 +93,11 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
   useEffect(() => {
     if (selectedDate && selectedService) {
-      fetchAvailableSlots(selectedDate, selectedService.id).then((slots) => {
+      fetchAvailableSlots(selectedDate, selectedService.id, selectedWorkstation?.id).then((slots) => {
         setAvailableSlots(slots);
       });
     }
-  }, [selectedDate, selectedService]);
+  }, [selectedDate, selectedService, selectedWorkstation]);
 
   const formatDate = (date) => {
     const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -107,7 +125,14 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     setSelectedDate(null);
     setSelectedTime(null);
     setAvailableSlots([]);
+    setSelectedWorkstation(null);
     setCurrentStep(2);
+  };
+
+  const handleWorkstationSelect = (ws) => {
+    setSelectedWorkstation(ws);
+    setSelectedTime(null);
+    setAvailableSlots([]);
   };
 
   const handleDateSelect = async (date) => {
@@ -115,7 +140,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     setSelectedTime(null);
     setAvailableSlots([]);
     if (selectedService) {
-      const slots = await fetchAvailableSlots(date, selectedService.id);
+      const slots = await fetchAvailableSlots(date, selectedService.id, selectedWorkstation?.id);
       setAvailableSlots(slots);
     }
   };
@@ -160,6 +185,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         appointment_date: selectedDate.toISOString().split('T')[0],
         appointment_time: selectedTime,
         client_message: clientMessage,
+        workstation_id: selectedWorkstation?.id || null,
+        source: 'web',
       };
 
       const appointmentData = await api.post('/appointments', payload);
@@ -195,7 +222,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     }
   };
 
-  const canContinueStep2 = selectedDate && selectedTime;
+  const canContinueStep2 = selectedDate && selectedTime && selectedWorkstation;
 
   return (
     <div className="fixed inset-0 bg-[#121113]/70 flex items-center justify-center p-2 sm:p-4 z-50">
@@ -253,6 +280,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                       <p><strong>Fecha:</strong> {selectedDate && formatDateFull(selectedDate)}</p>
                       <p><strong>Hora:</strong> {selectedTime}</p>
                       <p><strong>Cliente:</strong> {clientName}</p>
+                      {selectedWorkstation && <p><strong>Estación:</strong> {selectedWorkstation.name}</p>}
                     </div>
                   </div>
                   <div className="mt-4 p-3 bg-white border border-[#E4DCC9] rounded-sm flex items-start gap-2 text-left">
@@ -327,7 +355,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 space-y-4 sm:space-y-0">
                 <div>
-                  <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Selecciona Fecha y Hora</h2>
+                  <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Selecciona Estación, Fecha y Hora</h2>
                   <div className="text-[#6B6459] text-base font-medium">{formatDateForCalendar(new Date())}</div>
                 </div>
                 <div className="text-left sm:text-right">
@@ -348,31 +376,57 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                 </div>
               )}
 
-              <div className="mb-6">
-                <h3 className="text-base font-medium mb-4 text-[#1C1A16]">Selecciona una fecha</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
-                  {getAvailableDates().slice(0, 14).map((date, index) => {
-                    const formatted = formatDate(date);
-                    const isSelected = selectedDate && selectedDate.toDateString() === date.toDateString();
-                    return (
+              {workstationsLoading ? (
+                <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-[#A9812E]" /></div>
+              ) : (
+                <div className="mb-6">
+                  <h3 className="text-base font-medium mb-4 text-[#1C1A16]">Selecciona una estación</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {workstations.map((ws) => (
                       <button
-                        key={index}
-                        onClick={() => handleDateSelect(date)}
-                        className={`p-2 sm:p-3 rounded-sm text-center transition-all duration-200 ${
-                          isSelected ? 'bg-[#A9812E] text-[#121113] shadow-sm' :
-                          'hover:bg-[#F6F2EA] text-[#1C1A16] border border-[#E4DCC9] hover:border-[#A9812E]/60'
+                        key={ws.id}
+                        onClick={() => handleWorkstationSelect(ws)}
+                        className={`p-4 border rounded-sm text-center transition-all duration-200 ${
+                          selectedWorkstation?.id === ws.id ? 'border-[#A9812E] bg-[#F6F2EA] text-[#8B6A22] shadow-sm' :
+                          'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60'
                         }`}
                       >
-                        <div className={`text-xs ${isSelected ? 'text-[#121113]/70' : 'text-[#B7B1A3]'}`}>{formatted.dayName}</div>
-                        <div className="text-base sm:text-lg font-semibold">{formatted.day}</div>
-                        <div className="text-xs">{formatted.month}</div>
+                        <Scissors className="h-5 w-5 mx-auto mb-2 text-[#A9812E]" />
+                        <div className="font-medium text-sm sm:text-base">{ws.name}</div>
+                        <div className="text-xs text-[#6B6459]">{ws.barber_name || 'Sin asignar'}</div>
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {selectedDate && (
+              {selectedWorkstation && (
+                <div className="mb-6">
+                  <h3 className="text-base font-medium mb-4 text-[#1C1A16]">Selecciona una fecha</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
+                    {getAvailableDates().slice(0, 14).map((date, index) => {
+                      const formatted = formatDate(date);
+                      const isSelected = selectedDate && selectedDate.toDateString() === date.toDateString();
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => handleDateSelect(date)}
+                          className={`p-2 sm:p-3 rounded-sm text-center transition-all duration-200 ${
+                            isSelected ? 'bg-[#A9812E] text-[#121113] shadow-sm' :
+                            'hover:bg-[#F6F2EA] text-[#1C1A16] border border-[#E4DCC9] hover:border-[#A9812E]/60'
+                          }`}
+                        >
+                          <div className={`text-xs ${isSelected ? 'text-[#121113]/70' : 'text-[#B7B1A3]'}`}>{formatted.dayName}</div>
+                          <div className="text-base sm:text-lg font-semibold">{formatted.day}</div>
+                          <div className="text-xs">{formatted.month}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {selectedDate && selectedWorkstation && (
                 <div>
                   <h4 className="text-base font-medium mb-4 text-[#1C1A16]">Horarios disponibles</h4>
                   {slotsLoading ? (
@@ -396,7 +450,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                   {availableSlots.length === 0 && !slotsLoading && (
                     <div className="text-center py-8">
                       <p className="text-[#6B6459] mb-2 text-sm">No hay horarios disponibles para esta fecha</p>
-                      <button className="text-[#8B6A22] text-sm hover:underline">Selecciona otra fecha</button>
+                      <button onClick={() => { setSelectedDate(null); setAvailableSlots([]); }} className="text-[#8B6A22] text-sm hover:underline">Selecciona otra fecha</button>
                     </div>
                   )}
                 </div>
@@ -474,6 +528,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                       <div><span className="font-medium text-[#6B6459] flex items-center"><User className="h-3.5 w-3.5 mr-1.5" />Cliente</span>{clientName}</div>
                       <div><span className="font-medium text-[#6B6459] flex items-center"><Phone className="h-3.5 w-3.5 mr-1.5" />Teléfono</span>{clientPhone}</div>
                       {clientMessage && <div><span className="font-medium text-[#6B6459] flex items-center"><MessageSquare className="h-3.5 w-3.5 mr-1.5" />Mensaje</span>{clientMessage}</div>}
+                      {selectedWorkstation && <div><span className="font-medium text-[#6B6459] flex items-center"><Scissors className="h-3.5 w-3.5 mr-1.5" />Estación</span>{selectedWorkstation.name}</div>}
                     </div>
                     <div className="flex flex-col justify-center sm:text-right">
                       <div className="text-2xl font-semibold text-[#8B6A22]">{formatPrice(selectedService?.price)}</div>

@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { APP_CONFIG } from '../utils/constants';
+
+const API_BASE_URL = APP_CONFIG.apiBaseUrl;
 
 let cachedServices = null;
 let servicesCacheTime = 0;
@@ -30,34 +32,16 @@ export async function fetchServices() {
     return cachedServices;
   }
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/services`);
-    if (!response.ok) throw new Error('Error al cargar servicios');
-    const data = await response.json();
-    const transformed = data.map(transformService).filter(Boolean);
-    cachedServices = transformed;
-    servicesCacheTime = now;
-    return transformed;
-  } catch (err) {
-    console.error('Error fetching services:', err);
-    return getFallbackServices();
+  const response = await fetch(`${API_BASE_URL}/services`);
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Error al cargar servicios: ${response.status} ${text}`);
   }
-}
-
-function getFallbackServices() {
-  return [
-    { id: 1, name: "Corte Básico", duration: "35 min", price: 30000, category: "corte", description: "Tu corte básico con el trato que mereces.", popular: true },
-    { id: 2, name: "Perfilación de Barba", duration: "25 min", price: 30000, category: "barba", description: "Definición precisa de la barba con máquina y navaja.", popular: true },
-    { id: 3, name: "Corte y Cejas", duration: "40 min", price: 36000, category: "combo", description: "Corte profesional y diseño de cejas.", popular: true },
-    { id: 4, name: "Perfilación de Cejas", duration: "10 min", price: 10000, category: "cejas", description: "Diseño y perfilado de cejas." },
-    { id: 5, name: "Corte y Rasurada", duration: "40 min", price: 40000, category: "combo", description: "Corte a medida y rasurada clásica." },
-    { id: 6, name: "Corte y Barba (Perfilada)", duration: "45 min", price: 50000, category: "combo", description: "Corte personalizado y perfilado de barba." },
-    { id: 7, name: "Corte Premium", duration: "60 min", price: 55000, category: "premium", description: "Corte con estilo y tratamiento premium." },
-    { id: 8, name: "Corte Premium Completo", duration: "60 min", price: 65000, category: "premium", description: "Servicio completo de corte premium." },
-    { id: 9, name: "Corte y Barba a Vapor", duration: "60 min", price: 75000, category: "premium", description: "Corte y barba con tratamiento a vapor." },
-    { id: 10, name: "Corte y Barba + Exfoliación", duration: "80 min", price: 95000, category: "luxury", description: "Corte impecable con exfoliación facial." },
-    { id: 11, name: "Experiencia Luxury Completa", duration: "90 min", price: 120000, category: "luxury", description: "Servicio integral de alto nivel." },
-  ];
+  const data = await response.json();
+  const transformed = data.map(transformService).filter(Boolean);
+  cachedServices = transformed;
+  servicesCacheTime = now;
+  return transformed;
 }
 
 export const serviceCategories = {
@@ -70,11 +54,11 @@ export const serviceCategories = {
 };
 
 export const getServicesByCategory = (category) => {
-  return getFallbackServices().filter((s) => s.category === category);
+  return (cachedServices || []).filter((s) => s.category === category);
 };
 
 export const getPopularServices = () => {
-  return getFallbackServices().filter((s) => s.popular);
+  return (cachedServices || []).filter((s) => s.popular);
 };
 
 export const formatPrice = (price) => {
@@ -85,4 +69,4 @@ export const formatPrice = (price) => {
   });
 };
 
-export default getFallbackServices;
+export default fetchServices;
