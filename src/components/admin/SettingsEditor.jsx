@@ -8,7 +8,7 @@ import Loader from '../ui/Loader';
 
 const NUMERIC_FIELDS = ['max_advance_booking_days', 'min_cancel_hours', 'buffer_minutes_between_appointments'];
 
-const SettingsEditor = ({ onUpdate }) => {
+const SettingsEditor = ({ onUpdate, userRole }) => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -63,19 +63,21 @@ const SettingsEditor = ({ onUpdate }) => {
       {success && <ErrorBanner message="Configuración actualizada correctamente" type="success" className="mb-4" />}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="Nombre del Negocio" name="business_name" value={settings?.business_name || ''} onChange={handleChange} />
-          <Input label="Teléfono" name="phone" value={settings?.phone || ''} onChange={handleChange} type="tel" />
-          <Input label="WhatsApp" name="whatsapp_number" value={settings?.whatsapp_number || ''} onChange={handleChange} type="tel" />
-          <Input label="Email" name="email" value={settings?.email || ''} onChange={handleChange} type="email" />
-          <Input label="Dirección" name="address" value={settings?.address || ''} onChange={handleChange} />
-          <Input label="Zona horaria" name="timezone" value={settings?.timezone || 'America/Bogota'} onChange={handleChange} />
-          <Input label="Días máx. de reserva anticipada" name="max_advance_booking_days" value={settings?.max_advance_booking_days || 14} onChange={handleChange} type="number" min="1" max="90" />
-          <Input label="Horas mín. para cancelar" name="min_cancel_hours" value={settings?.min_cancel_hours || 24} onChange={handleChange} type="number" min="0" max="720" />
-          <Input label="Buffer entre turnos (min)" name="buffer_minutes_between_appointments" value={settings?.buffer_minutes_between_appointments || 0} onChange={handleChange} type="number" min="0" max="120" />
+          <Input label="Nombre del Negocio" name="business_name" value={settings?.business_name || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
+          <Input label="Teléfono" name="phone" value={settings?.phone || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
+          <Input label="WhatsApp" name="whatsapp_number" value={settings?.whatsapp_number || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
+          <Input label="Email" name="email" value={settings?.email || ''} onChange={handleChange} type="email" disabled={userRole !== 'admin'} />
+          <Input label="Dirección" name="address" value={settings?.address || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
+          <Input label="Zona horaria" name="timezone" value={settings?.timezone || 'America/Bogota'} onChange={handleChange} disabled={userRole !== 'admin'} />
+          <Input label="Días máx. de reserva anticipada" name="max_advance_booking_days" value={settings?.max_advance_booking_days || 14} onChange={handleChange} type="number" min="1" max="90" disabled={userRole !== 'admin'} />
+          <Input label="Horas mín. para cancelar" name="min_cancel_hours" value={settings?.min_cancel_hours || 24} onChange={handleChange} type="number" min="0" max="720" disabled={userRole !== 'admin'} />
+          <Input label="Buffer entre turnos (min)" name="buffer_minutes_between_appointments" value={settings?.buffer_minutes_between_appointments || 0} onChange={handleChange} type="number" min="0" max="120" disabled={userRole !== 'admin'} />
         </div>
-        <Button type="submit" disabled={saving} loading={saving} size="sm">
-          {saving ? 'Guardando...' : 'Guardar Cambios'}
-        </Button>
+        {userRole === 'admin' && (
+          <Button type="submit" disabled={saving} loading={saving} size="sm">
+            {saving ? 'Guardando...' : 'Guardar Cambios'}
+          </Button>
+        )}
       </form>
     </div>
   );

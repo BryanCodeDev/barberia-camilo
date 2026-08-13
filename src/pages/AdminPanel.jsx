@@ -15,6 +15,7 @@ import NotificationsCenter from '../components/admin/NotificationsCenter';
 import SettingsEditor from '../components/admin/SettingsEditor';
 import PerformanceView from '../components/admin/PerformanceView';
 import ClientsView from '../components/admin/ClientsView';
+import ServiceManager from '../components/admin/ServiceManager';
 import AdminSidebar from '../components/layout/AdminSidebar';
 import StatsCards from '../components/admin/StatsCards';
 import AppointmentList from '../components/admin/AppointmentList';
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { id: 'appointments', label: 'Citas', icon: Calendar },
   { id: 'barbers', label: 'Barberos', icon: Users },
   { id: 'workstations', label: 'Estaciones', icon: Scissors },
+  { id: 'services', label: 'Servicios', icon: Scissors },
   { id: 'clients', label: 'Clientes', icon: Users },
   { id: 'performance', label: 'Desempeño', icon: BarChart3 },
   { id: 'notifications', label: 'Notificaciones', icon: MessageSquare },
@@ -38,13 +40,30 @@ const NAV_ITEMS = [
 ];
 
 const AdminPanel = ({ onClose, business }) => {
-  const { isAuthenticated, login: authLogin, logout: authLogout } = useAuth('admin');
-  const [adminCredentials, setAdminCredentials] = useState({ username: '', password: '' });
-  const [loginError, setLoginError] = useState(null);
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const { isAuthenticated, login: authLogin, logout: authLogout, user } = useAuth('admin');
+  const userRole = user?.role || 'guest';
+
+  const NAV_ITEMS = [
+    { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard, roles: ['admin', 'barber'] },
+    { id: 'appointments', label: 'Citas', icon: Calendar, roles: ['admin', 'barber'] },
+    { id: 'barbers', label: 'Barberos', icon: Users, roles: ['admin'] },
+    { id: 'workstations', label: 'Estaciones', icon: Scissors, roles: ['admin', 'barber'] },
+    { id: 'services', label: 'Servicios', icon: Scissors, roles: ['admin', 'barber'] },
+    { id: 'clients', label: 'Clientes', icon: Users, roles: ['admin', 'barber'] },
+    { id: 'performance', label: 'Desempeño', icon: BarChart3, roles: ['admin', 'barber'] },
+    { id: 'notifications', label: 'Notificaciones', icon: MessageSquare, roles: ['admin', 'barber'] },
+    { id: 'settings', label: 'Configuración', icon: Shield, roles: ['admin'] },
+  ];
+
+  const visibleNavItems = NAV_ITEMS.filter(item => item.roles.includes(userRole));
+
+  const [activeTab, setActiveTab] = useState(visibleNavItems[0]?.id || 'dashboard');
+
+  useEffect(() => {
+    if (!visibleNavItems.find(item => item.id === activeTab)) {
+      setActiveTab(visibleNavItems[0]?.id || 'dashboard');
+    }
+  }, [userRole, visibleNavItems, activeTab]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedDate, setSelectedDate] = useState('');
   const [clientSearch, setClientSearch] = useState('');
@@ -63,6 +82,9 @@ const AdminPanel = ({ onClose, business }) => {
   const [revenueData, setRevenueData] = useState(null);
   const [revenueLoading, setRevenueLoading] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState(null);
+  const [appointmentForm, setAppointmentForm] = useState({ appointment_date: '', appointment_time: '', duration_minutes: 30, client_message: '', status: 'pending' });
+  const [appointmentSaving, setAppointmentSaving] = useState(false);
 
   const formatCOP = (cents) => {
     if (cents === null || cents === undefined) return '$0';
@@ -180,6 +202,33 @@ const AdminPanel = ({ onClose, business }) => {
       await fetchStats();
     } catch (err) {
       setError(err.message);
+    }
+  };
+
+  const handleEditAppointment = (appointment) => {
+    setEditingAppointment(appointment);
+    setAppointmentForm({
+      appointment_date: appointment.appointment_date || '',
+      appointment_time: appointment.appointment_time || '',
+      duration_minutes: appointment.duration_minutes || 30,
+      client_message: appointment.client_message || '',
+      status: appointment.status || 'pending',
+    });
+  };
+
+  const handleUpdateAppointment = async (e) => {
+    e.preventDefault();
+    setAppointmentSaving(true);
+    setError(null);
+    try {
+      await api.patch(`/admin/appointments/${editingAppointment.id}`, appointmentForm);
+      setEditingAppointment(null);
+      await fetchAppointments();
+      await fetchStats();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAppointmentSaving(false);
     }
   };
 
@@ -325,7 +374,7 @@ const AdminPanel = ({ onClose, business }) => {
   return (
     <div className="min-h-screen bg-[#F6F2EA]">
       <AdminSidebar
-        tabs={NAV_ITEMS}
+        tabs={visibleNavItems}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onLogout={handleLogout}
@@ -464,17 +513,18 @@ const AdminPanel = ({ onClose, business }) => {
                     </h3>
                   </div>
                   <AppointmentList
-                    appointments={filteredAppointments}
-                    onConfirm={handleStatusChange}
-                    onCancel={handleStatusChange}
-                    onComplete={handleStatusChange}
-                    onNoShow={handleStatusChange}
-                    onDelete={handleDeleteAppointment}
-                    formatDate={formatDate}
-                    getStatusColor={getStatusColor}
-                    getStatusText={getStatusText}
-                    loading={loading}
-                  />
+                     appointments={filteredAppointments}
+                     onConfirm={handleStatusChange}
+                     onCancel={handleStatusChange}
+                     onComplete={handleStatusChange}
+                     onNoShow={handleStatusChange}
+                     onDelete={handleDeleteAppointment}
+                     onEdit={handleEditAppointment}
+                     formatDate={formatDate}
+                     getStatusColor={getStatusColor}
+                     getStatusText={getStatusText}
+                     loading={loading}
+                   />
                 </div>
               ) : (
                 <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
@@ -546,12 +596,51 @@ const AdminPanel = ({ onClose, business }) => {
             </>
           )}
 
-          {activeTab === 'barbers' && <BarberManager business={businessInfo} />}
-          {activeTab === 'workstations' && <WorkstationManager business={businessInfo} />}
-          {activeTab === 'notifications' && <NotificationsCenter business={businessInfo} />}
-          {activeTab === 'settings' && <SettingsEditor business={businessInfo} onUpdate={() => { invalidateBusinessSettingsCache(); fetchStats(); fetchAppointments(); }} />}
-          {activeTab === 'clients' && <ClientsView />}
-          {activeTab === 'performance' && <PerformanceView />}
+          {activeTab === 'barbers' && <BarberManager business={businessInfo} userRole={userRole} />}
+          {activeTab === 'workstations' && <WorkstationManager business={businessInfo} userRole={userRole} />}
+          {activeTab === 'services' && <ServiceManager business={businessInfo} userRole={userRole} />}
+          {activeTab === 'notifications' && <NotificationsCenter business={businessInfo} userRole={userRole} />}
+          {activeTab === 'settings' && <SettingsEditor business={businessInfo} onUpdate={() => { invalidateBusinessSettingsCache(); fetchStats(); fetchAppointments(); }} userRole={userRole} />}
+          {activeTab === 'clients' && <ClientsView userRole={userRole} />}
+          {activeTab === 'performance' && <PerformanceView userRole={userRole} />}
+
+          {editingAppointment && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+              <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-xl w-full max-w-lg mx-4 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-serif text-xl text-[#1C1A16]">Editar Cita</h3>
+                  <button onClick={() => setEditingAppointment(null)} className="text-[#9A9488] hover:text-[#1C1A16] p-1">
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <form onSubmit={handleUpdateAppointment} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Input label="Fecha" name="appointment_date" type="date" value={appointmentForm.appointment_date} onChange={e => setAppointmentForm({ ...appointmentForm, appointment_date: e.target.value })} required />
+                    <Input label="Hora" name="appointment_time" type="time" value={appointmentForm.appointment_time} onChange={e => setAppointmentForm({ ...appointmentForm, appointment_time: e.target.value })} required />
+                    <Input label="Duración (min)" name="duration_minutes" type="number" value={appointmentForm.duration_minutes} onChange={e => setAppointmentForm({ ...appointmentForm, duration_minutes: Number(e.target.value) })} required />
+                    <div>
+                      <label className="block text-sm font-medium text-[#6B6459] mb-1">Estado</label>
+                      <select className="w-full px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" value={appointmentForm.status} onChange={e => setAppointmentForm({ ...appointmentForm, status: e.target.value })}>
+                        <option value="pending">Pendiente</option>
+                        <option value="confirmed">Confirmada</option>
+                        <option value="completed">Completada</option>
+                        <option value="cancelled">Cancelada</option>
+                        <option value="no-show">No se presentó</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#6B6459] mb-1">Mensaje del cliente</label>
+                    <textarea className="w-full px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" rows="3" value={appointmentForm.client_message} onChange={e => setAppointmentForm({ ...appointmentForm, client_message: e.target.value })} />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button type="button" onClick={() => setEditingAppointment(null)} className="px-4 py-2 border border-[#E4DCC9] rounded-sm text-sm hover:bg-[#F6F2EA] transition-colors">Cancelar</button>
+                    <Button type="submit" loading={appointmentSaving} size="sm">Guardar Cambios</Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

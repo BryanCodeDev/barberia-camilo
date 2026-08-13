@@ -9,6 +9,7 @@ const AppointmentList = ({
   onComplete,
   onNoShow,
   onDelete,
+  onEdit,
   formatDate,
   getStatusColor,
   getStatusText,
@@ -43,6 +44,7 @@ const AppointmentList = ({
           onComplete={onComplete}
           onNoShow={onNoShow}
           onDelete={onDelete}
+          onEdit={onEdit}
           formatDate={formatDate}
           getStatusColor={getStatusColor}
           getStatusText={getStatusText}

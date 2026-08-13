@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Phone, Calendar, MessageSquare, Check, AlertTriangle, EyeOff, Trash2 } from 'lucide-react';
+import { User, Phone, Calendar, MessageSquare, Check, AlertTriangle, EyeOff, Trash2, Pencil } from 'lucide-react';
 
 const AppointmentCard = ({
   appointment,
@@ -8,6 +8,7 @@ const AppointmentCard = ({
   onComplete,
   onNoShow,
   onDelete,
+  onEdit,
   formatDate,
   getStatusColor,
   getStatusText,
@@ -49,26 +50,29 @@ const AppointmentCard = ({
             {getStatusText(appointment.status)}
           </span>
           <div className="flex items-center space-x-1">
+            <button onClick={() => onEdit(appointment)} className="text-[#3B5B8C] hover:bg-[#EEF3FB] p-2 rounded-sm transition-colors" title="Editar cita">
+              <Pencil className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
             {appointment.status === 'pending' && (
-              <button onClick={() => onConfirm(appointment.id)} className="text-[#3E6B3E] hover:bg-[#EEF5EE] p-2 rounded-sm transition-colors" title="Confirmar cita">
+              <button onClick={() => onConfirm(appointment.id, 'confirmed')} className="text-[#3E6B3E] hover:bg-[#EEF5EE] p-2 rounded-sm transition-colors" title="Confirmar cita">
                 <Check className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}
             {appointment.status === 'pending' && (
               <button onClick={() => {
                 const reason = window.prompt('Motivo de cancelación:');
-                if (reason !== null && reason.trim().length > 0) onCancel(appointment.id, reason.trim());
+                if (reason !== null && reason.trim().length > 0) onCancel(appointment.id, 'cancelled', reason.trim());
               }} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Cancelar cita">
                 <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}
             {appointment.status === 'confirmed' && (
-              <button onClick={() => onComplete(appointment.id)} className="text-[#3B5B8C] hover:bg-[#EEF3FB] p-2 rounded-sm transition-colors" title="Marcar como completada">
+              <button onClick={() => onComplete(appointment.id, 'completed')} className="text-[#3B5B8C] hover:bg-[#EEF3FB] p-2 rounded-sm transition-colors" title="Marcar como completada">
                 <Check className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}
             {appointment.status === 'confirmed' && (
-              <button onClick={() => onNoShow(appointment.id)} className="text-[#6B6459] hover:bg-[#F1EFEB] p-2 rounded-sm transition-colors" title="Marcar como no se presentó">
+              <button onClick={() => onNoShow(appointment.id, 'no-show')} className="text-[#6B6459] hover:bg-[#F1EFEB] p-2 rounded-sm transition-colors" title="Marcar como no se presentó">
                 <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             )}

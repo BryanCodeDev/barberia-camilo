@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, Search, User, Phone, Calendar, Users } from 'lucide-react';
+import { Loader2, Search, User, Phone, Calendar, Users, Pencil, Trash2 } from 'lucide-react';
 import { api } from '../../services/api';
 
 const CLIENTS_INACTIVE_DAYS = 40;
 
-const ClientsView = () => {
+const ClientsView = ({ userRole }) => {
   const [clients, setClients] = useState([]);
   const [inactiveClients, setInactiveClients] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -14,6 +14,9 @@ const ClientsView = () => {
   const [inactiveLoading, setInactiveLoading] = useState(true);
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingClient, setEditingClient] = useState(null);
+  const [form, setForm] = useState({ name: '', phone: '', email: '', notes: '' });
+  const [saving, setSaving] = useState(false);
 
   const fetchClients = useCallback(async () => {
     try {
@@ -59,6 +62,45 @@ const ClientsView = () => {
     fetchInactive();
     fetchSummary();
   }, [fetchInactive, fetchSummary]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    try {
+      if (editingClient) {
+        await api.patch(`/admin/clients/${editingClient.id}`, form);
+      } else {
+        await api.post('/admin/clients', form);
+      }
+      setForm({ name: '', phone: '', email: '', notes: '' });
+      setEditingClient(null);
+      fetchClients();
+      fetchInactive();
+      fetchSummary();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleEdit = (client) => {
+    setForm({ name: client.name, phone: client.phone, email: client.email || '', notes: client.notes || '' });
+    setEditingClient(client);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('¿Eliminar este cliente? Esta acción no se puede deshacer.')) return;
+    try {
+      await api.delete(`/admin/clients/${id}`);
+      fetchClients();
+      fetchInactive();
+      fetchSummary();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return '—';
@@ -117,6 +159,16 @@ const ClientsView = () => {
           </div>
         )}
 
+        <form onSubmit={handleSubmit} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 ${userRole !== 'admin' ? 'hidden' : ''}`}>
+          <input className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" placeholder="Nombre" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
+          <input className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" placeholder="Teléfono" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} required />
+          <input className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+          <input className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" placeholder="Notas" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
+          <button type="submit" disabled={saving} className="bg-[#A9812E] text-[#121113] px-4 py-2 rounded-sm font-semibold text-sm hover:bg-[#C9A860] transition-colors disabled:opacity-50">
+            {editingClient ? 'Guardar' : 'Crear'}
+          </button>
+        </form>
+
         {loading && filter === 'all' ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" />
@@ -164,6 +216,16 @@ const ClientsView = () => {
                     {filter === 'inactive' && client.days_since_last_visit && (
                       <span className="text-xs text-[#8B2E2E] font-medium">Hace {client.days_since_last_visit} días</span>
                     )}
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => handleEdit(client)} className="text-[#3B5B8C] hover:bg-[#EEF3FB] p-2 rounded-sm transition-colors" title="Editar">
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      {userRole === 'admin' && (
+                        <button onClick={() => handleDelete(client.id)} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Eliminar">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
