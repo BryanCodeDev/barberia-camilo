@@ -423,6 +423,16 @@ const AdminPanel = ({ onClose, business }) => {
                                 <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5" />
                               </button>
                             )}
+                            {appointment.status === 'confirmed' && (
+                              <button onClick={() => handleStatusChange(appointment.id, 'completed')} className="text-[#3B5B8C] hover:bg-[#EEF3FB] p-2 rounded-sm transition-colors" title="Marcar como completada">
+                                <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                              </button>
+                            )}
+                            {appointment.status === 'confirmed' && (
+                              <button onClick={() => handleStatusChange(appointment.id, 'no_show')} className="text-[#6B6459] hover:bg-[#F1EFEB] p-2 rounded-sm transition-colors" title="Marcar como no se presentó">
+                                <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                              </button>
+                            )}
                             <button onClick={() => handleDeleteAppointment(appointment.id)} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Eliminar cita">
                               <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                             </button>

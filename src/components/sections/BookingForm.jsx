@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, X, Check, ChevronRight, User, Phone, MessageSquare, Loader2, Clock, CalendarDays, Info, Scissors } from 'lucide-react';
 import { fetchServices, formatPrice } from '../../data/services';
 import { api } from '../../services/api';
@@ -26,6 +26,13 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [servicesLoading, setServicesLoading] = useState(true);
   const [workstationsLoading, setWorkstationsLoading] = useState(true);
+  const successTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (business) {
@@ -195,16 +202,24 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       console.log('Appointment created:', appointmentData);
 
       setShowSuccess(true);
-      setTimeout(() => {
+      // 8s en vez de 3s — tiempo suficiente para leer el resumen o hacer captura.
+      // El usuario también puede cerrar antes con el botón "Listo".
+      successTimeoutRef.current = setTimeout(() => {
         setShowSuccess(false);
         onClose();
-      }, 3000);
+      }, 8000);
     } catch (err) {
       console.error('Error confirming booking:', err);
       setError(err.message || 'Error al agendar la cita');
     } finally {
       setSubmitLoading(false);
     }
+  };
+
+  const handleFinish = () => {
+    if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+    setShowSuccess(false);
+    onClose();
   };
 
   const goBack = () => {
@@ -306,6 +321,12 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                   </div>
                   <p className="text-sm mt-3 text-[#8B6A22]">Te contactaremos pronto para confirmar los detalles</p>
                 </div>
+                <button
+                  onClick={handleFinish}
+                  className="mt-6 w-full sm:w-auto bg-[#121113] text-[#F6F2EA] px-8 py-3 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#1C1A16] transition-colors"
+                >
+                  Listo
+                </button>
               </div>
             </div>
           )}

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, Save } from 'lucide-react';
 import { api } from '../../services/api';
 
+const NUMERIC_FIELDS = ['max_advance_booking_days', 'min_cancel_hours', 'buffer_minutes_between_appointments'];
+
 const SettingsEditor = ({ onUpdate }) => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +28,10 @@ const SettingsEditor = ({ onUpdate }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setSettings(prev => ({ ...prev, [name]: value }));
+    // Los inputs numéricos entregan e.target.value como string —
+    // sin esto, el backend recibía "14" en vez de 14.
+    const parsedValue = NUMERIC_FIELDS.includes(name) ? (value === '' ? '' : Number(value)) : value;
+    setSettings(prev => ({ ...prev, [name]: parsedValue }));
     setSuccess(false);
   };
 

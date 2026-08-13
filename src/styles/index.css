@@ -7,111 +7,89 @@
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
     @apply font-sans;
   }
-  
+
   * {
     @apply transition-colors duration-200;
   }
 }
 
 @layer components {
-  /* Custom button styles */
+  /*
+   * Clases reutilizables alineadas con la paleta real del sitio
+   * (dorado #A9812E / crema #F6F2EA / negro #121113, bordes rounded-sm).
+   * Antes existían btn-primary/btn-secondary/input-field/spinner con
+   * colores genéricos de Tailwind (amber-400, gray-300, rounded-lg) que
+   * ningún componente usaba — quedaban desalineadas con el resto del sitio.
+   */
   .btn-primary {
-    @apply bg-amber-400 text-black px-6 py-3 rounded-lg font-bold hover:bg-amber-500 transform hover:scale-105 transition-all duration-200;
+    @apply bg-[#A9812E] text-[#121113] px-6 py-3 rounded-sm font-semibold uppercase tracking-wide hover:bg-[#C9A860] transition-colors duration-200;
   }
-  
+
   .btn-secondary {
-    @apply border-2 border-amber-400 text-amber-400 px-6 py-3 rounded-lg font-bold hover:bg-amber-400 hover:text-black transition-all duration-200;
+    @apply border border-[#1C1A16] text-[#1C1A16] px-6 py-3 rounded-sm font-semibold uppercase tracking-wide hover:bg-[#1C1A16] hover:text-[#F6F2EA] transition-colors duration-200;
   }
-  
+
   .btn-danger {
-    @apply bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors;
+    @apply bg-[#8B2E2E] text-white px-4 py-2 rounded-sm hover:opacity-90 transition-colors;
   }
-  
-  /* Custom input styles */
+
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent;
+    @apply w-full px-4 py-3 border border-[#E4DCC9] rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none;
   }
-  
+
   .input-error {
-    @apply border-red-500 focus:ring-red-500;
+    @apply border-[#C25555] focus:ring-[#C25555]/40;
   }
-  
-  /* Custom card styles */
+
   .card {
-    @apply bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300;
+    @apply bg-white rounded-sm shadow-sm p-6 hover:shadow-md transition-shadow duration-300 border border-[#E4DCC9];
   }
-  
+
   .card-hover {
-    @apply hover:-translate-y-2 transition-all duration-300;
+    @apply hover:-translate-y-1 transition-all duration-300;
   }
-  
-  /* Loading spinner */
+
   .spinner {
-    @apply animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400;
+    @apply animate-spin rounded-full h-8 w-8 border-b-2 border-[#A9812E];
   }
-  
-  /* Status badges */
+
   .status-pending {
-    @apply bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply bg-[#FBF3E4] text-[#8B6A22] px-2.5 py-0.5 rounded-sm text-xs font-medium;
   }
-  
+
   .status-confirmed {
-    @apply bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply bg-[#EEF5EE] text-[#3E6B3E] px-2.5 py-0.5 rounded-sm text-xs font-medium;
   }
-  
+
   .status-cancelled {
-    @apply bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply bg-[#FBEAEA] text-[#8B2E2E] px-2.5 py-0.5 rounded-sm text-xs font-medium;
   }
 }
 
 @layer utilities {
-  /* Custom scrollbar */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
-  /* Text gradient */
-  .text-gradient {
-    background: linear-gradient(45deg, #f59e0b, #fbbf24);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  /* Glass morphism effect */
+
   .glass {
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
-  
-  /* Custom animations */
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-  
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-  
+
   .animate-fade-in {
     animation: fadeIn 0.5s ease-in-out;
   }
-  
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -122,11 +100,11 @@
       transform: translateY(0);
     }
   }
-  
+
   .animate-slide-up {
     animation: slideUp 0.3s ease-out;
   }
-  
+
   @keyframes slideUp {
     from {
       opacity: 0;
@@ -135,20 +113,6 @@
     to {
       opacity: 1;
       transform: translateY(0);
-    }
-  }
-  
-  /* Pulse animation for important elements */
-  .animate-pulse-custom {
-    animation: pulseCustom 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  @keyframes pulseCustom {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: .8;
     }
   }
 }
@@ -160,17 +124,12 @@
   }
 }
 
-/* Dark mode support (for future implementation) */
-@media (prefers-color-scheme: dark) {
-  /* Dark mode styles can be added here */
-}
-
-/* Mobile-specific styles */
+/* Mobile-specific helpers */
 @media (max-width: 640px) {
   .mobile-padding {
     @apply px-4 py-2;
   }
-  
+
   .mobile-text {
     @apply text-sm;
   }
@@ -179,10 +138,10 @@
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .card {
-    @apply border-2 border-gray-900;
+    @apply border-2 border-[#1C1A16];
   }
-  
+
   .btn-primary {
-    @apply border-2 border-black;
+    @apply border-2 border-[#121113];
   }
 }
