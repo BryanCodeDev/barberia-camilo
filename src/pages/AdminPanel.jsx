@@ -301,8 +301,8 @@ const AdminPanel = ({ onClose, business }) => {
   };
 
   const filteredAppointments = statusFilter === 'all'
-    ? appointments
-    : appointments.filter((apt) => apt.status === statusFilter);
+    ? (appointments || [])
+    : (appointments || []).filter((apt) => apt.status === statusFilter);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
