@@ -11,7 +11,7 @@ const ErrorBanner = ({ message, onDismiss, type = 'error' }) => {
   return (
     <div
       className={[
-        'px-4 py-3 rounded-sm text-sm flex items-center justify-between',
+        'px-4 py-3 rounded-lg text-sm flex items-center justify-between',
         typeClasses[type] || typeClasses.error,
       ].join(' ')}
     >

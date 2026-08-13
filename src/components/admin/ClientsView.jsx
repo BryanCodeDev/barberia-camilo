@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, Search, User, Phone, Calendar, Users, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, Search, User, Phone, Calendar, Users, Pencil, Trash2, Plus } from 'lucide-react';
 import { api } from '../../services/api';
+import Modal from '../ui/Modal';
+import Input from '../ui/Input';
 
 const CLIENTS_INACTIVE_DAYS = 40;
 
@@ -14,6 +16,7 @@ const ClientsView = ({ userRole }) => {
   const [inactiveLoading, setInactiveLoading] = useState(true);
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [form, setForm] = useState({ name: '', phone: '', email: '', notes: '' });
   const [saving, setSaving] = useState(false);
@@ -63,6 +66,18 @@ const ClientsView = ({ userRole }) => {
     fetchSummary();
   }, [fetchInactive, fetchSummary]);
 
+  const openCreateModal = () => {
+    setEditingClient(null);
+    setForm({ name: '', phone: '', email: '', notes: '' });
+    setModalOpen(true);
+  };
+
+  const openEditModal = (client) => {
+    setEditingClient(client);
+    setForm({ name: client.name, phone: client.phone, email: client.email || '', notes: client.notes || '' });
+    setModalOpen(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -73,8 +88,7 @@ const ClientsView = ({ userRole }) => {
       } else {
         await api.post('/admin/clients', form);
       }
-      setForm({ name: '', phone: '', email: '', notes: '' });
-      setEditingClient(null);
+      setModalOpen(false);
       fetchClients();
       fetchInactive();
       fetchSummary();
@@ -83,11 +97,6 @@ const ClientsView = ({ userRole }) => {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handleEdit = (client) => {
-    setForm({ name: client.name, phone: client.phone, email: client.email || '', notes: client.notes || '' });
-    setEditingClient(client);
   };
 
   const handleDelete = async (id) => {
@@ -110,22 +119,32 @@ const ClientsView = ({ userRole }) => {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16]">Clientes</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16]">Clientes</h2>
+        {userRole === 'admin' && (
+          <button
+            onClick={openCreateModal}
+            className="inline-flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#C9A860] transition-all duration-200 btn-press shadow-sm"
+          >
+            <Plus className="h-4 w-4" /> Nuevo Cliente
+          </button>
+        )}
+      </div>
 
-      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm">{error}</div>}
+      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-lg text-sm animate-fade-in">{error}</div>}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-white border border-[#E4DCC9] rounded-sm p-4">
+        <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
           <p className="text-sm text-[#6B6459]">Nuevos este mes</p>
           <p className="text-2xl font-serif text-[#1C1A16]">{summaryLoading ? '...' : summary?.new_clients ?? 0}</p>
         </div>
-        <div className="bg-white border border-[#E4DCC9] rounded-sm p-4">
+        <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
           <p className="text-sm text-[#6B6459]">Recurrentes este mes</p>
           <p className="text-2xl font-serif text-[#1C1A16]">{summaryLoading ? '...' : summary?.returning_clients ?? 0}</p>
         </div>
       </div>
 
-      <div className="bg-white border border-[#E4DCC9] rounded-sm p-6">
+      <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9A9488]" />
@@ -134,19 +153,19 @@ const ClientsView = ({ userRole }) => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por nombre o teléfono..."
-              className="w-full pl-9 pr-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+              className="w-full pl-9 pr-4 py-2.5 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
             />
           </div>
-          <div className="flex rounded-sm overflow-hidden border border-[#E4DCC9]">
+          <div className="flex rounded-lg overflow-hidden border border-[#E4DCC9]">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${filter === 'all' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
+              className={`px-4 py-2 text-sm font-medium transition-all ${filter === 'all' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
             >
               Todos
             </button>
             <button
               onClick={() => setFilter('inactive')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${filter === 'inactive' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
+              className={`px-4 py-2 text-sm font-medium transition-all ${filter === 'inactive' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
             >
               Inactivos
             </button>
@@ -154,20 +173,10 @@ const ClientsView = ({ userRole }) => {
         </div>
 
         {filter === 'inactive' && (
-          <div className="bg-[#FBF3E4] border border-[#EAD9AE] text-[#8B6A22] px-4 py-3 rounded-sm text-sm mb-4">
+          <div className="bg-[#FBF3E4] border border-[#EAD9AE] text-[#8B6A22] px-4 py-3 rounded-lg text-sm mb-4 animate-fade-in">
             Clientes sin visitas hace más de {CLIENTS_INACTIVE_DAYS} días.
           </div>
         )}
-
-        <form onSubmit={handleSubmit} className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 ${userRole !== 'admin' ? 'hidden' : ''}`}>
-          <input className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" placeholder="Nombre" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-          <input className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" placeholder="Teléfono" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} required />
-          <input className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" placeholder="Email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-          <input className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" placeholder="Notas" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} />
-          <button type="submit" disabled={saving} className="bg-[#A9812E] text-[#121113] px-4 py-2 rounded-sm font-semibold text-sm hover:bg-[#C9A860] transition-colors disabled:opacity-50">
-            {editingClient ? 'Guardar' : 'Crear'}
-          </button>
-        </form>
 
         {loading && filter === 'all' ? (
           <div className="flex items-center justify-center py-12">
@@ -205,7 +214,7 @@ const ClientsView = ({ userRole }) => {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-6 text-sm text-[#6B6459]">
+                  <div className="flex items-center gap-4 text-sm text-[#6B6459]">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       <span>{client.total_appointments || client.total_visits || 0} visitas</span>
@@ -217,11 +226,11 @@ const ClientsView = ({ userRole }) => {
                       <span className="text-xs text-[#8B2E2E] font-medium">Hace {client.days_since_last_visit} días</span>
                     )}
                     <div className="flex items-center gap-1">
-                      <button onClick={() => handleEdit(client)} className="text-[#3B5B8C] hover:bg-[#EEF3FB] p-2 rounded-sm transition-colors" title="Editar">
+                      <button onClick={() => openEditModal(client)} className="p-2 text-[#3B5B8C] hover:bg-[#EEF3FB] rounded-lg transition-colors" title="Editar">
                         <Pencil className="h-4 w-4" />
                       </button>
                       {userRole === 'admin' && (
-                        <button onClick={() => handleDelete(client.id)} className="text-[#8B2E2E] hover:bg-[#FBEAEA] p-2 rounded-sm transition-colors" title="Eliminar">
+                        <button onClick={() => handleDelete(client.id)} className="p-2 text-[#8B2E2E] hover:bg-[#FBEAEA] rounded-lg transition-colors" title="Eliminar">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       )}
@@ -233,6 +242,64 @@ const ClientsView = ({ userRole }) => {
           </div>
         )}
       </div>
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
+        size="md"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-4">
+            <Input
+              label="Nombre completo"
+              name="name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+              placeholder="Ej. María García"
+            />
+            <Input
+              label="Teléfono"
+              name="phone"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              required
+              placeholder="+57 300 123 4567"
+            />
+            <Input
+              label="Email"
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="correo@ejemplo.com"
+            />
+            <div>
+              <label className="block text-sm font-medium text-[#6B6459] mb-1.5">Notas</label>
+              <textarea
+                className="w-full px-3 py-2.5 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all resize-none"
+                rows="3"
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                placeholder="Notas adicionales sobre el cliente..."
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="px-5 py-2.5 border border-[#E4DCC9] rounded-lg text-sm font-medium hover:bg-[#F6F2EA] transition-colors"
+            >
+              Cancelar
+            </button>
+            <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#C9A860] transition-all duration-200 disabled:opacity-50 btn-press shadow-sm">
+              {saving ? 'Guardando...' : (editingClient ? 'Actualizar' : 'Crear')}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

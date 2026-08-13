@@ -68,7 +68,7 @@ const PerformanceView = () => {
         <select
           value={period}
           onChange={(e) => setPeriod(e.target.value)}
-          className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+          className="px-3 py-2 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
         >
           <option value="today">Hoy</option>
           <option value="week">Esta semana</option>
@@ -76,10 +76,10 @@ const PerformanceView = () => {
         </select>
       </div>
 
-      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm">{error}</div>}
+      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-lg text-sm animate-fade-in">{error}</div>}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-[#E4DCC9] rounded-sm p-6">
+        <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
           <h3 className="font-serif text-lg text-[#1C1A16] mb-4 flex items-center">
             <Users className="h-5 w-5 mr-2 text-[#A9812E]" /> Por barbero
           </h3>
@@ -100,7 +100,7 @@ const PerformanceView = () => {
           )}
         </div>
 
-        <div className="bg-white border border-[#E4DCC9] rounded-sm p-6">
+        <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
           <h3 className="font-serif text-lg text-[#1C1A16] mb-4 flex items-center">
             <Scissors className="h-5 w-5 mr-2 text-[#A9812E]" /> Por servicio
           </h3>
@@ -123,7 +123,7 @@ const PerformanceView = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-[#E4DCC9] rounded-sm p-6">
+        <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
           <h3 className="font-serif text-lg text-[#1C1A16] mb-4 flex items-center">
             <Clock className="h-5 w-5 mr-2 text-[#A9812E]" /> Horas pico
           </h3>
@@ -135,7 +135,7 @@ const PerformanceView = () => {
           />
         </div>
 
-        <div className="bg-white border border-[#E4DCC9] rounded-sm p-6">
+        <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
           <h3 className="font-serif text-lg text-[#1C1A16] mb-4 flex items-center">
             <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Días pico
           </h3>

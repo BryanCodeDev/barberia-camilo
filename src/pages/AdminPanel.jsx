@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   User, Phone, Calendar, Clock, MessageSquare, Trash2,
-  Eye, EyeOff, LogOut, Shield, Users, X, Check,
-  AlertTriangle, Loader2, Scissors, LayoutDashboard,
-  BarChart3, Menu, Search, Download, List, CalendarDays
+  Eye, EyeOff, LogOut, Shield, Users, X,
+  Scissors, LayoutDashboard,
+  BarChart3, Search, Download, List, CalendarDays, Settings
 } from 'lucide-react';
 import { STATUS_LABELS } from '../utils/constants';
 import { api } from '../services/api';
@@ -24,6 +24,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import ErrorBanner from '../components/ui/ErrorBanner';
 import Loader from '../components/ui/Loader';
+import Modal from '../components/ui/Modal';
 
 const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
 
@@ -52,7 +53,6 @@ const AdminPanel = ({ onClose, business }) => {
     { id: 'clients', label: 'Clientes', icon: Users, roles: ['admin', 'barber'] },
     { id: 'performance', label: 'Desempeño', icon: BarChart3, roles: ['admin', 'barber'] },
     { id: 'notifications', label: 'Notificaciones', icon: MessageSquare, roles: ['admin', 'barber'] },
-    { id: 'settings', label: 'Configuración', icon: Shield, roles: ['admin'] },
   ];
 
   const visibleNavItems = NAV_ITEMS.filter(item => item.roles.includes(userRole));
@@ -90,6 +90,7 @@ const AdminPanel = ({ onClose, business }) => {
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [appointmentForm, setAppointmentForm] = useState({ appointment_date: '', appointment_time: '', duration_minutes: 30, client_message: '', status: 'pending' });
   const [appointmentSaving, setAppointmentSaving] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const formatCOP = (cents) => {
     if (cents === null || cents === undefined) return '$0';
@@ -337,40 +338,20 @@ const AdminPanel = ({ onClose, business }) => {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#121113]">
-        <div className="min-h-screen flex flex-col">
-          <div className="bg-black/30 backdrop-blur-sm border-b border-[#2A2723] p-4 sm:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-center">
-              <div className="flex items-center mb-4 sm:mb-0">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[#A9812E]/60 flex items-center justify-center mr-4">
-                  <Shield className="h-6 w-6 sm:h-7 sm:w-7 text-[#C9A860]" />
-                </div>
-                <div>
-                  <h1 className="font-serif text-2xl sm:text-3xl text-[#F6F2EA]">Panel de Administración</h1>
-                  <p className="text-sm text-[#9A9488]">{businessInfo.name} — gestiona tu barbería</p>
-                </div>
-              </div>
-              {onClose && (
-                <button onClick={onClose} className="absolute top-4 right-4 sm:relative sm:top-0 sm:right-0 text-[#9A9488] hover:text-[#F6F2EA] transition-colors p-2 hover:bg-[#1B1A1B] rounded-sm">
-                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-            <LoginForm
-              fields={[
-                { name: 'username', label: 'Usuario', type: 'text', placeholder: 'Ingresa tu usuario', required: true },
-                { name: 'password', label: 'Contraseña', type: 'password', placeholder: 'Ingresa tu contraseña', required: true },
-              ]}
-              onSubmit={handleLogin}
-              loading={false}
-              error={loginError}
-              submitLabel="Acceder al Panel"
-              headerIcon={Shield}
-              headerTitle="Acceso Administrativo"
-              headerSubtitle="Ingresa tus credenciales para continuar"
-            />
-          </div>
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+          <LoginForm
+            fields={[
+              { name: 'username', label: 'Usuario', type: 'text', placeholder: 'Ingresa tu usuario', required: true },
+              { name: 'password', label: 'Contraseña', type: 'password', placeholder: 'Ingresa tu contraseña', required: true },
+            ]}
+            onSubmit={handleLogin}
+            loading={false}
+            error={loginError}
+            submitLabel="Acceder al Panel"
+            headerIcon={Shield}
+            headerTitle="Acceso Administrativo"
+            headerSubtitle="Ingresa tus credenciales para continuar"
+          />
         </div>
       </div>
     );
@@ -387,33 +368,45 @@ const AdminPanel = ({ onClose, business }) => {
         businessName={businessInfo.name}
         mobileOpen={mobileNavOpen}
         setMobileOpen={setMobileNavOpen}
+        onSettingsClick={() => setSettingsModalOpen(true)}
       />
 
-      <div className="md:ml-64">
+      <div className="md:ml-64 pb-20 md:pb-0">
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
           {error && (
             <ErrorBanner message={error} onDismiss={() => setError(null)} className="mb-4" />
           )}
 
           {activeTab === 'dashboard' && (
-            <>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="animate-fade-in" key="dashboard">
+              <>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16]">Resumen</h2>
                 <div className="flex items-center gap-2">
                   <select
                     value={revenuePeriod}
                     onChange={(e) => setRevenuePeriod(e.target.value)}
-                    className="px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+                    className="px-3 py-2 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
                   >
                     <option value="today">Hoy</option>
                     <option value="week">Esta semana</option>
                     <option value="month">Este mes</option>
                   </select>
+                  {userRole === 'admin' && (
+                    <button
+                      onClick={() => setSettingsModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#E4DCC9] rounded-lg text-sm text-[#6B6459] hover:text-[#8B6A22] hover:border-[#A9812E]/60 transition-all"
+                      title="Configuración"
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span className="hidden sm:inline">Configuración</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-8">
-                <div className="bg-white border border-[#E4DCC9] rounded-sm p-4 sm:p-6">
+                <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-[#A9812E]/40 transition-all duration-300 animate-fade-in">
                   <p className="text-sm font-medium text-[#6B6459] mb-1">Ingresos {formatPeriodLabel(revenuePeriod)}</p>
                   <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
                     {revenueLoading ? '...' : formatCOP(revenueData?.current?.revenue_cents)}
@@ -427,19 +420,19 @@ const AdminPanel = ({ onClose, business }) => {
                     </div>
                   )}
                 </div>
-                <div className="bg-white border border-[#E4DCC9] rounded-sm p-4 sm:p-6">
+                <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-[#A9812E]/40 transition-all duration-300 animate-fade-in" style={{ animationDelay: '50ms' }}>
                   <p className="text-sm font-medium text-[#6B6459] mb-1">Citas completadas</p>
                   <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
                     {revenueLoading ? '...' : (revenueData?.current?.appointments ?? 0)}
                   </p>
                 </div>
-                <div className="bg-white border border-[#E4DCC9] rounded-sm p-4 sm:p-6">
+                <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-[#A9812E]/40 transition-all duration-300 animate-fade-in" style={{ animationDelay: '100ms' }}>
                   <p className="text-sm font-medium text-[#6B6459] mb-1">Ticket promedio</p>
                   <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
                     {revenueLoading ? '...' : formatCOP(revenueData?.current?.average_ticket_cents)}
                   </p>
                 </div>
-                <div className="bg-white border border-[#E4DCC9] rounded-sm p-4 sm:p-6">
+                <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-[#A9812E]/40 transition-all duration-300 animate-fade-in" style={{ animationDelay: '150ms' }}>
                   <p className="text-sm font-medium text-[#6B6459] mb-1">Citas período anterior</p>
                   <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
                     {revenueLoading ? '...' : (revenueData?.previous?.appointments ?? 0)}
@@ -449,18 +442,20 @@ const AdminPanel = ({ onClose, business }) => {
 
               <StatsCards stats={stats} loading={statsLoading} />
             </>
+            </div>
           )}
 
           {activeTab === 'appointments' && (
-            <>
+            <div className="animate-fade-in" key="appointments">
+              <>
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
                 <div className="flex flex-wrap gap-2">
                   {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setStatusFilter(tab)}
-                      className={`px-3 py-1.5 rounded-sm text-sm font-medium transition-colors ${
-                        statusFilter === tab ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60'
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        statusFilter === tab ? 'bg-[#A9812E] text-[#121113] shadow-sm' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60 hover:text-[#8B6A22]'
                       }`}
                     >
                       {tab === 'all' ? 'Todas' : STATUS_LABELS[tab] || tab}
@@ -475,29 +470,29 @@ const AdminPanel = ({ onClose, business }) => {
                        value={clientSearch}
                        onChange={handleSearchChange}
                        placeholder="Buscar cliente..."
-                       className="pl-9 pr-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+                       className="pl-9 pr-4 py-2 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
                      />
                   </div>
                   <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="px-4 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none"
+                    className="px-4 py-2 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
                   />
                   {selectedDate && (
                     <button onClick={() => setSelectedDate('')} className="text-sm text-[#8B6A22] hover:underline">Limpiar</button>
                   )}
-                  <div className="flex rounded-sm overflow-hidden border border-[#E4DCC9]">
+                  <div className="flex rounded-lg overflow-hidden border border-[#E4DCC9]">
                     <button
                       onClick={() => setAppointmentsView('list')}
-                      className={`px-3 py-2 transition-colors ${appointmentsView === 'list' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
+                      className={`px-3 py-2 transition-all duration-200 ${appointmentsView === 'list' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
                       title="Vista lista"
                     >
                       <List className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => setAppointmentsView('calendar')}
-                      className={`px-3 py-2 transition-colors ${appointmentsView === 'calendar' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
+                      className={`px-3 py-2 transition-all duration-200 ${appointmentsView === 'calendar' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
                       title="Vista calendario semanal"
                     >
                       <CalendarDays className="h-4 w-4" />
@@ -511,7 +506,7 @@ const AdminPanel = ({ onClose, business }) => {
               </div>
 
               {appointmentsView === 'list' ? (
-                <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
+                <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm overflow-hidden animate-fade-in">
                   <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9]">
                     <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
                       <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Citas Agendadas ({appointments.length})
@@ -532,7 +527,7 @@ const AdminPanel = ({ onClose, business }) => {
                    />
                 </div>
               ) : (
-                <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
+                <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm overflow-hidden animate-fade-in">
                   <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9] flex items-center justify-between">
                     <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
                       <CalendarDays className="h-5 w-5 mr-2 text-[#A9812E]" /> Calendario Semanal
@@ -544,7 +539,7 @@ const AdminPanel = ({ onClose, business }) => {
                           newStart.setDate(newStart.getDate() - 7);
                           setCalendarWeekStart(newStart);
                         }}
-                        className="px-3 py-1.5 border border-[#E4DCC9] rounded-sm text-sm hover:border-[#A9812E]/60 transition-colors"
+                        className="px-3 py-1.5 border border-[#E4DCC9] rounded-lg text-sm hover:border-[#A9812E]/60 transition-all"
                       >
                         ← Anterior
                       </button>
@@ -554,13 +549,13 @@ const AdminPanel = ({ onClose, business }) => {
                           newStart.setDate(newStart.getDate() + 7);
                           setCalendarWeekStart(newStart);
                         }}
-                        className="px-3 py-1.5 border border-[#E4DCC9] rounded-sm text-sm hover:border-[#A9812E]/60 transition-colors"
+                        className="px-3 py-1.5 border border-[#E4DCC9] rounded-lg text-sm hover:border-[#A9812E]/60 transition-all"
                       >
                         Siguiente →
                       </button>
                       <button
                         onClick={() => setCalendarWeekStart(new Date())}
-                        className="px-3 py-1.5 bg-[#A9812E] text-[#121113] rounded-sm text-sm font-medium hover:bg-[#C9A860] transition-colors"
+                        className="px-3 py-1.5 bg-[#A9812E] text-[#121113] rounded-lg text-sm font-medium hover:bg-[#C9A860] transition-all btn-press shadow-sm"
                       >
                         Hoy
                       </button>
@@ -584,7 +579,7 @@ const AdminPanel = ({ onClose, business }) => {
                               <p className="text-xs text-[#B7B1A3] text-center py-4">Sin citas</p>
                             ) : (
                               dayAppointments.map((apt) => (
-                                <div key={apt.id} className={`p-2 rounded-sm border text-xs ${getStatusColor(apt.status)}`}>
+                                <div key={apt.id} className={`p-2 rounded-lg border text-xs ${getStatusColor(apt.status)}`}>
                                   <p className="font-medium truncate">{apt.appointment_time}</p>
                                   <p className="truncate font-semibold">{apt.client_name}</p>
                                   <p className="truncate opacity-80">{apt.service_name}</p>
@@ -599,52 +594,67 @@ const AdminPanel = ({ onClose, business }) => {
                 </div>
               )}
             </>
+            </div>
           )}
 
-          {activeTab === 'barbers' && <BarberManager business={businessInfo} userRole={userRole} />}
-          {activeTab === 'workstations' && <WorkstationManager business={businessInfo} userRole={userRole} />}
-          {activeTab === 'services' && <ServiceManager business={businessInfo} userRole={userRole} />}
-          {activeTab === 'notifications' && <NotificationsCenter business={businessInfo} userRole={userRole} />}
-          {activeTab === 'settings' && <SettingsEditor business={businessInfo} onUpdate={() => { invalidateBusinessSettingsCache(); fetchStats(); fetchAppointments(); }} userRole={userRole} />}
-          {activeTab === 'clients' && <ClientsView userRole={userRole} />}
-          {activeTab === 'performance' && <PerformanceView userRole={userRole} />}
+          {activeTab === 'barbers' && <div key="barbers" className="animate-fade-in"><BarberManager business={businessInfo} userRole={userRole} /></div>}
+          {activeTab === 'workstations' && <div key="workstations" className="animate-fade-in"><WorkstationManager business={businessInfo} userRole={userRole} /></div>}
+          {activeTab === 'services' && <div key="services" className="animate-fade-in"><ServiceManager business={businessInfo} userRole={userRole} /></div>}
+          {activeTab === 'notifications' && <div key="notifications" className="animate-fade-in"><NotificationsCenter business={businessInfo} userRole={userRole} /></div>}
+          {activeTab === 'clients' && <div key="clients" className="animate-fade-in"><ClientsView userRole={userRole} /></div>}
+          {activeTab === 'performance' && <div key="performance" className="animate-fade-in"><PerformanceView userRole={userRole} /></div>}
+
+          <Modal
+            isOpen={settingsModalOpen}
+            onClose={() => setSettingsModalOpen(false)}
+            title="Configuración del Negocio"
+            size="lg"
+          >
+            <SettingsEditor
+              business={businessInfo}
+              onUpdate={() => {
+                invalidateBusinessSettingsCache();
+                fetchStats();
+                fetchAppointments();
+                setSettingsModalOpen(false);
+              }}
+              userRole={userRole}
+            />
+          </Modal>
 
           {editingAppointment && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-              <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-xl w-full max-w-lg mx-4 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-serif text-xl text-[#1C1A16]">Editar Cita</h3>
-                  <button onClick={() => setEditingAppointment(null)} className="text-[#9A9488] hover:text-[#1C1A16] p-1">
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                <form onSubmit={handleUpdateAppointment} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input label="Fecha" name="appointment_date" type="date" value={appointmentForm.appointment_date} onChange={e => setAppointmentForm({ ...appointmentForm, appointment_date: e.target.value })} required />
-                    <Input label="Hora" name="appointment_time" type="time" value={appointmentForm.appointment_time} onChange={e => setAppointmentForm({ ...appointmentForm, appointment_time: e.target.value })} required />
-                    <Input label="Duración (min)" name="duration_minutes" type="number" value={appointmentForm.duration_minutes} onChange={e => setAppointmentForm({ ...appointmentForm, duration_minutes: Number(e.target.value) })} required />
-                    <div>
-                      <label className="block text-sm font-medium text-[#6B6459] mb-1">Estado</label>
-                      <select className="w-full px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" value={appointmentForm.status} onChange={e => setAppointmentForm({ ...appointmentForm, status: e.target.value })}>
-                        <option value="pending">Pendiente</option>
-                        <option value="confirmed">Confirmada</option>
-                        <option value="completed">Completada</option>
-                        <option value="cancelled">Cancelada</option>
-                        <option value="no-show">No se presentó</option>
-                      </select>
-                    </div>
-                  </div>
+            <Modal
+              isOpen={!!editingAppointment}
+              onClose={() => setEditingAppointment(null)}
+              title="Editar Cita"
+              size="md"
+            >
+              <form onSubmit={handleUpdateAppointment} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input label="Fecha" name="appointment_date" type="date" value={appointmentForm.appointment_date} onChange={e => setAppointmentForm({ ...appointmentForm, appointment_date: e.target.value })} required />
+                  <Input label="Hora" name="appointment_time" type="time" value={appointmentForm.appointment_time} onChange={e => setAppointmentForm({ ...appointmentForm, appointment_time: e.target.value })} required />
+                  <Input label="Duración (min)" name="duration_minutes" type="number" value={appointmentForm.duration_minutes} onChange={e => setAppointmentForm({ ...appointmentForm, duration_minutes: Number(e.target.value) })} required />
                   <div>
-                    <label className="block text-sm font-medium text-[#6B6459] mb-1">Mensaje del cliente</label>
-                    <textarea className="w-full px-3 py-2 border border-[#E4DCC9] rounded-sm text-sm bg-white" rows="3" value={appointmentForm.client_message} onChange={e => setAppointmentForm({ ...appointmentForm, client_message: e.target.value })} />
+                    <label className="block text-sm font-medium text-[#6B6459] mb-1.5">Estado</label>
+                    <select className="w-full px-3 py-2.5 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all" value={appointmentForm.status} onChange={e => setAppointmentForm({ ...appointmentForm, status: e.target.value })}>
+                      <option value="pending">Pendiente</option>
+                      <option value="confirmed">Confirmada</option>
+                      <option value="completed">Completada</option>
+                      <option value="cancelled">Cancelada</option>
+                      <option value="no-show">No se presentó</option>
+                    </select>
                   </div>
-                  <div className="flex justify-end gap-2">
-                    <button type="button" onClick={() => setEditingAppointment(null)} className="px-4 py-2 border border-[#E4DCC9] rounded-sm text-sm hover:bg-[#F6F2EA] transition-colors">Cancelar</button>
-                    <Button type="submit" loading={appointmentSaving} size="sm">Guardar Cambios</Button>
-                  </div>
-                </form>
-              </div>
-            </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#6B6459] mb-1.5">Mensaje del cliente</label>
+                  <textarea className="w-full px-3 py-2.5 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all resize-none" rows="3" value={appointmentForm.client_message} onChange={e => setAppointmentForm({ ...appointmentForm, client_message: e.target.value })} />
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button type="button" onClick={() => setEditingAppointment(null)} className="px-5 py-2.5 border border-[#E4DCC9] rounded-lg text-sm font-medium hover:bg-[#F6F2EA] transition-colors">Cancelar</button>
+                  <Button type="submit" loading={appointmentSaving} size="sm">Guardar Cambios</Button>
+                </div>
+              </form>
+            </Modal>
           )}
         </div>
       </div>

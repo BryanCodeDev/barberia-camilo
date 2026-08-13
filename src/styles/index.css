@@ -26,19 +26,19 @@
    * ningún componente usaba — quedaban desalineadas con el resto del sitio.
    */
   .btn-primary {
-    @apply bg-[#A9812E] text-[#121113] px-6 py-3 rounded-sm font-semibold uppercase tracking-wide hover:bg-[#C9A860] transition-colors duration-200;
+    @apply bg-[#A9812E] text-[#121113] px-6 py-3 rounded-lg font-semibold uppercase tracking-wide hover:bg-[#C9A860] transition-all duration-200;
   }
 
   .btn-secondary {
-    @apply border border-[#1C1A16] text-[#1C1A16] px-6 py-3 rounded-sm font-semibold uppercase tracking-wide hover:bg-[#1C1A16] hover:text-[#F6F2EA] transition-colors duration-200;
+    @apply border border-[#1C1A16] text-[#1C1A16] px-6 py-3 rounded-lg font-semibold uppercase tracking-wide hover:bg-[#1C1A16] hover:text-[#F6F2EA] transition-colors duration-200;
   }
 
   .btn-danger {
-    @apply bg-[#8B2E2E] text-white px-4 py-2 rounded-sm hover:opacity-90 transition-colors;
+    @apply bg-[#8B2E2E] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-colors;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 border border-[#E4DCC9] rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none;
+    @apply w-full px-4 py-3 border border-[#E4DCC9] rounded-lg focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all;
   }
 
   .input-error {
@@ -46,7 +46,7 @@
   }
 
   .card {
-    @apply bg-white rounded-sm shadow-sm p-6 hover:shadow-md transition-shadow duration-300 border border-[#E4DCC9];
+    @apply bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300 border border-[#E4DCC9];
   }
 
   .card-hover {
@@ -58,15 +58,15 @@
   }
 
   .status-pending {
-    @apply bg-[#FBF3E4] text-[#8B6A22] px-2.5 py-0.5 rounded-sm text-xs font-medium;
+    @apply bg-[#FBF3E4] text-[#8B6A22] px-2.5 py-0.5 rounded-md text-xs font-medium;
   }
 
   .status-confirmed {
-    @apply bg-[#EEF5EE] text-[#3E6B3E] px-2.5 py-0.5 rounded-sm text-xs font-medium;
+    @apply bg-[#EEF5EE] text-[#3E6B3E] px-2.5 py-0.5 rounded-md text-xs font-medium;
   }
 
   .status-cancelled {
-    @apply bg-[#FBEAEA] text-[#8B2E2E] px-2.5 py-0.5 rounded-sm text-xs font-medium;
+    @apply bg-[#FBEAEA] text-[#8B2E2E] px-2.5 py-0.5 rounded-md text-xs font-medium;
   }
 }
 
@@ -114,6 +114,101 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  .animate-slide-down {
+    animation: slideDown 0.3s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-fade-out {
+    animation: fadeOut 0.2s ease-in forwards;
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  .smooth-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-press {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-press:active {
+    transform: scale(0.97);
+  }
+
+  /* Mobile bottom nav for admin */
+  .admin-bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 bg-[#121113] border-t border-[#2A2723] z-40 md:hidden;
+  }
+
+  .admin-bottom-nav-item {
+    @apply flex flex-col items-center justify-center py-2 px-1 text-[10px] font-medium transition-colors;
+  }
+
+  .admin-bottom-nav-item.active {
+    @apply text-[#C9A860];
+  }
+
+  .admin-bottom-nav-item:not(.active) {
+    @apply text-[#6E6A61];
+  }
+
+  /* Smooth scrollbar for modals */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #E4DCC9;
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #A9812E;
   }
 }
 

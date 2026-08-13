@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Save } from 'lucide-react';
 import { api } from '../../services/api';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -57,29 +56,29 @@ const SettingsEditor = ({ onUpdate, userRole }) => {
   if (loading) return <div className="flex items-center justify-center py-12"><Loader size="lg" /></div>;
 
   return (
-    <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm p-6">
-      <h3 className="font-serif text-xl text-[#1C1A16] mb-6">Configuración del Negocio</h3>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <h3 className="font-serif text-xl text-[#1C1A16] mb-2">Configuración del Negocio</h3>
       {error && <ErrorBanner message={error} className="mb-4" />}
       {success && <ErrorBanner message="Configuración actualizada correctamente" type="success" className="mb-4" />}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="Nombre del Negocio" name="business_name" value={settings?.business_name || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
-          <Input label="Teléfono" name="phone" value={settings?.phone || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
-          <Input label="WhatsApp" name="whatsapp_number" value={settings?.whatsapp_number || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
-          <Input label="Email" name="email" value={settings?.email || ''} onChange={handleChange} type="email" disabled={userRole !== 'admin'} />
-          <Input label="Dirección" name="address" value={settings?.address || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
-          <Input label="Zona horaria" name="timezone" value={settings?.timezone || 'America/Bogota'} onChange={handleChange} disabled={userRole !== 'admin'} />
-          <Input label="Días máx. de reserva anticipada" name="max_advance_booking_days" value={settings?.max_advance_booking_days || 14} onChange={handleChange} type="number" min="1" max="90" disabled={userRole !== 'admin'} />
-          <Input label="Horas mín. para cancelar" name="min_cancel_hours" value={settings?.min_cancel_hours || 24} onChange={handleChange} type="number" min="0" max="720" disabled={userRole !== 'admin'} />
-          <Input label="Buffer entre turnos (min)" name="buffer_minutes_between_appointments" value={settings?.buffer_minutes_between_appointments || 0} onChange={handleChange} type="number" min="0" max="120" disabled={userRole !== 'admin'} />
-        </div>
-        {userRole === 'admin' && (
-          <Button type="submit" disabled={saving} loading={saving} size="sm">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input label="Nombre del Negocio" name="business_name" value={settings?.business_name || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
+        <Input label="Teléfono" name="phone" value={settings?.phone || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
+        <Input label="WhatsApp" name="whatsapp_number" value={settings?.whatsapp_number || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
+        <Input label="Email" name="email" value={settings?.email || ''} onChange={handleChange} type="email" disabled={userRole !== 'admin'} />
+        <Input label="Dirección" name="address" value={settings?.address || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
+        <Input label="Zona horaria" name="timezone" value={settings?.timezone || 'America/Bogota'} onChange={handleChange} disabled={userRole !== 'admin'} />
+        <Input label="Días máx. de reserva anticipada" name="max_advance_booking_days" value={settings?.max_advance_booking_days || 14} onChange={handleChange} type="number" min="1" max="90" disabled={userRole !== 'admin'} />
+        <Input label="Horas mín. para cancelar" name="min_cancel_hours" value={settings?.min_cancel_hours || 24} onChange={handleChange} type="number" min="0" max="720" disabled={userRole !== 'admin'} />
+        <Input label="Buffer entre turnos (min)" name="buffer_minutes_between_appointments" value={settings?.buffer_minutes_between_appointments || 0} onChange={handleChange} type="number" min="0" max="120" disabled={userRole !== 'admin'} />
+      </div>
+      {userRole === 'admin' && (
+        <div className="flex justify-end pt-2">
+          <Button type="submit" disabled={saving} loading={saving} size="md">
             {saving ? 'Guardando...' : 'Guardar Cambios'}
           </Button>
-        )}
-      </form>
-    </div>
+        </div>
+      )}
+    </form>
   );
 };
 

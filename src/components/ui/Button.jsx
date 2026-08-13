@@ -31,7 +31,7 @@ const Button = ({
       onClick={onClick}
       disabled={disabled || loading}
       className={[
-        'inline-flex items-center justify-center gap-2 rounded-sm font-semibold uppercase tracking-wide transition-colors',
+        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold uppercase tracking-wide transition-all duration-200',
         'disabled:opacity-50',
         variantClasses[variant] || variantClasses.primary,
         sizeClasses[size] || sizeClasses.md,

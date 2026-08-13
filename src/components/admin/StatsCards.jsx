@@ -10,7 +10,7 @@ const STAT_STYLES = {
 
 const StatsCards = ({ stats, loading }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-5 mb-8">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5 mb-8">
       {[
         { label: 'Total Citas', value: stats.total, color: 'blue', icon: Calendar },
         { label: 'Pendientes', value: stats.pending, color: 'yellow', icon: Clock },
@@ -20,14 +20,14 @@ const StatsCards = ({ stats, loading }) => {
       ].map((stat, index) => {
         const style = STAT_STYLES[stat.color];
         return (
-          <div key={index} className={`p-4 sm:p-6 rounded-sm border ${style.card}`}>
+          <div key={index} className={`p-4 sm:p-5 rounded-lg border ${style.card} card-hover-lift animate-fade-in`} style={{ animationDelay: `${index * 60}ms` }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm font-medium mb-1 ${style.label}`}>{stat.label}</p>
-                <p className={`text-2xl sm:text-3xl font-serif ${style.value}`}>{loading ? '...' : stat.value}</p>
+                <p className={`text-xs sm:text-sm font-medium mb-1 ${style.label}`}>{stat.label}</p>
+                <p className={`text-xl sm:text-2xl lg:text-3xl font-serif ${style.value}`}>{loading ? '...' : stat.value}</p>
               </div>
-              <div className={`p-3 rounded-full ${style.icon}`}>
-                <stat.icon className="h-5 w-5 text-white" />
+              <div className={`p-2.5 rounded-full ${style.icon} shadow-sm`}>
+                <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
             </div>
           </div>

@@ -38,7 +38,7 @@ const Input = ({
           placeholder={placeholder}
           disabled={disabled}
           className={[
-            'w-full px-4 py-3 border rounded-sm focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none',
+            'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all',
             error ? 'border-[#C25555]' : 'border-[#E4DCC9]',
             variantClasses[variant] || variantClasses.default,
             Icon ? 'pl-9' : '',
@@ -47,7 +47,7 @@ const Input = ({
           {...rest}
         />
       </div>
-      {error && <p className="mt-1 text-sm text-[#C25555]">{error}</p>}
+      {error && <p className="mt-1.5 text-sm text-[#C25555]">{error}</p>}
     </div>
   );
 };

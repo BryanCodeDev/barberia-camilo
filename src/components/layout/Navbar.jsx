@@ -9,6 +9,9 @@ const Navbar = ({ business }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isAdminRoute = location.pathname === '/admin';
+  const isClientRoute = location.pathname === '/cliente';
+
   const businessName = business?.name || 'Barber Trebol';
   const businessTitle = business?.title || 'Master Barber';
 
@@ -41,66 +44,80 @@ const Navbar = ({ business }) => {
     }`;
 
   return (
-    <nav className="bg-[#121113] text-[#F6F2EA] sticky top-0 z-50 border-b border-[#2A2723]">
+    <nav className={`${isAdminRoute ? 'bg-[#121113]/95 backdrop-blur-md' : 'bg-[#121113]'} text-[#F6F2EA] sticky top-0 z-50 border-b border-[#2A2723] transition-all duration-300`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-[4.5rem]">
           <Link to="/" className="flex items-center space-x-3 group" onClick={closeMenu}>
-            <span className="flex items-center justify-center w-9 h-9 rounded-full border border-[#A9812E]/60 text-[#C9A860] group-hover:border-[#A9812E] transition-colors">
+            <span className={`flex items-center justify-center w-9 h-9 rounded-full border transition-colors ${isAdminRoute ? 'border-[#A9812E]/30 text-[#A9812E]/70' : 'border-[#A9812E]/60 text-[#C9A860] group-hover:border-[#A9812E]'}`}>
               <Scissors className="h-4 w-4" />
             </span>
             <div className="leading-tight">
-              <span className="font-serif text-lg md:text-xl tracking-wide">{businessName}</span>
-              <span className="hidden sm:block text-[10px] uppercase tracking-[0.25em] text-[#C9A860]/80">
-                {businessTitle}
-              </span>
+              <span className={`font-serif text-lg md:text-xl tracking-wide ${isAdminRoute ? 'text-[#9A9488]' : ''}`}>{businessName}</span>
+              {!isAdminRoute && (
+                <span className="hidden sm:block text-[10px] uppercase tracking-[0.25em] text-[#C9A860]/80">
+                  {businessTitle}
+                </span>
+              )}
             </div>
           </Link>
 
-          {/* Navegación principal — misma jerarquía visual para todos los links */}
-          <div className="hidden md:flex items-center space-x-7">
-            <Link to="/" className={navLinkClass(isActive('/'))}>
-              Inicio
-            </Link>
-            <a href="/#servicios" onClick={goToServices} className={navLinkClass(false)}>
-              Servicios
-            </a>
-            <Link to="/cliente" className={navLinkClass(isActive('/cliente'))}>
-              Mi Cuenta
-            </Link>
+          {isAdminRoute ? (
+            <div className="flex items-center gap-3">
+              <Link
+                to="/"
+                className="text-xs uppercase tracking-wide text-[#6E6A61] hover:text-[#C9A860] transition-colors flex items-center gap-1.5"
+              >
+                <span>Volver al Inicio</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center space-x-7">
+              <Link to="/" className={navLinkClass(isActive('/'))}>
+                Inicio
+              </Link>
+              <a href="/#servicios" onClick={goToServices} className={navLinkClass(false)}>
+                Servicios
+              </a>
+              <Link to="/cliente" className={navLinkClass(isActive('/cliente'))}>
+                Mi Cuenta
+              </Link>
 
-            <button
-              onClick={handleOpenBooking}
-              className="flex items-center gap-2 bg-[#A9812E] text-[#121113] px-5 py-2.5 rounded-sm font-semibold text-sm tracking-wide hover:bg-[#C9A860] transition-colors"
-            >
-              <CalendarDays className="h-4 w-4" />
-              Agendar Cita
-            </button>
+              <button
+                onClick={handleOpenBooking}
+                className="flex items-center gap-2 bg-[#A9812E] text-[#121113] px-5 py-2.5 rounded-lg font-semibold text-sm tracking-wide hover:bg-[#C9A860] transition-colors btn-press"
+              >
+                <CalendarDays className="h-4 w-4" />
+                Agendar Cita
+              </button>
 
-            <Link
-              to="/admin"
-              title="Administración"
-              className={`flex items-center gap-1.5 text-xs uppercase tracking-wide transition-colors border-l border-[#2A2723] pl-5 ${
-                isActive('/admin') ? 'text-[#C9A860]' : 'text-[#6E6A61] hover:text-[#C9A860]'
-              }`}
-            >
-              <ShieldCheck className="h-4 w-4" />
-              Admin
-            </Link>
-          </div>
+              <Link
+                to="/admin"
+                title="Administración"
+                className={`flex items-center gap-1.5 text-xs uppercase tracking-wide transition-colors border-l border-[#2A2723] pl-5 ${
+                  isActive('/admin') ? 'text-[#C9A860]' : 'text-[#6E6A61] hover:text-[#C9A860]'
+                }`}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Admin
+              </Link>
+            </div>
+          )}
 
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
-              className="text-[#F6F2EA] hover:text-[#C9A860] transition-colors"
-            >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
+          {!isAdminRoute && (
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                className="text-[#F6F2EA] hover:text-[#C9A860] transition-colors"
+              >
+                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
+          )}
         </div>
 
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-[#2A2723]">
+        {!isAdminRoute && isMenuOpen && (
+          <div className="md:hidden border-t border-[#2A2723] animate-slide-down">
             <div className="px-2 pt-3 pb-4 space-y-1">
               <Link
                 to="/"
@@ -127,7 +144,7 @@ const Navbar = ({ business }) => {
 
               <button
                 onClick={handleOpenBooking}
-                className="flex items-center justify-center gap-2 w-full text-left px-3 py-2.5 bg-[#A9812E] text-[#121113] rounded-sm font-semibold text-sm tracking-wide hover:bg-[#C9A860] transition-colors mt-2"
+                className="flex items-center justify-center gap-2 w-full text-left px-3 py-2.5 bg-[#A9812E] text-[#121113] rounded-lg font-semibold text-sm tracking-wide hover:bg-[#C9A860] transition-colors mt-2 btn-press"
               >
                 <CalendarDays className="h-4 w-4" />
                 Agendar Cita

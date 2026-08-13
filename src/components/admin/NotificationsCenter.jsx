@@ -42,9 +42,9 @@ const NotificationsCenter = () => {
   if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" /></div>;
 
   return (
-    <div className="bg-white border border-[#E4DCC9] rounded-sm p-6">
+    <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
       <h3 className="font-serif text-xl text-[#1C1A16] mb-6">Centro de Notificaciones</h3>
-      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-sm text-sm mb-4">{error}</div>}
+      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-lg text-sm mb-4 animate-fade-in">{error}</div>}
       <div className="space-y-3">
         {notifications.length === 0 && (
           <div className="text-center py-12">
@@ -54,9 +54,9 @@ const NotificationsCenter = () => {
           </div>
         )}
         {notifications.map((notification) => (
-          <div key={notification.id} className="border border-[#E4DCC9] rounded-sm p-4 flex items-start justify-between">
+          <div key={notification.id} className="border border-[#E4DCC9] rounded-lg p-4 flex items-start justify-between hover:border-[#A9812E]/40 hover:shadow-sm transition-all duration-200">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-[#F6F2EA] rounded-sm">
+              <div className="p-2 bg-[#F6F2EA] rounded-lg">
                 {getChannelIcon(notification.channel)}
               </div>
               <div>
@@ -66,7 +66,7 @@ const NotificationsCenter = () => {
                 {notification.error_message && <p className="text-xs text-[#C25555] mt-1">Error: {notification.error_message}</p>}
               </div>
             </div>
-            <span className={`px-3 py-1 rounded-sm text-xs font-medium ${getStatusColor(notification.status)}`}>
+            <span className={`px-3 py-1 rounded-lg text-xs font-medium ${getStatusColor(notification.status)}`}>
               {notification.status === 'sent' ? 'Enviada' : notification.status === 'failed' ? 'Fallida' : 'Pendiente'}
             </span>
           </div>
