@@ -48,7 +48,7 @@ const STAT_STYLES = {
 
 const formatCOP = (cents) => {
   if (cents === null || cents === undefined) return '$0';
-  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cents / 100);
+  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cents);
 };
 
 const StatsCards = ({ stats, loading }) => {

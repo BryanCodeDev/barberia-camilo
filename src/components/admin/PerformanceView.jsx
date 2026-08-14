@@ -33,7 +33,7 @@ const PerformanceView = () => {
       currency: 'COP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(cents / 100);
+    }).format(cents);
   };
 
   const SimpleBarChart = ({ items, valueKey, labelKey, color, icon: Icon }) => {

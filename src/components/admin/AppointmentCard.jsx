@@ -65,7 +65,7 @@ const AppointmentCard = ({
               <DollarSign className="h-4 w-4 text-gold flex-shrink-0" />
               <div className="min-w-0">
                 <p className="text-xs text-gold-deep">Ganancia</p>
-                <p className="font-medium text-gold-deep truncate">${Math.round((appointment.price_cents || 0) / 100).toLocaleString('es-CO')} COP</p>
+                <p className="font-medium text-gold-deep truncate">{(appointment.price_cents || 0).toLocaleString('es-CO')} COP</p>
               </div>
             </div>
           </div>

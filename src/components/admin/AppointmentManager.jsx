@@ -94,7 +94,7 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
       await fetchStats();
 
       if (newStatus === 'confirmed' && response.appointment) {
-        const price = Math.round((response.appointment.price_cents || 0) / 100);
+        const price = response.appointment.price_cents || 0;
         const formatted = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
         setProfitMessage(`Cita confirmada - Ganancia esperada: ${formatted}`);
         setTimeout(() => setProfitMessage(''), 4000);
@@ -141,7 +141,7 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
       apt.service_name,
       [apt.barber_name, apt.workstation_name].filter(Boolean).join(' / ') || '—',
       getStatusText(apt.status),
-      Math.round((apt.price_cents || 0) / 100),
+      Math.round(apt.price_cents || 0),
     ]);
 
     const csvContent = [

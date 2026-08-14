@@ -72,7 +72,7 @@ const AdminPanel = ({ onClose, business }) => {
       currency: 'COP',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(cents / 100);
+    }).format(cents);
   };
 
   const formatPeriodLabel = (period) => {
