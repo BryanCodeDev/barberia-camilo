@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Clock, TrendingUp, TrendingDown, Ticket, Settings, CalendarCheck } from 'lucide-react';
+import { Clock, TrendingUp, TrendingDown, Ticket, Settings, CalendarCheck, Wallet } from 'lucide-react';
 import StatsCards from './StatsCards';
 
 const DashboardView = ({
@@ -14,6 +14,12 @@ const DashboardView = ({
   formatPeriodLabel,
   onSettingsClick,
 }) => {
+  const confirmedRevenue = stats?.confirmed_revenue_cents || 0;
+  const completedRevenue = stats?.completed_revenue_cents || 0;
+  const todayRevenue = stats?.today_revenue_cents || 0;
+  const expectedRevenue = revenueData?.current?.confirmed_revenue_cents || 0;
+  const actualRevenue = revenueData?.current?.completed_revenue_cents || 0;
+
   return (
     <div className="space-y-6 animate-fade-in" key="dashboard">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -47,19 +53,19 @@ const DashboardView = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
         {[
           {
-            label: 'Ingresos',
+            label: 'Ingresos confirmados',
             sublabel: formatPeriodLabel(revenuePeriod),
-            value: revenueLoading ? '...' : formatCOP(revenueData?.current?.revenue_cents),
-            icon: TrendingUp,
-            accent: 'from-gold/10 to-gold/5',
-            iconBg: 'bg-gold/15 text-gold',
+            value: revenueLoading ? '...' : formatCOP(expectedRevenue),
+            icon: Wallet,
+            accent: 'from-status-amber/10 to-status-amber/5',
+            iconBg: 'bg-status-amber/15 text-status-amber.deep',
             delay: 0,
           },
           {
-            label: 'Citas completadas',
+            label: 'Ingresos completados',
             sublabel: formatPeriodLabel(revenuePeriod),
-            value: revenueLoading ? '...' : (revenueData?.current?.appointments ?? 0),
-            icon: CalendarCheck,
+            value: revenueLoading ? '...' : formatCOP(actualRevenue),
+            icon: TrendingUp,
             accent: 'from-status-green/10 to-status-green/5',
             iconBg: 'bg-status-green/15 text-status-green.deep',
             delay: 50,

@@ -117,21 +117,32 @@ const PerformanceView = () => {
               <p className="text-xs text-stone">Ingresos y citas por profesional</p>
             </div>
           </div>
-          {data?.by_barber?.length === 0 ? (
-            <p className="text-sm text-stone">Sin datos.</p>
-          ) : (
-            <div className="divide-y divide-cream-line">
-              {data?.by_barber?.map((item) => (
-                <div key={item.barber_id} className="py-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-ink-soft">{item.barber_name || 'Sin asignar'}</p>
-                    <p className="text-xs text-stone">{item.appointments} citas completadas</p>
-                  </div>
-                  <p className="font-serif text-ink-soft">{formatCOP(item.revenue_cents)}</p>
+      {data?.by_barber?.length === 0 ? (
+        <p className="text-sm text-stone">Sin datos.</p>
+      ) : (
+        <div className="divide-y divide-cream-line">
+          {data?.by_barber?.map((item) => {
+            const completedItem = data?.by_barber_completed?.find(c => c.barber_id === item.barber_id);
+            return (
+              <div key={item.barber_id} className="py-3 flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-ink-soft">{item.barber_name || 'Sin asignar'}</p>
+                  <p className="text-xs text-stone">{item.appointments} citas (confirmadas + completadas)</p>
+                  {completedItem && completedItem.revenue_cents !== item.revenue_cents && (
+                    <p className="text-xs text-status-green.deep">{completedItem.appointments} completadas - {formatCOP(completedItem.revenue_cents)}</p>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
+                <div className="text-right">
+                  <p className="font-serif text-ink-soft">{formatCOP(item.revenue_cents)}</p>
+                  {completedItem && completedItem.revenue_cents !== item.revenue_cents && (
+                    <p className="text-xs text-stone-faint">Esperado: {formatCOP(item.revenue_cents - completedItem.revenue_cents)}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
         </div>
 
         <div className="card-premium p-5 sm:p-6">
@@ -144,21 +155,32 @@ const PerformanceView = () => {
               <p className="text-xs text-stone">Servicios mas populares</p>
             </div>
           </div>
-          {data?.by_service?.length === 0 ? (
-            <p className="text-sm text-stone">Sin datos.</p>
-          ) : (
-            <div className="divide-y divide-cream-line">
-              {data?.by_service?.map((item) => (
-                <div key={item.service_id} className="py-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-ink-soft">{item.service_name}</p>
-                    <p className="text-xs text-stone">{item.appointments} vendidos</p>
-                  </div>
-                  <p className="font-serif text-ink-soft">{formatCOP(item.revenue_cents)}</p>
+      {data?.by_service?.length === 0 ? (
+        <p className="text-sm text-stone">Sin datos.</p>
+      ) : (
+        <div className="divide-y divide-cream-line">
+          {data?.by_service?.map((item) => {
+            const completedItem = data?.by_service_completed?.find(c => c.service_id === item.service_id);
+            return (
+              <div key={item.service_id} className="py-3 flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-ink-soft">{item.service_name}</p>
+                  <p className="text-xs text-stone">{item.appointments} vendidos (confirmados + completados)</p>
+                  {completedItem && completedItem.revenue_cents !== item.revenue_cents && (
+                    <p className="text-xs text-status-green.deep">{completedItem.appointments} completados - {formatCOP(completedItem.revenue_cents)}</p>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
+                <div className="text-right">
+                  <p className="font-serif text-ink-soft">{formatCOP(item.revenue_cents)}</p>
+                  {completedItem && completedItem.revenue_cents !== item.revenue_cents && (
+                    <p className="text-xs text-stone-faint">Esperado: {formatCOP(item.revenue_cents - completedItem.revenue_cents)}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
         </div>
       </div>
 

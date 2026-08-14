@@ -33,6 +33,7 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
     status: 'pending',
   });
   const [appointmentSaving, setAppointmentSaving] = useState(false);
+  const [profitMessage, setProfitMessage] = useState('');
 
   const fetchAppointments = useCallback(async () => {
     try {
@@ -85,12 +86,19 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
   const handleStatusChange = async (id, newStatus, cancelledReason = null) => {
     try {
       setError(null);
-      await api.patch(`/appointments/${id}/status`, {
+      const response = await api.patch(`/appointments/${id}/status`, {
         status: newStatus,
         cancelled_reason: cancelledReason,
       });
       await fetchAppointments();
       await fetchStats();
+
+      if (newStatus === 'confirmed' && response.appointment) {
+        const price = Math.round((response.appointment.price_cents || 0) / 100);
+        const formatted = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price);
+        setProfitMessage(`Cita confirmada - Ganancia esperada: ${formatted}`);
+        setTimeout(() => setProfitMessage(''), 4000);
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -216,6 +224,15 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
           <p className="text-sm text-stone mt-1">Administra las reservas y estados</p>
         </div>
       </div>
+
+      {profitMessage && (
+        <div className="bg-status-green/10 border border-status-green/20 text-status-green.deep px-4 py-3 rounded-xl text-sm animate-fade-in flex items-center justify-between">
+          <span>{profitMessage}</span>
+          <button onClick={() => setProfitMessage('')} className="text-current hover:opacity-70 ml-4" aria-label="Cerrar">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       <div className="card-premium p-4 sm:p-5">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-5">

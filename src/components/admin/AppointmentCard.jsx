@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Phone, Calendar, MessageSquare, Check, AlertTriangle, EyeOff, Trash2, Pencil, Scissors, Users, Clock } from 'lucide-react';
+import { User, Phone, Calendar, MessageSquare, Check, AlertTriangle, EyeOff, Trash2, Pencil, Scissors, Users, Clock, DollarSign } from 'lucide-react';
 
 const STATUS_ICONS = {
   pending: Clock,
@@ -59,6 +59,13 @@ const AppointmentCard = ({
               <div className="min-w-0">
                 <p className="text-xs text-stone-faint">Servicio</p>
                 <p className="font-medium text-ink-soft truncate">{appointment.service_name}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-gold/5 px-3.5 py-2.5 rounded-xl border border-gold/10">
+              <DollarSign className="h-4 w-4 text-gold flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs text-gold-deep">Ganancia</p>
+                <p className="font-medium text-gold-deep truncate">${Math.round((appointment.price_cents || 0) / 100).toLocaleString('es-CO')} COP</p>
               </div>
             </div>
           </div>
