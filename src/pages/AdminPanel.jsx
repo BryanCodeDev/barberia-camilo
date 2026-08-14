@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Shield, Users, Scissors, LayoutDashboard,
+  Shield, Users, Scissors, LayoutDashboard, Calendar,
   BarChart3, MessageSquare, Settings, ChevronRight
 } from 'lucide-react';
 import { invalidateBusinessSettingsCache } from '../hooks/useBusinessSettings';
