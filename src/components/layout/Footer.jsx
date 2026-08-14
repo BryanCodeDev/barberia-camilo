@@ -125,7 +125,7 @@ const Footer = ({ business }) => {
               © {currentYear} {businessInfo.name}. Todos los derechos reservados.
             </p>
             <p className="text-[#6E6A61] text-xs text-center md:text-right">
-              Barbería de autor en Mosquera, Cundinamarca
+              <a href="https://mastercodecompany.com/" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A860] transition-colors">Barbería de autor por Mastercode Company</a>
             </p>
           </div>
         </div>
