@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { Clock, TrendingUp, TrendingDown, Ticket, Settings, CalendarCheck, Wallet } from 'lucide-react';
 import StatsCards from './StatsCards';
+import BarberAgenda from './BarberAgenda';
 
 const DashboardView = ({
   userRole,
@@ -25,7 +26,7 @@ const DashboardView = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="section-title">Resumen del Negocio</h2>
-          <p className="text-sm text-stone mt-1">Metricas clave y rendimiento reciente</p>
+          <p className="text-sm text-stone mt-1">Metricas clave, rendimiento reciente y agenda del dia</p>
         </div>
         <div className="flex items-center gap-2">
           <select
@@ -142,6 +143,8 @@ const DashboardView = ({
         </div>
         <StatsCards stats={stats} loading={statsLoading} />
       </div>
+
+      <BarberAgenda userRole={userRole} />
     </div>
   );
 };
