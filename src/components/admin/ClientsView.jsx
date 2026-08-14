@@ -298,7 +298,7 @@ const ClientsView = ({ userRole }) => {
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               required
-              placeholder="+57 300 123 4567"
+              placeholder="+301 566 7129"
             />
             <Input
               label="Email"

@@ -12,8 +12,8 @@ const Navbar = ({ business }) => {
   const isAdminRoute = location.pathname === '/admin';
   const isClientRoute = location.pathname === '/cliente';
 
-  const businessName = business?.name || 'Barber Trebol';
-  const businessTitle = business?.title || 'Master Barber';
+  const businessName = business?.name || 'BARBERÍA EL BRONX';
+  const businessTitle = business?.title || 'EL BRONX';
 
   const isActive = (path) => location.pathname === path;
 

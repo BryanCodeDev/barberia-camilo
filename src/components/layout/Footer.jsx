@@ -4,10 +4,10 @@ import { Scissors, Phone, MapPin, Instagram, Facebook, Clock, MessageCircle } fr
 
 const Footer = ({ business }) => {
   const businessInfo = {
-    name: business?.name || "Barber Trebol",
-    phone: business?.phone || "+57 300 123 4567",
-    whatsapp: business?.whatsapp || "573001234567",
-    email: business?.email || "contacto@barbertrebol.com",
+    name: business?.name || "BARBERÍA EL BRONX",
+    phone: business?.phone || "+301 566 7129",
+    whatsapp: business?.whatsapp || "3015667129",
+    email: business?.email || "",
     address: {
       street: business?.address || "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01",
       city: "Mosquera",
@@ -16,9 +16,9 @@ const Footer = ({ business }) => {
       full: business?.address || "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01, Mosquera, Cundinamarca"
     },
     socialMedia: {
-      instagram: business?.instagram || "@barbertrebol",
-      facebook: business?.facebook || "Barber Trebol",
-      tiktok: "@barbertrebol"
+      instagram: business?.instagram || "",
+      facebook: business?.facebook || "",
+      tiktok: ""
     }
   };
 
@@ -37,28 +37,31 @@ const Footer = ({ business }) => {
               <span className="font-serif text-lg md:text-xl tracking-wide">{businessInfo.name}</span>
             </div>
             <p className="text-[#9A9488] mb-5 text-sm leading-relaxed">
-              Master Barber — experiencia VIP en barbería masculina, con más de 10 años
-              ofreciendo cortes precisos y servicio premium en Mosquera, Cundinamarca.
+              Barbería clásica, masculina, elegante, urbana y profesional. Cortes de cabello, arreglo de barba y servicios de grooming masculino en Mosquera, Cundinamarca.
             </p>
             <div className="flex space-x-4">
-              <a
-                href={`https://instagram.com/${businessInfo.socialMedia.instagram.replace('@', '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="h-4 w-4" />
-              </a>
-              <a
-                href={`https://facebook.com/${businessInfo.socialMedia.facebook.replace(/\s+/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                aria-label="Facebook"
-              >
-                <Facebook className="h-4 w-4" />
-              </a>
+              {businessInfo.socialMedia.instagram && (
+                <a
+                  href={`https://instagram.com/${businessInfo.socialMedia.instagram.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-4 w-4" />
+                </a>
+              )}
+              {businessInfo.socialMedia.facebook && (
+                <a
+                  href={`https://facebook.com/${businessInfo.socialMedia.facebook.replace(/\s+/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="h-4 w-4" />
+                </a>
+              )}
               <a
                 href={whatsappLink}
                 target="_blank"

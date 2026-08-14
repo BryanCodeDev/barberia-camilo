@@ -25,15 +25,15 @@ const AppContent = () => {
   }, []);
 
   const businessInfo = useMemo(() => ({
-    name: settings?.business_name || 'Barber Trebol',
-    title: settings?.barber_name || 'Master Barber',
+    name: settings?.business_name || 'BARBERÍA EL BRONX',
+    title: settings?.barber_name || 'EL BRONX',
     address: settings?.address || 'Mosquera, Cundinamarca',
     address_line: settings?.address || 'CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01',
-    phone: settings?.phone || '+57 300 123 4567',
-    whatsapp: settings?.whatsapp_number || '573001234567',
-    email: settings?.email || 'contacto@barbertrebol.com',
-    instagram: settings?.instagram || '@barbertrebol',
-    facebook: settings?.facebook || 'Barber Trebol',
+    phone: settings?.phone || '+301 566 7129',
+    whatsapp: settings?.whatsapp_number || '3015667129',
+    email: settings?.email || '',
+    instagram: settings?.instagram || '',
+    facebook: settings?.facebook || '',
   }), [settings]);
 
   const handleBookingSuccess = () => {

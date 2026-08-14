@@ -1,17 +1,27 @@
 {
-  "short_name": "Barber Trebol",
-  "name": "Barber Trebol - Master Barber",
-  "description": "Master Barber en Mosquera, Cundinamarca. Cortes premium, barba profesional y tratamientos VIP.",
+  "short_name": "EL BRONX",
+  "name": "Barbería El Bronx",
+  "description": "Barbería clásica, masculina, elegante y urbana. Cortes de cabello, arreglo de barba y grooming profesional.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#121113",
-  "theme_color": "#A9812E",
+  "theme_color": "#121113",
   "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/favicon.ico",
       "sizes": "192x192",
       "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ]
 }

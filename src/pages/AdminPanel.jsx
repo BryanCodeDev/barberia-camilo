@@ -20,7 +20,7 @@ import ClientsView from '../components/admin/ClientsView';
 import PerformanceView from '../components/admin/PerformanceView';
 import SettingsEditor from '../components/admin/SettingsEditor';
 
-const defaultBusiness = { name: 'Barber Trebol', title: 'Master Barber' };
+const defaultBusiness = { name: 'BARBERÍA EL BRONX', title: 'EL BRONX' };
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard, roles: ['admin', 'barber'] },

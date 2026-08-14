@@ -4,8 +4,8 @@ import { Star, MapPin, Phone } from 'lucide-react';
 import { openBooking } from '../../utils/booking';
 
 const defaultBusiness = {
-  name: "Barber Trebol",
-  title: "Master Barber",
+  name: "BARBERÍA EL BRONX",
+  title: "EL BRONX",
   address: "Mosquera, Cundinamarca"
 };
 
@@ -24,7 +24,7 @@ const HeroSection = ({ business }) => {
         name: business.name || defaultBusiness.name,
         title: business.title || defaultBusiness.title,
         address: business.address || defaultBusiness.address,
-        phone: business.phone || '+57 300 123 4567',
+        phone: business.phone || '+301 566 7129',
       });
     }
   }, [business]);
@@ -103,7 +103,7 @@ const HeroSection = ({ business }) => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-[#8A8579] text-sm px-4">
             <div className="flex items-center">
               <Phone className="h-4 w-4 text-[#C9A860] mr-2" />
-              {localBusiness.phone || '+57 300 123 4567'}
+              {localBusiness.phone || '+301 566 7129'}
             </div>
             <div className="hidden sm:block w-1 h-1 bg-[#3A362F] rounded-full" />
             <div className="flex items-center">

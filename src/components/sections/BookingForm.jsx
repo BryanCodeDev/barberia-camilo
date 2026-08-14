@@ -21,8 +21,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [selectedService, setSelectedService] = useState(preselectedService);
   const [services, setServices] = useState([]);
   const [localBusiness, setLocalBusiness] = useState({
-    name: "Barber Trebol",
-    title: "Master Barber",
+    name: "BARBERÍA EL BRONX",
+    title: "EL BRONX",
   });
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -50,8 +50,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   useEffect(() => {
     if (business) {
       setLocalBusiness({
-        name: business.name || 'Barber Trebol',
-        title: business.title || 'Master Barber',
+        name: business.name || 'BARBERÍA EL BRONX',
+        title: business.title || 'EL BRONX',
         address: business.address || 'Mosquera, Cundinamarca',
         address_line: business.address_line || 'CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01',
       });
