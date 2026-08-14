@@ -17,6 +17,7 @@ import ServiceManager from '../components/admin/ServiceManager';
 import NotificationsCenter from '../components/admin/NotificationsCenter';
 import ClientsView from '../components/admin/ClientsView';
 import PerformanceView from '../components/admin/PerformanceView';
+import SettingsEditor from '../components/admin/SettingsEditor';
 
 const defaultBusiness = { name: 'Barber Trebol', title: 'Master Barber' };
 
@@ -48,6 +49,11 @@ const AdminPanel = ({ onClose, business }) => {
   const visibleNavItems = NAV_ITEMS.filter(item => item.roles.includes(userRole));
 
   const [activeTab, setActiveTab] = useState(visibleNavItems[0]?.id || 'dashboard');
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeTab]);
+
   const [stats, setStats] = useState({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 });
   const [statsLoading, setStatsLoading] = useState(false);
   const [revenuePeriod, setRevenuePeriod] = useState('today');
