@@ -3,6 +3,7 @@ import {
   Shield, Users, Scissors, LayoutDashboard, Calendar,
   BarChart3, MessageSquare, Settings, ChevronRight
 } from 'lucide-react';
+import { api } from '../services/api';
 import { invalidateBusinessSettingsCache } from '../hooks/useBusinessSettings';
 import useAuth from '../hooks/useAuth';
 import AdminSidebar from '../components/layout/AdminSidebar';

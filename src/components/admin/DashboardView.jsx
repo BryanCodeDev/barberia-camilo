@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Clock, TrendingUp, TrendingDown, Ticket, Settings, CalendarCheck } from 'lucide-react';
 import StatsCards from './StatsCards';
 
