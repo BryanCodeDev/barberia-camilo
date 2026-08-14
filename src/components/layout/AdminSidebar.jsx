@@ -133,7 +133,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
           );
         })}
 
-        {onSettingsClick && (
+        {onSettingsClick && userRole === 'admin' && (
           <div className="mt-4 pt-4 border-t border-ink-line">
             <NavItem item={{ id: 'settings', label: 'Configuracion', icon: Settings }} />
           </div>

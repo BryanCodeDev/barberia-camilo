@@ -5,6 +5,7 @@ import BarberAgenda from './BarberAgenda';
 
 const DashboardView = ({
   userRole,
+  username,
   stats,
   statsLoading,
   revenuePeriod,
@@ -144,7 +145,7 @@ const DashboardView = ({
         <StatsCards stats={stats} loading={statsLoading} />
       </div>
 
-      <BarberAgenda userRole={userRole} />
+      <BarberAgenda userRole={userRole} username={username} />
     </div>
   );
 };

@@ -26,7 +26,7 @@ const formatTime = (time) => {
   return time;
 };
 
-const BarberAgenda = ({ userRole }) => {
+const BarberAgenda = ({ userRole, username }) => {
   const [agenda, setAgenda] = useState({ date: '', agenda: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -59,8 +59,25 @@ const BarberAgenda = ({ userRole }) => {
   const todayTotal = allAppointments.reduce((sum, apt) => sum + (apt.price_cents || 0), 0);
 
   const isBarberView = userRole === 'barber';
-  const myAgenda = isBarberView ? (agenda.agenda?.[0]?.appointments || []) : allAppointments;
-  const myName = isBarberView ? agenda.agenda?.[0]?.barber_name : null;
+  const rawAgenda = agenda.agenda || [];
+  let myAgenda = [];
+  let myName = null;
+
+  if (isBarberView) {
+    const normalizedUsername = (username || '').replace(/\./g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+    const matchedBarber = rawAgenda.find((barber) => {
+      const normalizedBarberName = (barber.barber_name || '').toLowerCase();
+      return normalizedBarberName.includes(normalizedUsername) || normalizedUsername.includes(normalizedBarberName);
+    });
+    const targetBarber = matchedBarber || rawAgenda[0];
+    myAgenda = targetBarber?.appointments || [];
+    myName = targetBarber?.barber_name || null;
+  } else {
+    myAgenda = allAppointments;
+    myName = null;
+  }
+
+  console.log('[BarberAgenda] userRole=', userRole, 'isBarberView=', isBarberView, 'username=', username, 'agenda=', agenda, 'myAgenda=', myAgenda);
 
   if (loading) {
     return (
@@ -80,7 +97,7 @@ const BarberAgenda = ({ userRole }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h3 className="font-serif text-xl text-ink-soft">
-            {isBarberView ? 'Mi Agenda' : 'Agenda de Barberos'}
+            {isBarberView ? (myName ? `Agenda de ${myName}` : 'Mi Agenda') : 'Agenda de Barberos'}
           </h3>
           <p className="text-sm text-stone mt-1">
             {isBarberView ? 'Tus citas programadas para el dia seleccionado' : 'Visualiza la agenda de cada barbero para el dia seleccionado'}
@@ -111,7 +128,13 @@ const BarberAgenda = ({ userRole }) => {
         </div>
       )}
 
-      {!agenda.agenda || agenda.agenda.length === 0 || (isBarberView && myAgenda.length === 0) ? (
+      {isBarberView && rawAgenda.length > 0 && myAgenda.length === 0 && (
+        <div className="bg-status-amber/10 border border-status-amber/20 text-status-amber.deep px-4 py-3 rounded-xl text-sm animate-fade-in">
+          No se pudo asociar tu cuenta de barbero con un registro de agenda. Contacta al administrador para vincular tu usuario con tu perfil de barbero.
+        </div>
+      )}
+
+      {!agenda.agenda || agenda.agenda.length === 0 || (isBarberView && myAgenda.length === 0 && rawAgenda.length === 0) ? (
         <div className="card-premium p-8 text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-cream flex items-center justify-center border border-cream-line">
             <Calendar className="h-8 w-8 text-stone-faint" />

@@ -186,6 +186,7 @@ const AdminPanel = ({ onClose, business }) => {
           {activeTab === 'dashboard' && (
             <DashboardView
               userRole={userRole}
+              username={user?.username}
               stats={stats}
               statsLoading={statsLoading}
               revenuePeriod={revenuePeriod}
