@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, X, Check, ChevronRight, User, Phone, MessageSquare, Clock, CalendarDays, Info, Scissors, Send } from 'lucide-react';
+import { ArrowLeft, X, Check, ChevronRight, User, Phone, Mail, MessageSquare, Clock, CalendarDays, Info, Scissors, Send } from 'lucide-react';
 import { fetchServices, formatPrice } from '../../data/services';
 import { api } from '../../services/api';
 import { APP_CONFIG } from '../../utils/constants';
@@ -31,7 +31,9 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [workstations, setWorkstations] = useState([]);
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
   const [clientMessage, setClientMessage] = useState('');
+  const [recommendations, setRecommendations] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [slotsLoading, setSlotsLoading] = useState(false);
@@ -178,18 +180,25 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     if (!clientPhone.trim() || !/^\d{10}$/.test(clientPhone.trim())) {
       errors.phone = 'El teléfono debe tener 10 dígitos';
     }
+    if (!clientEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail.trim())) {
+      errors.email = 'El correo electrónico es requerido y debe ser válido';
+    }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const confirmBooking = async () => {
+    if (!validateClientForm()) {
+      setCurrentStep(3);
+      return;
+    }
     setSubmitLoading(true);
     setError(null);
 
     try {
       let clientId;
       try {
-        const clientData = await api.post('/clients', { name: clientName, phone: clientPhone });
+        const clientData = await api.post('/clients', { name: clientName, phone: clientPhone, email: clientEmail });
         clientId = clientData.id;
       } catch (clientErr) {
         if (clientErr.data?.clientId) {
@@ -206,6 +215,9 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         appointment_date: toLocalDateString(selectedDate),
         appointment_time: selectedTime,
         client_message: clientMessage,
+        client_name: clientName,
+        client_phone: clientPhone,
+        client_email: clientEmail,
         source: 'web',
       };
       if (selectedWorkstation?.id) {
@@ -214,6 +226,12 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
       const appointmentData = await api.post('/appointments', payload);
       console.log('Appointment created:', appointmentData);
+
+      if (appointmentData.appointment?.recommendations && appointmentData.appointment.recommendations.length > 0) {
+        setRecommendations(appointmentData.appointment.recommendations);
+      } else {
+        setRecommendations([]);
+      }
 
       setShowSuccess(true);
       successTimeoutRef.current = setTimeout(() => {
@@ -533,6 +551,14 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                   maxLength={10}
                   error={fieldErrors.phone}
                 />
+                <Input
+                  label={<span className="flex items-center"><Mail className="h-4 w-4 mr-2 text-[#A9812E]" />Correo electrónico</span>}
+                  type="email"
+                  value={clientEmail}
+                  onChange={(e) => { setClientEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: null })); }}
+                  placeholder="tu@email.com"
+                  error={fieldErrors.email}
+                />
                 <TextArea
                   label={<span className="flex items-center"><MessageSquare className="h-4 w-4 mr-2 text-[#A9812E]" />Mensaje (opcional)</span>}
                   value={clientMessage}
@@ -588,25 +614,28 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
           )}
         </div>
 
-        {!showSuccess && (
-          <div className="flex-shrink-0 border-t border-[#E4DCC9] p-4 sm:p-6 bg-white">
-            {currentStep === 2 && canContinueStep2 && (
-              <Button onClick={() => setCurrentStep(3)} className="w-full" size="lg">Continuar</Button>
-            )}
-            {currentStep === 3 && (
-              <Button onClick={() => { if (validateClientForm()) setCurrentStep(4); }} className="w-full" size="lg">Continuar</Button>
-            )}
-            {currentStep === 4 && (
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row justify-between items-center text-lg font-semibold space-y-2 sm:space-y-0">
-                  <span className="text-[#1C1A16]">Total a pagar:</span>
-                  <span className="text-2xl text-[#8B6A22]">{formatPrice(selectedService?.price)}</span>
-                </div>
-                <Button onClick={confirmBooking} loading={submitLoading} disabled={submitLoading} className="w-full" variant="dark" size="lg">
-                  {submitLoading ? 'Agendando...' : 'Confirmar Reserva'}
-                </Button>
+        {showSuccess && (
+          <div className="fixed inset-0 bg-[#121113]/80 flex items-center justify-center p-4 z-[60]">
+            <div className="bg-white rounded-sm shadow-2xl w-full max-w-lg p-6 sm:p-8 text-center animate-fade-in">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-status-green/15 flex items-center justify-center">
+                <Check className="h-8 w-8 text-status-green.deep" />
               </div>
-            )}
+              <h3 className="font-serif text-2xl text-[#1C1A16] mb-2">Cita Confirmada</h3>
+              <p className="text-sm text-[#6B6459] mb-6">
+                Te enviamos un correo y un mensaje de WhatsApp con la confirmación y nuestras recomendaciones personalizadas.
+              </p>
+              {recommendations.length > 0 && (
+                <div className="bg-[#F6F2EA] border border-[#E4DCC9] rounded-sm p-4 mb-6 text-left">
+                  <h4 className="font-medium text-[#1C1A16] mb-2 text-sm uppercase tracking-wide">Recomendaciones para tu servicio</h4>
+                  <ul className="text-sm text-[#6B6459] space-y-2 list-disc list-inside">
+                    {recommendations.map((rec, idx) => (
+                      <li key={idx}>{rec}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <Button onClick={handleFinish} size="lg" className="w-full">Cerrar</Button>
+            </div>
           </div>
         )}
       </div>

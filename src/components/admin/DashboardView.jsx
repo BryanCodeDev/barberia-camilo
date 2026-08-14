@@ -15,6 +15,7 @@ const DashboardView = ({
   formatCOP,
   formatPeriodLabel,
   onSettingsClick,
+  onRefresh,
 }) => {
   const confirmedRevenue = stats?.confirmed_revenue_cents || 0;
   const completedRevenue = stats?.completed_revenue_cents || 0;

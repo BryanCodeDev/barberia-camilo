@@ -124,14 +124,14 @@ const ClientsView = ({ userRole }) => {
           <h2 className="section-title">Clientes</h2>
           <p className="text-sm text-stone mt-1">Gestiona la base de clientes</p>
         </div>
-        {userRole === 'admin' && (
+        {userRole === 'admin' || userRole === 'barber' ? (
           <button
             onClick={openCreateModal}
             className="btn-primary"
           >
             <Plus className="h-4 w-4" /> Nuevo Cliente
           </button>
-        )}
+        ) : null}
       </div>
 
       {error && (

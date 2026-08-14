@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, Clock, Users, Scissors, DollarSign, Filter } from 'lucide-react';
+import { Calendar, Clock, Users, Scissors, DollarSign, Filter, Bell } from 'lucide-react';
 import { api } from '../../services/api';
 import { APPOINTMENT_STATUS, STATUS_LABELS } from '../../utils/constants';
+import useRealtimeNotifications from '../../hooks/useRealtimeNotifications';
 
 const STATUS_COLORS = {
   pending: 'bg-status-amber/10 text-status-amber.deep border-status-amber/20',
@@ -35,6 +36,14 @@ const BarberAgenda = ({ userRole, username }) => {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   });
 
+  const { notifications, unreadCount, refresh: refreshNotifications } = useRealtimeNotifications(
+    userRole,
+    userRole === 'barber' ? username : null,
+    (notification) => {
+      fetchAgenda();
+    }
+  );
+
   const fetchAgenda = useCallback(async () => {
     try {
       setLoading(true);
@@ -50,7 +59,8 @@ const BarberAgenda = ({ userRole, username }) => {
 
   useEffect(() => {
     fetchAgenda();
-  }, [fetchAgenda]);
+    refreshNotifications();
+  }, [fetchAgenda, refreshNotifications]);
 
   const allAppointments = agenda.agenda?.flatMap((barber) =>
     barber.appointments.map((apt) => ({ ...apt, barber_name: barber.barber_name }))
@@ -113,6 +123,18 @@ const BarberAgenda = ({ userRole, username }) => {
               className="pl-9 pr-4 py-2.5 border border-cream-line rounded-xl text-sm bg-white focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none transition-all duration-200 text-ink-soft"
             />
           </div>
+          <button
+            onClick={refreshNotifications}
+            className="relative p-2.5 border border-cream-line rounded-xl text-sm text-stone hover:text-gold-deep hover:border-gold/60 transition-all duration-200 bg-white"
+            title="Notificaciones"
+          >
+            <Bell className="h-4 w-4" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-status-red text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
           {todayTotal > 0 && (
             <div className="px-3 py-2 bg-gold/10 border border-gold/20 rounded-xl">
               <p className="text-xs text-gold-deep font-medium">Total esperado</p>
@@ -125,6 +147,24 @@ const BarberAgenda = ({ userRole, username }) => {
       {error && (
         <div className="bg-status-red/10 border border-status-red/20 text-status-red.deep px-4 py-3 rounded-xl text-sm animate-fade-in">
           {error}
+        </div>
+      )}
+
+      {notifications.length > 0 && (
+        <div className="card-premium p-4 sm:p-5">
+          <h4 className="font-medium text-ink-soft mb-3 flex items-center gap-2">
+            <Bell className="h-4 w-4 text-gold" />
+            Notificaciones recientes
+          </h4>
+          <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+            {notifications.slice(0, 10).map((n) => (
+              <div key={n.id} className={`p-3 rounded-xl border ${n.read_at ? 'bg-cream/30 border-cream-line' : 'bg-gold/5 border-gold/20'}`}>
+                <p className="text-sm font-medium text-ink-soft">{n.title}</p>
+                <p className="text-xs text-stone mt-1">{n.message}</p>
+                <p className="text-[10px] text-stone-faint mt-1">{new Date(n.created_at).toLocaleString('es-CO')}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

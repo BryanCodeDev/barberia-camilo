@@ -133,12 +133,15 @@ const AdminPanel = ({ onClose, business }) => {
     }
   }, [revenuePeriod]);
 
+  const refreshAll = useCallback(async () => {
+    await Promise.all([fetchStats(), fetchRevenue()]);
+  }, [fetchStats, fetchRevenue]);
+
   useEffect(() => {
     if (isAuthenticated) {
-      fetchStats();
-      fetchRevenue();
+      refreshAll();
     }
-  }, [isAuthenticated, fetchStats, fetchRevenue]);
+  }, [isAuthenticated, refreshAll]);
 
   if (!isAuthenticated) {
     return (
@@ -196,6 +199,7 @@ const AdminPanel = ({ onClose, business }) => {
               formatCOP={formatCOP}
               formatPeriodLabel={formatPeriodLabel}
               onSettingsClick={() => setSettingsModalOpen(true)}
+              onRefresh={refreshAll}
             />
           )}
 
@@ -204,7 +208,7 @@ const AdminPanel = ({ onClose, business }) => {
               userRole={userRole}
               business={businessInfo}
               setError={setError}
-              fetchStats={fetchStats}
+              fetchStats={refreshAll}
             />
           )}
 
