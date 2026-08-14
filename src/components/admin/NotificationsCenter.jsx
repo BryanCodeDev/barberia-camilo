@@ -1,6 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, MessageSquare, Check, X, Clock, Mail } from 'lucide-react';
+import { Loader2, MessageSquare, Check, X, Clock, Mail, Bell } from 'lucide-react';
 import { api } from '../../services/api';
+
+const STATUS_CONFIG = {
+  sent: {
+    label: 'Enviada',
+    icon: Check,
+    className: 'bg-status-green/10 text-status-green.deep border-status-green/20',
+  },
+  failed: {
+    label: 'Fallida',
+    icon: X,
+    className: 'bg-status-red/10 text-status-red.deep border-status-red/20',
+  },
+  pending: {
+    label: 'Pendiente',
+    icon: Clock,
+    className: 'bg-status-amber/10 text-status-amber.deep border-status-amber/20',
+  },
+};
+
+const CHANNEL_CONFIG = {
+  whatsapp: { icon: MessageSquare, label: 'WhatsApp', color: 'text-status-green.deep bg-status-green/10' },
+  email: { icon: Mail, label: 'Email', color: 'text-status-blue.deep bg-status-blue/10' },
+};
 
 const NotificationsCenter = () => {
   const [notifications, setNotifications] = useState([]);
@@ -22,56 +45,98 @@ const NotificationsCenter = () => {
     fetchNotifications();
   }, []);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'sent': return 'bg-[#EEF5EE] text-[#3E6B3E]';
-      case 'failed': return 'bg-[#FBEAEA] text-[#8B2E2E]';
-      case 'pending': return 'bg-[#FBF3E4] text-[#8B6A22]';
-      default: return 'bg-[#F1EFEB] text-[#6B6459]';
-    }
-  };
-
-  const getChannelIcon = (channel) => {
-    switch (channel) {
-      case 'whatsapp': return <MessageSquare className="h-4 w-4" />;
-      case 'email': return <Mail className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
-    }
-  };
-
-  if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" /></div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-gold mx-auto mb-3" />
+          <p className="text-sm text-stone">Cargando notificaciones...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
-      <h3 className="font-serif text-xl text-[#1C1A16] mb-6">Centro de Notificaciones</h3>
-      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-lg text-sm mb-4 animate-fade-in">{error}</div>}
-      <div className="space-y-3">
-        {notifications.length === 0 && (
-          <div className="text-center py-12">
-            <MessageSquare className="h-12 w-12 text-[#D8D3C7] mx-auto mb-4" />
-            <p className="text-[#6B6459] text-sm">No hay notificaciones registradas.</p>
-            <p className="text-[#B7B1A3] text-xs mt-2">Las notificaciones de WhatsApp y email se mostrarán aquí una vez que el backend las registre.</p>
-          </div>
-        )}
-        {notifications.map((notification) => (
-          <div key={notification.id} className="border border-[#E4DCC9] rounded-lg p-4 flex items-start justify-between hover:border-[#A9812E]/40 hover:shadow-sm transition-all duration-200">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-[#F6F2EA] rounded-lg">
-                {getChannelIcon(notification.channel)}
-              </div>
-              <div>
-                <p className="text-sm text-[#1C1A16] font-medium">{notification.recipient}</p>
-                <p className="text-xs text-[#6B6459] mt-1">Canal: {notification.channel}</p>
-                <p className="text-xs text-[#B7B1A3] mt-1">{notification.sent_at ? new Date(notification.sent_at).toLocaleString('es-CO') : 'Pendiente'}</p>
-                {notification.error_message && <p className="text-xs text-[#C25555] mt-1">Error: {notification.error_message}</p>}
-              </div>
-            </div>
-            <span className={`px-3 py-1 rounded-lg text-xs font-medium ${getStatusColor(notification.status)}`}>
-              {notification.status === 'sent' ? 'Enviada' : notification.status === 'failed' ? 'Fallida' : 'Pendiente'}
-            </span>
-          </div>
-        ))}
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-serif text-xl text-ink-soft">Centro de Notificaciones</h3>
+          <p className="text-sm text-stone mt-1">Historial de notificaciones enviadas</p>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-stone">
+          <Bell className="h-4 w-4" />
+          <span>{notifications.length} registros</span>
+        </div>
       </div>
+
+      {error && (
+        <div className="bg-status-red/10 border border-status-red/20 text-status-red.deep px-4 py-3 rounded-xl text-sm animate-fade-in">
+          {error}
+        </div>
+      )}
+
+      {notifications.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-cream flex items-center justify-center border border-cream-line">
+            <Bell className="h-8 w-8 text-stone-faint" />
+          </div>
+          <p className="text-stone text-sm mb-1">No hay notificaciones registradas.</p>
+          <p className="text-stone-faint text-xs max-w-md mx-auto">
+            Las notificaciones de WhatsApp y email se mostraran aqui una vez que el backend las registre.
+          </p>
+        </div>
+      ) : (
+        <div className="relative">
+          <div className="absolute left-5 top-0 bottom-0 w-px bg-cream-line" />
+          <div className="space-y-4">
+            {notifications.map((notification, index) => {
+              const statusCfg = STATUS_CONFIG[notification.status] || STATUS_CONFIG.pending;
+              const channelCfg = CHANNEL_CONFIG[notification.channel] || { icon: Clock, label: notification.channel, color: 'text-stone bg-stone-faint/20' };
+              const StatusIcon = statusCfg.icon;
+              const ChannelIcon = channelCfg.icon;
+              return (
+                <div
+                  key={notification.id}
+                  className="relative pl-14 animate-slide-left"
+                  style={{ animationDelay: `${index * 40}ms` }}
+                >
+                  <div className="absolute left-3.5 top-5 w-3 h-3 rounded-full bg-gold border-2 border-cream shadow-sm" />
+
+                  <div className="card-premium p-4 sm:p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className={`p-2 rounded-xl ${channelCfg.color}`}>
+                          <ChannelIcon className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-sm font-medium text-ink-soft truncate">{notification.recipient}</p>
+                            <span className={`px-2.5 py-0.5 rounded-lg text-xs font-medium border ${statusCfg.className}`}>
+                              <StatusIcon className="h-3 w-3 inline mr-1" />
+                              {statusCfg.label}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-2 text-xs text-stone">
+                            <span className="px-2 py-0.5 rounded-md bg-cream border border-cream-line font-medium">
+                              {channelCfg.label}
+                            </span>
+                            <span>{notification.sent_at ? new Date(notification.sent_at).toLocaleString('es-CO') : 'Pendiente'}</span>
+                          </div>
+                          {notification.error_message && (
+                            <p className="text-xs text-status-red.deep mt-2 bg-status-red/5 px-3 py-2 rounded-lg border border-status-red/10">
+                              Error: {notification.error_message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

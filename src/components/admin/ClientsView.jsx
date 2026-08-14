@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, Search, User, Phone, Calendar, Users, Pencil, Trash2, Plus } from 'lucide-react';
+import { Loader2, Search, User, Phone, Calendar, Users, Pencil, Trash2, Plus, UserPlus, UserCheck } from 'lucide-react';
 import { api } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
@@ -100,7 +100,7 @@ const ClientsView = ({ userRole }) => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Eliminar este cliente? Esta acción no se puede deshacer.')) return;
+    if (!window.confirm('Eliminar este cliente? Esta accion no se puede deshacer.')) return;
     try {
       await api.delete(`/admin/clients/${id}`);
       fetchClients();
@@ -120,52 +120,75 @@ const ClientsView = ({ userRole }) => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16]">Clientes</h2>
+        <div>
+          <h2 className="section-title">Clientes</h2>
+          <p className="text-sm text-stone mt-1">Gestiona la base de clientes</p>
+        </div>
         {userRole === 'admin' && (
           <button
             onClick={openCreateModal}
-            className="inline-flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#C9A860] transition-all duration-200 btn-press shadow-sm"
+            className="btn-primary"
           >
             <Plus className="h-4 w-4" /> Nuevo Cliente
           </button>
         )}
       </div>
 
-      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-lg text-sm animate-fade-in">{error}</div>}
+      {error && (
+        <div className="bg-status-red/10 border border-status-red/20 text-status-red.deep px-4 py-3 rounded-xl text-sm animate-fade-in">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <p className="text-sm text-[#6B6459]">Nuevos este mes</p>
-          <p className="text-2xl font-serif text-[#1C1A16]">{summaryLoading ? '...' : summary?.new_clients ?? 0}</p>
+        <div className="kpi-card bg-gradient-to-br from-status-green/10 to-status-green/5 border-status-green/20">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-xl bg-status-green/15 text-status-green.deep">
+              <UserPlus className="h-5 w-5" />
+            </div>
+            <p className="text-sm font-medium text-stone">Nuevos este mes</p>
+          </div>
+          <p className="text-2xl font-serif text-ink-soft">{summaryLoading ? '...' : summary?.new_clients ?? 0}</p>
         </div>
-        <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <p className="text-sm text-[#6B6459]">Recurrentes este mes</p>
-          <p className="text-2xl font-serif text-[#1C1A16]">{summaryLoading ? '...' : summary?.returning_clients ?? 0}</p>
+        <div className="kpi-card bg-gradient-to-br from-status-blue/10 to-status-blue/5 border-status-blue/20">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2 rounded-xl bg-status-blue/15 text-status-blue.deep">
+              <UserCheck className="h-5 w-5" />
+            </div>
+            <p className="text-sm font-medium text-stone">Recurrentes este mes</p>
+          </div>
+          <p className="text-2xl font-serif text-ink-soft">{summaryLoading ? '...' : summary?.returning_clients ?? 0}</p>
         </div>
       </div>
 
-      <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+      <div className="card-premium p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9A9488]" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-stone-faint" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por nombre o teléfono..."
-              className="w-full pl-9 pr-4 py-2.5 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
+              placeholder="Buscar por nombre o telefono..."
+              className="w-full pl-9 pr-4 py-2.5 border border-cream-line rounded-xl text-sm bg-white focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none transition-all duration-200 text-ink-soft placeholder:text-stone-faint"
             />
           </div>
-          <div className="flex rounded-lg overflow-hidden border border-[#E4DCC9]">
+          <div className="flex rounded-xl overflow-hidden border border-cream-line bg-white">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 text-sm font-medium transition-all ${filter === 'all' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
+              className={[
+                'px-4 py-2 text-sm font-medium transition-all duration-200',
+                filter === 'all' ? 'bg-gold text-ink shadow-sm' : 'text-stone hover:text-ink-soft',
+              ].join(' ')}
             >
               Todos
             </button>
             <button
               onClick={() => setFilter('inactive')}
-              className={`px-4 py-2 text-sm font-medium transition-all ${filter === 'inactive' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
+              className={[
+                'px-4 py-2 text-sm font-medium transition-all duration-200',
+                filter === 'inactive' ? 'bg-gold text-ink shadow-sm' : 'text-stone hover:text-ink-soft',
+              ].join(' ')}
             >
               Inactivos
             </button>
@@ -173,64 +196,74 @@ const ClientsView = ({ userRole }) => {
         </div>
 
         {filter === 'inactive' && (
-          <div className="bg-[#FBF3E4] border border-[#EAD9AE] text-[#8B6A22] px-4 py-3 rounded-lg text-sm mb-4 animate-fade-in">
-            Clientes sin visitas hace más de {CLIENTS_INACTIVE_DAYS} días.
+          <div className="bg-status-amber/10 border border-status-amber/20 text-status-amber.deep px-4 py-3 rounded-xl text-sm mb-4 animate-fade-in">
+            Clientes sin visitas hace mas de {CLIENTS_INACTIVE_DAYS} dias.
           </div>
         )}
 
         {loading && filter === 'all' ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" />
+            <Loader2 className="h-8 w-8 animate-spin text-gold" />
           </div>
         ) : inactiveLoading && filter === 'inactive' ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" />
+            <Loader2 className="h-8 w-8 animate-spin text-gold" />
           </div>
         ) : (
-          <div className="divide-y divide-[#E4DCC9]">
+          <div className="divide-y divide-cream-line">
             {(filter === 'all' ? clients : inactiveClients).length === 0 && (
               <div className="text-center py-12">
-                <Users className="h-12 w-12 text-[#D8D3C7] mx-auto mb-4" />
-                <p className="text-sm text-[#6B6459]">
-                  {filter === 'all' ? 'No se encontraron clientes.' : 'No hay clientes inactivos en este período.'}
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-cream flex items-center justify-center border border-cream-line">
+                  <Users className="h-8 w-8 text-stone-faint" />
+                </div>
+                <p className="text-sm text-stone">
+                  {filter === 'all' ? 'No se encontraron clientes.' : 'No hay clientes inactivos en este periodo.'}
                 </p>
               </div>
             )}
             {(filter === 'all' ? clients : inactiveClients).map((client) => (
-              <div key={client.id} className="p-4 hover:bg-[#F6F2EA]/50 transition-colors">
+              <div key={client.id} className="p-4 hover:bg-cream/50 transition-colors duration-200">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-start gap-3">
-                    <div className="bg-[#A9812E]/10 p-2 rounded-full flex-shrink-0">
-                      <User className="h-4 w-4 text-[#8B6A22]" />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center flex-shrink-0 border border-gold/20">
+                      <User className="h-5 w-5 text-gold" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-[#1C1A16]">{client.name}</h4>
-                      <div className="flex items-center text-sm text-[#6B6459] mt-1">
-                        <Phone className="h-3 w-3 mr-1 flex-shrink-0" />
+                      <h4 className="font-semibold text-ink-soft">{client.name}</h4>
+                      <div className="flex items-center text-sm text-stone mt-1">
+                        <Phone className="h-3.5 w-3.5 mr-1.5 flex-shrink-0 text-stone-faint" />
                         <span>{client.phone}</span>
                       </div>
                       {client.email && (
-                        <p className="text-xs text-[#9A9488] mt-1">{client.email}</p>
+                        <p className="text-xs text-stone-faint mt-1">{client.email}</p>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-[#6B6459]">
+                  <div className="flex items-center gap-4 text-sm text-stone">
                     <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
+                      <Calendar className="h-3.5 w-3.5 text-stone-faint" />
                       <span>{client.total_appointments || client.total_visits || 0} visitas</span>
                     </div>
                     <div className="text-xs">
-                      Última: {formatDate(filter === 'inactive' ? client.last_visit : (client.last_appointment_date || client.last_visit))}
+                      Ultima: {formatDate(filter === 'inactive' ? client.last_visit : (client.last_appointment_date || client.last_visit))}
                     </div>
                     {filter === 'inactive' && client.days_since_last_visit && (
-                      <span className="text-xs text-[#8B2E2E] font-medium">Hace {client.days_since_last_visit} días</span>
+                      <span className="text-xs text-status-red.deep font-medium">Hace {client.days_since_last_visit} dias</span>
                     )}
                     <div className="flex items-center gap-1">
-                      <button onClick={() => openEditModal(client)} className="p-2 text-[#3B5B8C] hover:bg-[#EEF3FB] rounded-lg transition-colors" title="Editar">
+                      <button
+                        onClick={() => openEditModal(client)}
+                        className="action-btn action-btn-edit"
+                        title="Editar"
+                      >
                         <Pencil className="h-4 w-4" />
                       </button>
                       {userRole === 'admin' && (
-                        <button onClick={() => handleDelete(client.id)} className="p-2 text-[#8B2E2E] hover:bg-[#FBEAEA] rounded-lg transition-colors" title="Eliminar">
+                        <button
+                          onClick={() => handleDelete(client.id)}
+                          className="action-btn action-btn-delete"
+                          title="Eliminar"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       )}
@@ -249,7 +282,7 @@ const ClientsView = ({ userRole }) => {
         title={editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
         size="md"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-4">
             <Input
               label="Nombre completo"
@@ -257,10 +290,10 @@ const ClientsView = ({ userRole }) => {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
-              placeholder="Ej. María García"
+              placeholder="Ej. Maria Garcia"
             />
             <Input
-              label="Teléfono"
+              label="Telefono"
               name="phone"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -276,9 +309,9 @@ const ClientsView = ({ userRole }) => {
               placeholder="correo@ejemplo.com"
             />
             <div>
-              <label className="block text-sm font-medium text-[#6B6459] mb-1.5">Notas</label>
+              <label className="block text-sm font-medium text-stone mb-1.5">Notas</label>
               <textarea
-                className="w-full px-3 py-2.5 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all resize-none"
+                className="w-full px-3 py-2.5 border border-cream-line rounded-xl text-sm bg-white focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none transition-all duration-200 resize-none text-ink-soft"
                 rows="3"
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -290,11 +323,11 @@ const ClientsView = ({ userRole }) => {
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-5 py-2.5 border border-[#E4DCC9] rounded-lg text-sm font-medium hover:bg-[#F6F2EA] transition-colors"
+              className="btn-secondary"
             >
               Cancelar
             </button>
-            <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#C9A860] transition-all duration-200 disabled:opacity-50 btn-press shadow-sm">
+            <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
               {saving ? 'Guardando...' : (editingClient ? 'Actualizar' : 'Crear')}
             </button>
           </div>

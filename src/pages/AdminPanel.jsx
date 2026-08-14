@@ -1,95 +1,61 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  User, Phone, Calendar, Clock, MessageSquare, Trash2,
-  Eye, EyeOff, LogOut, Shield, Users, X,
-  Scissors, LayoutDashboard,
-  BarChart3, Search, Download, List, CalendarDays, Settings
+  Shield, Users, Scissors, LayoutDashboard,
+  BarChart3, MessageSquare, Settings, ChevronRight
 } from 'lucide-react';
-import { STATUS_LABELS } from '../utils/constants';
-import { api } from '../services/api';
 import { invalidateBusinessSettingsCache } from '../hooks/useBusinessSettings';
 import useAuth from '../hooks/useAuth';
+import AdminSidebar from '../components/layout/AdminSidebar';
+import LoginForm from '../components/auth/LoginForm';
+import ErrorBanner from '../components/ui/ErrorBanner';
+import Modal from '../components/ui/Modal';
+import DashboardView from '../components/admin/DashboardView';
+import AppointmentManager from '../components/admin/AppointmentManager';
 import BarberManager from '../components/admin/BarberManager';
 import WorkstationManager from '../components/admin/WorkstationManager';
-import NotificationsCenter from '../components/admin/NotificationsCenter';
-import SettingsEditor from '../components/admin/SettingsEditor';
-import PerformanceView from '../components/admin/PerformanceView';
-import ClientsView from '../components/admin/ClientsView';
 import ServiceManager from '../components/admin/ServiceManager';
-import AdminSidebar from '../components/layout/AdminSidebar';
-import StatsCards from '../components/admin/StatsCards';
-import AppointmentList from '../components/admin/AppointmentList';
-import LoginForm from '../components/auth/LoginForm';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import ErrorBanner from '../components/ui/ErrorBanner';
-import Loader from '../components/ui/Loader';
-import Modal from '../components/ui/Modal';
+import NotificationsCenter from '../components/admin/NotificationsCenter';
+import ClientsView from '../components/admin/ClientsView';
+import PerformanceView from '../components/admin/PerformanceView';
 
-const defaultBusiness = { name: "Barber Trebol", title: "Master Barber" };
+const defaultBusiness = { name: 'Barber Trebol', title: 'Master Barber' };
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard },
-  { id: 'appointments', label: 'Citas', icon: Calendar },
-  { id: 'barbers', label: 'Barberos', icon: Users },
-  { id: 'workstations', label: 'Estaciones', icon: Scissors },
-  { id: 'services', label: 'Servicios', icon: Scissors },
-  { id: 'clients', label: 'Clientes', icon: Users },
-  { id: 'performance', label: 'Desempeño', icon: BarChart3 },
-  { id: 'notifications', label: 'Notificaciones', icon: MessageSquare },
-  { id: 'settings', label: 'Configuración', icon: Shield },
+  { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard, roles: ['admin', 'barber'] },
+  { id: 'appointments', label: 'Citas', icon: Calendar, roles: ['admin', 'barber'] },
+  { id: 'barbers', label: 'Barberos', icon: Users, roles: ['admin'] },
+  { id: 'workstations', label: 'Estaciones', icon: Scissors, roles: ['admin', 'barber'] },
+  { id: 'services', label: 'Servicios', icon: Scissors, roles: ['admin', 'barber'] },
+  { id: 'clients', label: 'Clientes', icon: Users, roles: ['admin', 'barber'] },
+  { id: 'performance', label: 'Desempeno', icon: BarChart3, roles: ['admin', 'barber'] },
+  { id: 'notifications', label: 'Notificaciones', icon: MessageSquare, roles: ['admin', 'barber'] },
 ];
+
+const TAB_META = {
+  dashboard: { label: 'Resumen', breadcrumb: ['Resumen'] },
+  appointments: { label: 'Citas', breadcrumb: ['Citas'] },
+  barbers: { label: 'Barberos', breadcrumb: ['Gestion', 'Barberos'] },
+  workstations: { label: 'Estaciones', breadcrumb: ['Gestion', 'Estaciones'] },
+  services: { label: 'Servicios', breadcrumb: ['Gestion', 'Servicios'] },
+  clients: { label: 'Clientes', breadcrumb: ['Gestion', 'Clientes'] },
+  performance: { label: 'Desempeno', breadcrumb: ['Analisis', 'Desempeno'] },
+  notifications: { label: 'Notificaciones', breadcrumb: ['Sistema', 'Notificaciones'] },
+};
 
 const AdminPanel = ({ onClose, business }) => {
   const { isAuthenticated, login: authLogin, logout: authLogout, user } = useAuth('admin');
   const userRole = user?.role || 'guest';
-
-  const NAV_ITEMS = [
-    { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard, roles: ['admin', 'barber'] },
-    { id: 'appointments', label: 'Citas', icon: Calendar, roles: ['admin', 'barber'] },
-    { id: 'barbers', label: 'Barberos', icon: Users, roles: ['admin'] },
-    { id: 'workstations', label: 'Estaciones', icon: Scissors, roles: ['admin', 'barber'] },
-    { id: 'services', label: 'Servicios', icon: Scissors, roles: ['admin', 'barber'] },
-    { id: 'clients', label: 'Clientes', icon: Users, roles: ['admin', 'barber'] },
-    { id: 'performance', label: 'Desempeño', icon: BarChart3, roles: ['admin', 'barber'] },
-    { id: 'notifications', label: 'Notificaciones', icon: MessageSquare, roles: ['admin', 'barber'] },
-  ];
-
   const visibleNavItems = NAV_ITEMS.filter(item => item.roles.includes(userRole));
 
   const [activeTab, setActiveTab] = useState(visibleNavItems[0]?.id || 'dashboard');
-
-  useEffect(() => {
-    if (!visibleNavItems.find(item => item.id === activeTab)) {
-      setActiveTab(visibleNavItems[0]?.id || 'dashboard');
-    }
-  }, [userRole, visibleNavItems, activeTab]);
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedDate, setSelectedDate] = useState('');
-  const [clientSearch, setClientSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [appointmentsView, setAppointmentsView] = useState('list');
-  const searchTimeoutRef = useRef(null);
-  const [calendarWeekStart, setCalendarWeekStart] = useState(() => {
-    const now = new Date();
-    const day = now.getDay() || 7;
-    const diff = now.getDate() - day + 1;
-    return new Date(now.getFullYear(), now.getMonth(), diff);
-  });
   const [stats, setStats] = useState({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 });
   const [statsLoading, setStatsLoading] = useState(false);
   const [revenuePeriod, setRevenuePeriod] = useState('today');
   const [revenueData, setRevenueData] = useState(null);
   const [revenueLoading, setRevenueLoading] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loginError, setLoginError] = useState(null);
-  const [adminCredentials, setAdminCredentials] = useState({ username: '', password: '' });
-  const [editingAppointment, setEditingAppointment] = useState(null);
-  const [appointmentForm, setAppointmentForm] = useState({ appointment_date: '', appointment_time: '', duration_minutes: 30, client_message: '', status: 'pending' });
-  const [appointmentSaving, setAppointmentSaving] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const formatCOP = (cents) => {
@@ -121,7 +87,6 @@ const AdminPanel = ({ onClose, business }) => {
         password: values.password,
       });
       authLogin(data.token);
-      setAdminCredentials({ username: '', password: '' });
     } catch (err) {
       console.error('Login error:', err);
       setLoginError(err.message);
@@ -130,9 +95,7 @@ const AdminPanel = ({ onClose, business }) => {
 
   const handleLogout = () => {
     authLogout();
-    setAdminCredentials({ username: '', password: '' });
     setLoginError(null);
-    setAppointments([]);
     setStats({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 });
   };
 
@@ -147,23 +110,6 @@ const AdminPanel = ({ onClose, business }) => {
       setStatsLoading(false);
     }
   }, []);
-
-  const fetchAppointments = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const params = new URLSearchParams();
-      if (selectedDate) params.set('date', selectedDate);
-      if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim());
-      const url = `/admin/appointments${params.toString() ? `?${params.toString()}` : ''}`;
-      const data = await api.get(url);
-      setAppointments(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedDate, debouncedSearch]);
 
   const fetchRevenue = useCallback(async () => {
     try {
@@ -180,185 +126,34 @@ const AdminPanel = ({ onClose, business }) => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchStats();
-      fetchAppointments();
       fetchRevenue();
     }
-  }, [isAuthenticated, selectedDate, fetchStats, fetchAppointments, fetchRevenue]);
-
-  const handleDeleteAppointment = async (id) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar esta cita?')) return;
-    try {
-      setError(null);
-      await api.delete(`/appointments/${id}`);
-      await fetchAppointments();
-      await fetchStats();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleStatusChange = async (id, newStatus, cancelledReason = null) => {
-    try {
-      setError(null);
-      await api.patch(`/appointments/${id}/status`, {
-        status: newStatus,
-        cancelled_reason: cancelledReason,
-      });
-      await fetchAppointments();
-      await fetchStats();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleEditAppointment = (appointment) => {
-    setEditingAppointment(appointment);
-    setAppointmentForm({
-      appointment_date: appointment.appointment_date || '',
-      appointment_time: appointment.appointment_time || '',
-      duration_minutes: appointment.duration_minutes || 30,
-      client_message: appointment.client_message || '',
-      status: appointment.status || 'pending',
-    });
-  };
-
-  const handleUpdateAppointment = async (e) => {
-    e.preventDefault();
-    setAppointmentSaving(true);
-    setError(null);
-    try {
-      await api.patch(`/admin/appointments/${editingAppointment.id}`, appointmentForm);
-      setEditingAppointment(null);
-      await fetchAppointments();
-      await fetchStats();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setAppointmentSaving(false);
-    }
-  };
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setClientSearch(value);
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    searchTimeoutRef.current = setTimeout(() => {
-      setDebouncedSearch(value);
-    }, 300);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    };
-  }, []);
-
-  const exportToCSV = () => {
-    const headers = ['Fecha', 'Hora', 'Cliente', 'Teléfono', 'Servicio', 'Barbero/Estación', 'Estado', 'Precio (COP)'];
-    const rows = appointments.map((apt) => [
-      formatDate(apt.appointment_date),
-      apt.appointment_time,
-      apt.client_name,
-      apt.client_phone,
-      apt.service_name,
-      [apt.barber_name, apt.workstation_name].filter(Boolean).join(' / ') || '—',
-      getStatusText(apt.status),
-      Math.round((apt.price_cents || 0) / 100),
-    ]);
-
-    const csvContent = [
-      headers,
-      ...rows,
-    ]
-      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
-
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `citas_${selectedDate || 'todas'}_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const getWeekDates = (startDate) => {
-    const dates = [];
-    const current = new Date(startDate);
-    for (let i = 0; i < 7; i++) {
-      dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
-    }
-    return dates;
-  };
-
-  const formatWeekdayName = (date) => {
-    return date.toLocaleDateString('es-CO', { weekday: 'short' });
-  };
-
-  const formatDayNumber = (date) => {
-    return date.getDate();
-  };
-
-  const isSameDay = (d1, d2) => {
-    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
-  };
-
-  const filteredAppointments = statusFilter === 'all'
-    ? (appointments || [])
-    : (appointments || []).filter((apt) => apt.status === statusFilter);
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'confirmed': return 'bg-[#EEF5EE] text-[#3E6B3E]';
-      case 'cancelled': return 'bg-[#FBEAEA] text-[#8B2E2E]';
-      case 'completed': return 'bg-[#EEF3FB] text-[#3B5B8C]';
-      case 'no-show': return 'bg-[#F1EFEB] text-[#6B6459]';
-       default: return 'bg-[#FBF3E4] text-[#8B6A22]';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'confirmed': return 'Confirmada';
-      case 'cancelled': return 'Cancelada';
-      case 'completed': return 'Completada';
-      case 'no-show': return 'No se presentó';
-       default: return 'Pendiente';
-    }
-  };
+  }, [isAuthenticated, fetchStats, fetchRevenue]);
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#121113]">
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-          <LoginForm
-            fields={[
-              { name: 'username', label: 'Usuario', type: 'text', placeholder: 'Ingresa tu usuario', required: true },
-              { name: 'password', label: 'Contraseña', type: 'password', placeholder: 'Ingresa tu contraseña', required: true },
-            ]}
-            onSubmit={handleLogin}
-            loading={false}
-            error={loginError}
-            submitLabel="Acceder al Panel"
-            headerIcon={Shield}
-            headerTitle="Acceso Administrativo"
-            headerSubtitle="Ingresa tus credenciales para continuar"
-          />
-        </div>
+      <div className="min-h-screen bg-ink flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <LoginForm
+          fields={[
+            { name: 'username', label: 'Usuario', type: 'text', placeholder: 'Ingresa tu usuario', required: true },
+            { name: 'password', label: 'Contrasena', type: 'password', placeholder: 'Ingresa tu contrasena', required: true },
+          ]}
+          onSubmit={handleLogin}
+          loading={false}
+          error={loginError}
+          submitLabel="Acceder al Panel"
+          headerIcon={Shield}
+          headerTitle="Acceso Administrativo"
+          headerSubtitle="Ingresa tus credenciales para continuar"
+        />
       </div>
     );
   }
 
+  const meta = TAB_META[activeTab] || { label: '', breadcrumb: [] };
+
   return (
-    <div className="min-h-screen bg-[#F6F2EA]">
+    <div className="min-h-screen bg-cream">
       <AdminSidebar
         tabs={visibleNavItems}
         activeTab={activeTab}
@@ -371,243 +166,166 @@ const AdminPanel = ({ onClose, business }) => {
         onSettingsClick={() => setSettingsModalOpen(true)}
       />
 
-      <div className="md:ml-64 pb-20 md:pb-0">
+      <div className="md:ml-64 pb-24 md:pb-8">
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
           {error && (
-            <ErrorBanner message={error} onDismiss={() => setError(null)} className="mb-4" />
+            <ErrorBanner message={error} onDismiss={() => setError(null)} className="mb-6" />
           )}
 
           {activeTab === 'dashboard' && (
-            <div className="animate-fade-in" key="dashboard">
-              <>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16]">Resumen</h2>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={revenuePeriod}
-                    onChange={(e) => setRevenuePeriod(e.target.value)}
-                    className="px-3 py-2 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
-                  >
-                    <option value="today">Hoy</option>
-                    <option value="week">Esta semana</option>
-                    <option value="month">Este mes</option>
-                  </select>
-                  {userRole === 'admin' && (
-                    <button
-                      onClick={() => setSettingsModalOpen(true)}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 border border-[#E4DCC9] rounded-lg text-sm text-[#6B6459] hover:text-[#8B6A22] hover:border-[#A9812E]/60 transition-all"
-                      title="Configuración"
-                    >
-                      <Settings className="h-4 w-4" />
-                      <span className="hidden sm:inline">Configuración</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-8">
-                <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-[#A9812E]/40 transition-all duration-300 animate-fade-in">
-                  <p className="text-sm font-medium text-[#6B6459] mb-1">Ingresos {formatPeriodLabel(revenuePeriod)}</p>
-                  <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
-                    {revenueLoading ? '...' : formatCOP(revenueData?.current?.revenue_cents)}
-                  </p>
-                  {revenueData && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className={`text-sm font-medium ${revenueData.change_percent >= 0 ? 'text-[#3E6B3E]' : 'text-[#8B2E2E]'}`}>
-                        {revenueData.change_percent >= 0 ? '↑' : '↓'} {Math.abs(revenueData.change_percent).toFixed(1)}%
-                      </span>
-                      <span className="text-xs text-[#B7B1A3]">vs. período anterior</span>
-                    </div>
-                  )}
-                </div>
-                <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-[#A9812E]/40 transition-all duration-300 animate-fade-in" style={{ animationDelay: '50ms' }}>
-                  <p className="text-sm font-medium text-[#6B6459] mb-1">Citas completadas</p>
-                  <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
-                    {revenueLoading ? '...' : (revenueData?.current?.appointments ?? 0)}
-                  </p>
-                </div>
-                <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-[#A9812E]/40 transition-all duration-300 animate-fade-in" style={{ animationDelay: '100ms' }}>
-                  <p className="text-sm font-medium text-[#6B6459] mb-1">Ticket promedio</p>
-                  <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
-                    {revenueLoading ? '...' : formatCOP(revenueData?.current?.average_ticket_cents)}
-                  </p>
-                </div>
-                <div className="bg-white border border-[#E4DCC9] rounded-lg p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-[#A9812E]/40 transition-all duration-300 animate-fade-in" style={{ animationDelay: '150ms' }}>
-                  <p className="text-sm font-medium text-[#6B6459] mb-1">Citas período anterior</p>
-                  <p className="text-2xl sm:text-3xl font-serif text-[#1C1A16]">
-                    {revenueLoading ? '...' : (revenueData?.previous?.appointments ?? 0)}
-                  </p>
-                </div>
-              </div>
-
-              <StatsCards stats={stats} loading={statsLoading} />
-            </>
-            </div>
+            <DashboardView
+              userRole={userRole}
+              stats={stats}
+              statsLoading={statsLoading}
+              revenuePeriod={revenuePeriod}
+              setRevenuePeriod={setRevenuePeriod}
+              revenueData={revenueData}
+              revenueLoading={revenueLoading}
+              formatCOP={formatCOP}
+              formatPeriodLabel={formatPeriodLabel}
+              onSettingsClick={() => setSettingsModalOpen(true)}
+            />
           )}
 
           {activeTab === 'appointments' && (
-            <div className="animate-fade-in" key="appointments">
-              <>
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-                <div className="flex flex-wrap gap-2">
-                  {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setStatusFilter(tab)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        statusFilter === tab ? 'bg-[#A9812E] text-[#121113] shadow-sm' : 'bg-white text-[#6B6459] border border-[#E4DCC9] hover:border-[#A9812E]/60 hover:text-[#8B6A22]'
-                      }`}
-                    >
-                      {tab === 'all' ? 'Todas' : STATUS_LABELS[tab] || tab}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#9A9488]" />
-                     <input
-                       type="text"
-                       value={clientSearch}
-                       onChange={handleSearchChange}
-                       placeholder="Buscar cliente..."
-                       className="pl-9 pr-4 py-2 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
-                     />
-                  </div>
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="px-4 py-2 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
-                  />
-                  {selectedDate && (
-                    <button onClick={() => setSelectedDate('')} className="text-sm text-[#8B6A22] hover:underline">Limpiar</button>
-                  )}
-                  <div className="flex rounded-lg overflow-hidden border border-[#E4DCC9]">
-                    <button
-                      onClick={() => setAppointmentsView('list')}
-                      className={`px-3 py-2 transition-all duration-200 ${appointmentsView === 'list' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
-                      title="Vista lista"
-                    >
-                      <List className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => setAppointmentsView('calendar')}
-                      className={`px-3 py-2 transition-all duration-200 ${appointmentsView === 'calendar' ? 'bg-[#A9812E] text-[#121113]' : 'bg-white text-[#6B6459] hover:text-[#1C1A16]'}`}
-                      title="Vista calendario semanal"
-                    >
-                      <CalendarDays className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <Button variant="blue" onClick={exportToCSV} size="sm">
-                    <Download className="h-4 w-4" />
-                    <span className="hidden sm:inline">Exportar</span>
-                  </Button>
-                </div>
-              </div>
-
-              {appointmentsView === 'list' ? (
-                <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm overflow-hidden animate-fade-in">
-                  <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9]">
-                    <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
-                      <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Citas Agendadas ({appointments.length})
-                    </h3>
-                  </div>
-                  <AppointmentList
-                     appointments={filteredAppointments}
-                     onConfirm={handleStatusChange}
-                     onCancel={handleStatusChange}
-                     onComplete={handleStatusChange}
-                     onNoShow={handleStatusChange}
-                     onDelete={handleDeleteAppointment}
-                     onEdit={handleEditAppointment}
-                     formatDate={formatDate}
-                     getStatusColor={getStatusColor}
-                     getStatusText={getStatusText}
-                     loading={loading}
-                   />
-                </div>
-              ) : (
-                <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm overflow-hidden animate-fade-in">
-                  <div className="px-4 sm:px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9] flex items-center justify-between">
-                    <h3 className="font-serif text-lg sm:text-xl text-[#1C1A16] flex items-center">
-                      <CalendarDays className="h-5 w-5 mr-2 text-[#A9812E]" /> Calendario Semanal
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          const newStart = new Date(calendarWeekStart);
-                          newStart.setDate(newStart.getDate() - 7);
-                          setCalendarWeekStart(newStart);
-                        }}
-                        className="px-3 py-1.5 border border-[#E4DCC9] rounded-lg text-sm hover:border-[#A9812E]/60 transition-all"
-                      >
-                        ← Anterior
-                      </button>
-                      <button
-                        onClick={() => {
-                          const newStart = new Date(calendarWeekStart);
-                          newStart.setDate(newStart.getDate() + 7);
-                          setCalendarWeekStart(newStart);
-                        }}
-                        className="px-3 py-1.5 border border-[#E4DCC9] rounded-lg text-sm hover:border-[#A9812E]/60 transition-all"
-                      >
-                        Siguiente →
-                      </button>
-                      <button
-                        onClick={() => setCalendarWeekStart(new Date())}
-                        className="px-3 py-1.5 bg-[#A9812E] text-[#121113] rounded-lg text-sm font-medium hover:bg-[#C9A860] transition-all btn-press shadow-sm"
-                      >
-                        Hoy
-                      </button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-7 divide-x divide-[#E4DCC9]">
-                    {getWeekDates(calendarWeekStart).map((date, idx) => {
-                      const dayAppointments = appointments.filter((apt) => {
-                        const aptDate = new Date(apt.appointment_date + 'T00:00:00');
-                        return isSameDay(aptDate, date);
-                      });
-                      const isToday = isSameDay(date, new Date());
-                      return (
-                        <div key={idx} className={`flex flex-col ${isToday ? 'bg-[#A9812E]/5' : ''}`}>
-                          <div className={`px-2 py-3 text-center border-b border-[#E4DCC9] ${isToday ? 'bg-[#A9812E]/10' : 'bg-[#F6F2EA]'}`}>
-                            <p className="text-xs font-medium text-[#6B6459] uppercase">{formatWeekdayName(date)}</p>
-                            <p className={`text-lg font-serif ${isToday ? 'text-[#A9812E] font-bold' : 'text-[#1C1A16]'}`}>{formatDayNumber(date)}</p>
-                          </div>
-                          <div className="flex-1 p-2 min-h-[200px] space-y-2">
-                            {dayAppointments.length === 0 ? (
-                              <p className="text-xs text-[#B7B1A3] text-center py-4">Sin citas</p>
-                            ) : (
-                              dayAppointments.map((apt) => (
-                                <div key={apt.id} className={`p-2 rounded-lg border text-xs ${getStatusColor(apt.status)}`}>
-                                  <p className="font-medium truncate">{apt.appointment_time}</p>
-                                  <p className="truncate font-semibold">{apt.client_name}</p>
-                                  <p className="truncate opacity-80">{apt.service_name}</p>
-                                </div>
-                              ))
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </>
-            </div>
+            <AppointmentManager
+              userRole={userRole}
+              business={businessInfo}
+              setError={setError}
+              fetchStats={fetchStats}
+            />
           )}
 
-          {activeTab === 'barbers' && <div key="barbers" className="animate-fade-in"><BarberManager business={businessInfo} userRole={userRole} /></div>}
-          {activeTab === 'workstations' && <div key="workstations" className="animate-fade-in"><WorkstationManager business={businessInfo} userRole={userRole} /></div>}
-          {activeTab === 'services' && <div key="services" className="animate-fade-in"><ServiceManager business={businessInfo} userRole={userRole} /></div>}
-          {activeTab === 'notifications' && <div key="notifications" className="animate-fade-in"><NotificationsCenter business={businessInfo} userRole={userRole} /></div>}
-          {activeTab === 'clients' && <div key="clients" className="animate-fade-in"><ClientsView userRole={userRole} /></div>}
-          {activeTab === 'performance' && <div key="performance" className="animate-fade-in"><PerformanceView userRole={userRole} /></div>}
+          {activeTab === 'barbers' && (
+            <section className="animate-fade-in">
+              <div className="section-header">
+                <div>
+                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
+                    {meta.breadcrumb.map((crumb, i) => (
+                      <span key={i} className="flex items-center gap-2">
+                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
+                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
+                      </span>
+                    ))}
+                  </nav>
+                  <h2 className="section-title">Barberos</h2>
+                </div>
+              </div>
+              <div className="animate-fade-in" key="barbers">
+                <BarberManager business={businessInfo} userRole={userRole} />
+              </div>
+            </section>
+          )}
+
+          {activeTab === 'workstations' && (
+            <section className="animate-fade-in">
+              <div className="section-header">
+                <div>
+                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
+                    {meta.breadcrumb.map((crumb, i) => (
+                      <span key={i} className="flex items-center gap-2">
+                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
+                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
+                      </span>
+                    ))}
+                  </nav>
+                  <h2 className="section-title">Estaciones de Trabajo</h2>
+                </div>
+              </div>
+              <div className="animate-fade-in" key="workstations">
+                <WorkstationManager business={businessInfo} userRole={userRole} />
+              </div>
+            </section>
+          )}
+
+          {activeTab === 'services' && (
+            <section className="animate-fade-in">
+              <div className="section-header">
+                <div>
+                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
+                    {meta.breadcrumb.map((crumb, i) => (
+                      <span key={i} className="flex items-center gap-2">
+                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
+                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
+                      </span>
+                    ))}
+                  </nav>
+                  <h2 className="section-title">Servicios</h2>
+                </div>
+              </div>
+              <div className="animate-fade-in" key="services">
+                <ServiceManager business={businessInfo} userRole={userRole} />
+              </div>
+            </section>
+          )}
+
+          {activeTab === 'notifications' && (
+            <section className="animate-fade-in">
+              <div className="section-header">
+                <div>
+                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
+                    {meta.breadcrumb.map((crumb, i) => (
+                      <span key={i} className="flex items-center gap-2">
+                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
+                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
+                      </span>
+                    ))}
+                  </nav>
+                  <h2 className="section-title">Notificaciones</h2>
+                </div>
+              </div>
+              <div className="animate-fade-in" key="notifications">
+                <NotificationsCenter business={businessInfo} userRole={userRole} />
+              </div>
+            </section>
+          )}
+
+          {activeTab === 'clients' && (
+            <section className="animate-fade-in">
+              <div className="section-header">
+                <div>
+                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
+                    {meta.breadcrumb.map((crumb, i) => (
+                      <span key={i} className="flex items-center gap-2">
+                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
+                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
+                      </span>
+                    ))}
+                  </nav>
+                  <h2 className="section-title">Clientes</h2>
+                </div>
+              </div>
+              <div className="animate-fade-in" key="clients">
+                <ClientsView userRole={userRole} />
+              </div>
+            </section>
+          )}
+
+          {activeTab === 'performance' && (
+            <section className="animate-fade-in">
+              <div className="section-header">
+                <div>
+                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
+                    {meta.breadcrumb.map((crumb, i) => (
+                      <span key={i} className="flex items-center gap-2">
+                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
+                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
+                      </span>
+                    ))}
+                  </nav>
+                  <h2 className="section-title">Desempeno</h2>
+                </div>
+              </div>
+              <div className="animate-fade-in" key="performance">
+                <PerformanceView userRole={userRole} />
+              </div>
+            </section>
+          )}
 
           <Modal
             isOpen={settingsModalOpen}
             onClose={() => setSettingsModalOpen(false)}
-            title="Configuración del Negocio"
+            title="Configuracion del Negocio"
             size="lg"
           >
             <SettingsEditor
@@ -615,47 +333,11 @@ const AdminPanel = ({ onClose, business }) => {
               onUpdate={() => {
                 invalidateBusinessSettingsCache();
                 fetchStats();
-                fetchAppointments();
                 setSettingsModalOpen(false);
               }}
               userRole={userRole}
             />
           </Modal>
-
-          {editingAppointment && (
-            <Modal
-              isOpen={!!editingAppointment}
-              onClose={() => setEditingAppointment(null)}
-              title="Editar Cita"
-              size="md"
-            >
-              <form onSubmit={handleUpdateAppointment} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input label="Fecha" name="appointment_date" type="date" value={appointmentForm.appointment_date} onChange={e => setAppointmentForm({ ...appointmentForm, appointment_date: e.target.value })} required />
-                  <Input label="Hora" name="appointment_time" type="time" value={appointmentForm.appointment_time} onChange={e => setAppointmentForm({ ...appointmentForm, appointment_time: e.target.value })} required />
-                  <Input label="Duración (min)" name="duration_minutes" type="number" value={appointmentForm.duration_minutes} onChange={e => setAppointmentForm({ ...appointmentForm, duration_minutes: Number(e.target.value) })} required />
-                  <div>
-                    <label className="block text-sm font-medium text-[#6B6459] mb-1.5">Estado</label>
-                    <select className="w-full px-3 py-2.5 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all" value={appointmentForm.status} onChange={e => setAppointmentForm({ ...appointmentForm, status: e.target.value })}>
-                      <option value="pending">Pendiente</option>
-                      <option value="confirmed">Confirmada</option>
-                      <option value="completed">Completada</option>
-                      <option value="cancelled">Cancelada</option>
-                      <option value="no-show">No se presentó</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#6B6459] mb-1.5">Mensaje del cliente</label>
-                  <textarea className="w-full px-3 py-2.5 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all resize-none" rows="3" value={appointmentForm.client_message} onChange={e => setAppointmentForm({ ...appointmentForm, client_message: e.target.value })} />
-                </div>
-                <div className="flex justify-end gap-3 pt-2">
-                  <button type="button" onClick={() => setEditingAppointment(null)} className="px-5 py-2.5 border border-[#E4DCC9] rounded-lg text-sm font-medium hover:bg-[#F6F2EA] transition-colors">Cancelar</button>
-                  <Button type="submit" loading={appointmentSaving} size="sm">Guardar Cambios</Button>
-                </div>
-              </form>
-            </Modal>
-          )}
         </div>
       </div>
     </div>

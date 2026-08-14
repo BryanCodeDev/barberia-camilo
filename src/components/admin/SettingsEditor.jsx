@@ -53,24 +53,68 @@ const SettingsEditor = ({ onUpdate, userRole }) => {
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center py-12"><Loader size="lg" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-16"><Loader size="lg" /></div>;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <h3 className="font-serif text-xl text-[#1C1A16] mb-2">Configuración del Negocio</h3>
-      {error && <ErrorBanner message={error} className="mb-4" />}
-      {success && <ErrorBanner message="Configuración actualizada correctamente" type="success" className="mb-4" />}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input label="Nombre del Negocio" name="business_name" value={settings?.business_name || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
-        <Input label="Teléfono" name="phone" value={settings?.phone || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
-        <Input label="WhatsApp" name="whatsapp_number" value={settings?.whatsapp_number || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
-        <Input label="Email" name="email" value={settings?.email || ''} onChange={handleChange} type="email" disabled={userRole !== 'admin'} />
-        <Input label="Dirección" name="address" value={settings?.address || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
-        <Input label="Zona horaria" name="timezone" value={settings?.timezone || 'America/Bogota'} onChange={handleChange} disabled={userRole !== 'admin'} />
-        <Input label="Días máx. de reserva anticipada" name="max_advance_booking_days" value={settings?.max_advance_booking_days || 14} onChange={handleChange} type="number" min="1" max="90" disabled={userRole !== 'admin'} />
-        <Input label="Horas mín. para cancelar" name="min_cancel_hours" value={settings?.min_cancel_hours || 24} onChange={handleChange} type="number" min="0" max="720" disabled={userRole !== 'admin'} />
-        <Input label="Buffer entre turnos (min)" name="buffer_minutes_between_appointments" value={settings?.buffer_minutes_between_appointments || 0} onChange={handleChange} type="number" min="0" max="120" disabled={userRole !== 'admin'} />
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <h3 className="font-serif text-xl text-ink-soft mb-1">Configuracion del Negocio</h3>
+        <p className="text-sm text-stone">Actualiza la informacion y parametros de operacion</p>
       </div>
+
+      {error && <ErrorBanner message={error} className="mb-4" />}
+      {success && <ErrorBanner message="Configuracion actualizada correctamente" type="success" className="mb-4" />}
+
+      <div className="space-y-6">
+        <div className="card-premium p-5 sm:p-6">
+          <h4 className="text-sm font-semibold text-ink-soft uppercase tracking-wider mb-4">Informacion General</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input label="Nombre del Negocio" name="business_name" value={settings?.business_name || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
+            <Input label="Telefono" name="phone" value={settings?.phone || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
+            <Input label="WhatsApp" name="whatsapp_number" value={settings?.whatsapp_number || ''} onChange={handleChange} type="tel" disabled={userRole !== 'admin'} />
+            <Input label="Email" name="email" value={settings?.email || ''} onChange={handleChange} type="email" disabled={userRole !== 'admin'} />
+            <Input label="Direccion" name="address" value={settings?.address || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
+            <Input label="Zona horaria" name="timezone" value={settings?.timezone || 'America/Bogota'} onChange={handleChange} disabled={userRole !== 'admin'} />
+          </div>
+        </div>
+
+        <div className="card-premium p-5 sm:p-6">
+          <h4 className="text-sm font-semibold text-ink-soft uppercase tracking-wider mb-4">Parametros de Reserva</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              label="Dias max. de reserva anticipada"
+              name="max_advance_booking_days"
+              value={settings?.max_advance_booking_days || 14}
+              onChange={handleChange}
+              type="number"
+              min="1"
+              max="90"
+              disabled={userRole !== 'admin'}
+            />
+            <Input
+              label="Horas min. para cancelar"
+              name="min_cancel_hours"
+              value={settings?.min_cancel_hours || 24}
+              onChange={handleChange}
+              type="number"
+              min="0"
+              max="720"
+              disabled={userRole !== 'admin'}
+            />
+            <Input
+              label="Buffer entre turnos (min)"
+              name="buffer_minutes_between_appointments"
+              value={settings?.buffer_minutes_between_appointments || 0}
+              onChange={handleChange}
+              type="number"
+              min="0"
+              max="120"
+              disabled={userRole !== 'admin'}
+            />
+          </div>
+        </div>
+      </div>
+
       {userRole === 'admin' && (
         <div className="flex justify-end pt-2">
           <Button type="submit" disabled={saving} loading={saving} size="md">

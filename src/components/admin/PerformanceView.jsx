@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, Users, Scissors, Clock, Calendar } from 'lucide-react';
+import { Loader2, Users, Scissors, Clock, Calendar, TrendingUp } from 'lucide-react';
 import { api } from '../../services/api';
 
-const WEEKDAYS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const WEEKDAYS = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
 
 const PerformanceView = () => {
   const [data, setData] = useState(null);
@@ -36,39 +36,63 @@ const PerformanceView = () => {
     }).format(cents / 100);
   };
 
-  const SimpleBarChart = ({ items, valueKey, labelKey, color }) => {
+  const SimpleBarChart = ({ items, valueKey, labelKey, color, icon: Icon }) => {
     if (!items || items.length === 0) {
-      return <p className="text-sm text-[#6B6459]">Sin datos para este período.</p>;
+      return (
+        <div className="text-center py-8">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-cream flex items-center justify-center border border-cream-line">
+            <TrendingUp className="h-6 w-6 text-stone-faint" />
+          </div>
+          <p className="text-sm text-stone">Sin datos para este periodo.</p>
+        </div>
+      );
     }
     const max = Math.max(...items.map((d) => d[valueKey] || 0), 1);
     return (
-      <div className="space-y-2">
-        {items.map((item, idx) => (
-          <div key={idx} className="flex items-center gap-3">
-            <div className="w-20 text-xs text-[#6B6459] truncate">{item[labelKey]}</div>
-            <div className="flex-1 bg-[#F6F2EA] rounded-full h-4 overflow-hidden">
-              <div
-                className={`h-full rounded-full ${color}`}
-                style={{ width: `${(((item[valueKey] || 0) / max) * 100).toFixed(1)}%` }}
-              />
+      <div className="space-y-3">
+        {items.map((item, idx) => {
+          const pct = ((item[valueKey] || 0) / max) * 100;
+          return (
+            <div key={idx} className="group">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-sm font-medium text-ink-soft truncate max-w-[140px]">{item[labelKey]}</span>
+                <span className="text-sm font-semibold text-ink-soft">{item[valueKey] || 0}</span>
+              </div>
+              <div className="h-2.5 bg-cream rounded-full overflow-hidden border border-cream-line">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${color}`}
+                  style={{ width: `${pct.toFixed(1)}%` }}
+                />
+              </div>
             </div>
-            <div className="w-14 text-xs text-right text-[#1C1A16] font-medium">{item[valueKey] || 0}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
 
-  if (loading) return <div className="flex items-center justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" /></div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-gold mx-auto mb-3" />
+          <p className="text-sm text-stone">Cargando metricas de desempeno...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16]">Desempeño</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="section-title">Desempeno</h2>
+          <p className="text-sm text-stone mt-1">Analisis de rendimiento y tendencias</p>
+        </div>
         <select
           value={period}
           onChange={(e) => setPeriod(e.target.value)}
-          className="px-3 py-2 border border-[#E4DCC9] rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all"
+          className="px-4 py-2.5 border border-cream-line rounded-xl text-sm bg-white focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none transition-all duration-200 text-ink-soft"
         >
           <option value="today">Hoy</option>
           <option value="week">Esta semana</option>
@@ -76,45 +100,61 @@ const PerformanceView = () => {
         </select>
       </div>
 
-      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-lg text-sm animate-fade-in">{error}</div>}
+      {error && (
+        <div className="bg-status-red/10 border border-status-red/20 text-status-red.deep px-4 py-3 rounded-xl text-sm animate-fade-in">
+          {error}
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
-          <h3 className="font-serif text-lg text-[#1C1A16] mb-4 flex items-center">
-            <Users className="h-5 w-5 mr-2 text-[#A9812E]" /> Por barbero
-          </h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="card-premium p-5 sm:p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="p-2 rounded-xl bg-status-green/10">
+              <Users className="h-5 w-5 text-status-green.deep" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-ink-soft">Por barbero</h3>
+              <p className="text-xs text-stone">Ingresos y citas por profesional</p>
+            </div>
+          </div>
           {data?.by_barber?.length === 0 ? (
-            <p className="text-sm text-[#6B6459]">Sin datos.</p>
+            <p className="text-sm text-stone">Sin datos.</p>
           ) : (
-            <div className="divide-y divide-[#E4DCC9]">
+            <div className="divide-y divide-cream-line">
               {data?.by_barber?.map((item) => (
                 <div key={item.barber_id} className="py-3 flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-[#1C1A16]">{item.barber_name || 'Sin asignar'}</p>
-                    <p className="text-xs text-[#6B6459]">{item.appointments} citas completadas</p>
+                    <p className="font-medium text-ink-soft">{item.barber_name || 'Sin asignar'}</p>
+                    <p className="text-xs text-stone">{item.appointments} citas completadas</p>
                   </div>
-                  <p className="font-serif text-[#1C1A16]">{formatCOP(item.revenue_cents)}</p>
+                  <p className="font-serif text-ink-soft">{formatCOP(item.revenue_cents)}</p>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
-          <h3 className="font-serif text-lg text-[#1C1A16] mb-4 flex items-center">
-            <Scissors className="h-5 w-5 mr-2 text-[#A9812E]" /> Por servicio
-          </h3>
+        <div className="card-premium p-5 sm:p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="p-2 rounded-xl bg-status-blue/10">
+              <Scissors className="h-5 w-5 text-status-blue.deep" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-ink-soft">Por servicio</h3>
+              <p className="text-xs text-stone">Servicios mas populares</p>
+            </div>
+          </div>
           {data?.by_service?.length === 0 ? (
-            <p className="text-sm text-[#6B6459]">Sin datos.</p>
+            <p className="text-sm text-stone">Sin datos.</p>
           ) : (
-            <div className="divide-y divide-[#E4DCC9]">
+            <div className="divide-y divide-cream-line">
               {data?.by_service?.map((item) => (
                 <div key={item.service_id} className="py-3 flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-[#1C1A16]">{item.service_name}</p>
-                    <p className="text-xs text-[#6B6459]">{item.appointments} vendidos</p>
+                    <p className="font-medium text-ink-soft">{item.service_name}</p>
+                    <p className="text-xs text-stone">{item.appointments} vendidos</p>
                   </div>
-                  <p className="font-serif text-[#1C1A16]">{formatCOP(item.revenue_cents)}</p>
+                  <p className="font-serif text-ink-soft">{formatCOP(item.revenue_cents)}</p>
                 </div>
               ))}
             </div>
@@ -122,28 +162,40 @@ const PerformanceView = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
-          <h3 className="font-serif text-lg text-[#1C1A16] mb-4 flex items-center">
-            <Clock className="h-5 w-5 mr-2 text-[#A9812E]" /> Horas pico
-          </h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="card-premium p-5 sm:p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="p-2 rounded-xl bg-status-amber/10">
+              <Clock className="h-5 w-5 text-status-amber.deep" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-ink-soft">Horas pico</h3>
+              <p className="text-xs text-stone">Distribucion por hora del dia</p>
+            </div>
+          </div>
           <SimpleBarChart
             items={data?.by_hour?.map((h) => ({ ...h, label: `${String(h.hour).padStart(2, '0')}:00` }))}
             valueKey="appointments"
             labelKey="label"
-            color="bg-[#A9812E]"
+            color="bg-gradient-to-r from-gold to-gold-light"
           />
         </div>
 
-        <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-300">
-          <h3 className="font-serif text-lg text-[#1C1A16] mb-4 flex items-center">
-            <Calendar className="h-5 w-5 mr-2 text-[#A9812E]" /> Días pico
-          </h3>
+        <div className="card-premium p-5 sm:p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="p-2 rounded-xl bg-status-blue/10">
+              <Calendar className="h-5 w-5 text-status-blue.deep" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg text-ink-soft">Dias pico</h3>
+              <p className="text-xs text-stone">Distribucion por dia de la semana</p>
+            </div>
+          </div>
           <SimpleBarChart
             items={data?.by_weekday?.map((w) => ({ ...w, label: WEEKDAYS[w.weekday - 1] || '' }))}
             valueKey="appointments"
             labelKey="label"
-            color="bg-[#3B5B8C]"
+            color="bg-gradient-to-r from-status-blue to-status-blue.deep"
           />
         </div>
       </div>

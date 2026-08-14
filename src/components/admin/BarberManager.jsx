@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Loader2, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Loader2, Pencil, Trash2, User as UserIcon, Mail, Phone } from 'lucide-react';
 import { api } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
@@ -60,7 +60,7 @@ const BarberManager = ({ userRole }) => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Desactivar este barbero?')) return;
+    if (!window.confirm('Desactivar este barbero?')) return;
     try {
       await api.delete(`/admin/barbers/${id}`);
       fetchBarbers();
@@ -70,39 +70,92 @@ const BarberManager = ({ userRole }) => {
   };
 
   return (
-    <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-sm p-4 sm:p-6 card-hover-lift">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h3 className="font-serif text-xl text-[#1C1A16]">Barberos</h3>
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 className="font-serif text-xl text-ink-soft">Barberos</h3>
+          <p className="text-sm text-stone mt-1">Gestiona el equipo de barberos</p>
+        </div>
         {canEdit && (
           <button
             onClick={openCreateModal}
-            className="inline-flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-4 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#C9A860] transition-all duration-200 btn-press shadow-sm"
+            className="btn-primary"
           >
             <Plus className="h-4 w-4" /> Nuevo Barbero
           </button>
         )}
       </div>
-      {error && <div className="bg-[#FBEAEA] border border-[#E3B8B8] text-[#8B2E2E] px-4 py-3 rounded-lg text-sm mb-4 animate-fade-in">{error}</div>}
-      <div className="space-y-3">
-        {loading && <div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin text-[#A9812E]" /></div>}
-        {barbers.length === 0 && !loading && <p className="text-[#6B6459] text-sm text-center py-8">No hay barberos registrados.</p>}
-        {barbers.map(barber => (
-          <div key={barber.id} className="border border-[#E4DCC9] rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-[#A9812E]/40 hover:shadow-md transition-all duration-200">
-            <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-[#1C1A16] truncate">{barber.name}</h4>
-              <p className="text-sm text-[#6B6459] mt-1">{barber.email || 'Sin email'} — {barber.phone || 'Sin teléfono'}</p>
-              <span className={`inline-block mt-2 px-2.5 py-0.5 rounded-md text-xs font-medium ${barber.is_active ? 'bg-[#EEF5EE] text-[#3E6B3E]' : 'bg-[#FBEAEA] text-[#8B2E2E]'}`}>{barber.is_active ? 'Activo' : 'Inactivo'}</span>
+
+      {error && (
+        <div className="bg-status-red/10 border border-status-red/20 text-status-red.deep px-4 py-3 rounded-xl text-sm animate-fade-in">
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {loading && (
+          <div className="col-span-full flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-gold" />
+          </div>
+        )}
+        {barbers.length === 0 && !loading && (
+          <div className="col-span-full text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-cream flex items-center justify-center border border-cream-line">
+              <UserIcon className="h-8 w-8 text-stone-faint" />
             </div>
-            {canEdit && (
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button onClick={() => openEditModal(barber)} className="p-2.5 text-[#3B5B8C] hover:bg-[#EEF3FB] rounded-lg transition-colors" title="Editar">
-                  <Pencil className="h-4 w-4" />
-                </button>
-                <button onClick={() => handleDelete(barber.id)} className="p-2.5 text-[#8B2E2E] hover:bg-[#FBEAEA] rounded-lg transition-colors" title="Desactivar">
-                  <Trash2 className="h-4 w-4" />
-                </button>
+            <p className="text-stone text-sm">No hay barberos registrados.</p>
+          </div>
+        )}
+        {barbers.map(barber => (
+          <div key={barber.id} className="card-premium p-5 group">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center border border-gold/20 flex-shrink-0">
+                  <UserIcon className="h-5 w-5 text-gold" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-semibold text-ink-soft truncate">{barber.name}</h4>
+                  <span className={`inline-block mt-1.5 px-2.5 py-0.5 rounded-lg text-xs font-medium ${barber.is_active ? 'bg-status-green/10 text-status-green.deep border border-status-green/20' : 'bg-status-red/10 text-status-red.deep border border-status-red/20'}`}>
+                    {barber.is_active ? 'Activo' : 'Inactivo'}
+                  </span>
+                </div>
               </div>
-            )}
+              {canEdit && (
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    onClick={() => openEditModal(barber)}
+                    className="action-btn action-btn-edit"
+                    title="Editar"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(barber.id)}
+                    className="action-btn action-btn-delete"
+                    title="Desactivar"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="mt-4 space-y-2">
+              {barber.email && (
+                <div className="flex items-center gap-2 text-sm text-stone">
+                  <Mail className="h-3.5 w-3.5 text-stone-faint flex-shrink-0" />
+                  <span className="truncate">{barber.email}</span>
+                </div>
+              )}
+              {barber.phone && (
+                <div className="flex items-center gap-2 text-sm text-stone">
+                  <Phone className="h-3.5 w-3.5 text-stone-faint flex-shrink-0" />
+                  <span className="truncate">{barber.phone}</span>
+                </div>
+              )}
+              {!barber.email && !barber.phone && (
+                <p className="text-sm text-stone-faint">Sin informacion de contacto</p>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -113,7 +166,7 @@ const BarberManager = ({ userRole }) => {
         title={editingBarber ? 'Editar Barbero' : 'Nuevo Barbero'}
         size="md"
       >
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-4">
             <Input
               label="Nombre completo"
@@ -121,7 +174,7 @@ const BarberManager = ({ userRole }) => {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
-              placeholder="Ej. Juan Pérez"
+              placeholder="Ej. Juan Perez"
             />
             <Input
               label="Email"
@@ -132,18 +185,18 @@ const BarberManager = ({ userRole }) => {
               placeholder="correo@ejemplo.com"
             />
             <Input
-              label="Teléfono"
+              label="Telefono"
               name="phone"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               placeholder="+57 300 123 4567"
             />
-            <label className="flex items-center gap-2.5 text-sm text-[#6B6459] cursor-pointer">
+            <label className="flex items-center gap-2.5 text-sm text-stone cursor-pointer">
               <input
                 type="checkbox"
                 checked={form.is_active}
                 onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                className="w-4 h-4 rounded border-[#E4DCC9] text-[#A9812E] focus:ring-[#A9812E]"
+                className="w-4 h-4 rounded border-cream-line text-gold focus:ring-gold/40"
               />
               <span>Barbero activo</span>
             </label>
@@ -152,11 +205,11 @@ const BarberManager = ({ userRole }) => {
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-5 py-2.5 border border-[#E4DCC9] rounded-lg text-sm font-medium hover:bg-[#F6F2EA] transition-colors"
+              className="btn-secondary"
             >
               Cancelar
             </button>
-            <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#C9A860] transition-all duration-200 disabled:opacity-50 btn-press shadow-sm">
+            <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
               {saving ? 'Guardando...' : (editingBarber ? 'Actualizar' : 'Crear')}
             </button>
           </div>
