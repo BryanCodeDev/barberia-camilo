@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import MobileStickyCTA from './components/layout/MobileStickyCTA';
 import HeroSection from './components/sections/HeroSection';
 import ServicesSection from './components/sections/ServicesSection';
 import BookingForm from './components/sections/BookingForm';
@@ -76,6 +77,7 @@ const AppContent = () => {
       )}
 
       <Footer business={businessInfo} />
+      <MobileStickyCTA business={businessInfo} />
     </div>
   );
 };

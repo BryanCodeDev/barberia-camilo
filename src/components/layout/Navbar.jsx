@@ -1,6 +1,6 @@
 // src/components/layout/Navbar.jsx
 import React, { useState } from 'react';
-import { Scissors, Menu, X, User, ShieldCheck, CalendarDays } from 'lucide-react';
+import { Scissors, Menu, X, User, ShieldCheck, CalendarDays, MessageCircle } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { openBooking } from '../../utils/booking';
 
@@ -14,12 +14,13 @@ const Navbar = ({ business }) => {
 
   const businessName = business?.name || 'BARBERÍA EL BRONX';
   const businessTitle = business?.title || 'EL BRONX';
+  const whatsappNumber = business?.whatsapp || '3015667129';
+  const whatsappLink = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
 
   const isActive = (path) => location.pathname === path;
 
   const closeMenu = () => setIsMenuOpen(false);
 
-  // Lleva a Servicios sin importar en qué ruta esté el usuario.
   const goToServices = (e) => {
     e.preventDefault();
     closeMenu();
@@ -82,6 +83,17 @@ const Navbar = ({ business }) => {
                 Mi Cuenta
               </Link>
 
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-[#C9A860] hover:text-[#F6F2EA] transition-colors"
+                title="WhatsApp"
+              >
+                <MessageCircle className="h-5 w-5" />
+                <span className="text-sm font-medium hidden lg:inline">WhatsApp</span>
+              </a>
+
               <button
                 onClick={handleOpenBooking}
                 className="flex items-center gap-2 bg-[#A9812E] text-[#121113] px-5 py-2.5 rounded-lg font-semibold text-sm tracking-wide hover:bg-[#C9A860] transition-colors btn-press"
@@ -89,22 +101,20 @@ const Navbar = ({ business }) => {
                 <CalendarDays className="h-4 w-4" />
                 Agendar Cita
               </button>
-
-              <Link
-                to="/admin"
-                title="Administración"
-                className={`flex items-center gap-1.5 text-xs uppercase tracking-wide transition-colors border-l border-[#2A2723] pl-5 ${
-                  isActive('/admin') ? 'text-[#C9A860]' : 'text-[#6E6A61] hover:text-[#C9A860]'
-                }`}
-              >
-                <ShieldCheck className="h-4 w-4" />
-                Admin
-              </Link>
             </div>
           )}
 
           {!isAdminRoute && (
-            <div className="md:hidden">
+            <div className="md:hidden flex items-center gap-2">
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-[#C9A860] hover:text-[#F6F2EA] transition-colors"
+                title="WhatsApp"
+              >
+                <MessageCircle className="h-5 w-5" />
+              </a>
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
@@ -122,42 +132,46 @@ const Navbar = ({ business }) => {
               <Link
                 to="/"
                 onClick={closeMenu}
-                className={`block px-3 py-2.5 text-sm uppercase tracking-wide transition-colors ${isActive('/') ? 'text-[#C9A860]' : 'text-[#D8D3C7] hover:text-[#C9A860]'}`}
+                className={`flex items-center px-3 py-3 text-sm uppercase tracking-wide transition-colors rounded-xl ${isActive('/') ? 'bg-[#A9812E]/15 text-[#C9A860] font-semibold' : 'text-[#D8D3C7] hover:text-[#C9A860] hover:bg-[#1C1A16]'}`}
               >
+                <span className="w-8 text-center mr-2">🏠</span>
                 Inicio
               </Link>
               <a
                 href="/#servicios"
                 onClick={goToServices}
-                className="block px-3 py-2.5 text-sm uppercase tracking-wide text-[#D8D3C7] hover:text-[#C9A860] transition-colors"
+                className="flex items-center px-3 py-3 text-sm uppercase tracking-wide text-[#D8D3C7] hover:text-[#C9A860] hover:bg-[#1C1A16] transition-colors rounded-xl"
               >
+                <span className="w-8 text-center mr-2">✂️</span>
                 Servicios
               </a>
               <Link
                 to="/cliente"
                 onClick={closeMenu}
-                className={`flex items-center px-3 py-2.5 text-sm uppercase tracking-wide transition-colors ${isActive('/cliente') ? 'text-[#C9A860]' : 'text-[#D8D3C7] hover:text-[#C9A860]'}`}
+                className={`flex items-center px-3 py-3 text-sm uppercase tracking-wide transition-colors rounded-xl ${isActive('/cliente') ? 'bg-[#A9812E]/15 text-[#C9A860] font-semibold' : 'text-[#D8D3C7] hover:text-[#C9A860] hover:bg-[#1C1A16]'}`}
               >
-                <User className="h-4 w-4 mr-2" />
+                <User className="h-5 w-5 mr-2" />
                 Mi Cuenta
               </Link>
 
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={closeMenu}
+                className="flex items-center px-3 py-3 text-sm uppercase tracking-wide text-[#C9A860] hover:bg-[#1C1A16] transition-colors rounded-xl"
+              >
+                <MessageCircle className="h-5 w-5 mr-2" />
+                WhatsApp
+              </a>
+
               <button
                 onClick={handleOpenBooking}
-                className="flex items-center justify-center gap-2 w-full text-left px-3 py-2.5 bg-[#A9812E] text-[#121113] rounded-lg font-semibold text-sm tracking-wide hover:bg-[#C9A860] transition-colors mt-2 btn-press"
+                className="flex items-center justify-center gap-2 w-full text-left px-3 py-3 bg-[#A9812E] text-[#121113] rounded-xl font-semibold text-sm uppercase tracking-wide hover:bg-[#C9A860] transition-colors mt-2 btn-press"
               >
-                <CalendarDays className="h-4 w-4" />
+                <CalendarDays className="h-5 w-5" />
                 Agendar Cita
               </button>
-
-              <Link
-                to="/admin"
-                onClick={closeMenu}
-                className={`flex items-center px-3 py-2.5 text-xs uppercase tracking-wide transition-colors w-full border-t border-[#2A2723] mt-2 pt-3 ${isActive('/admin') ? 'text-[#C9A860]' : 'text-[#6E6A61] hover:text-[#C9A860]'}`}
-              >
-                <ShieldCheck className="h-4 w-4 mr-2" />
-                Administración
-              </Link>
             </div>
           </div>
         )}

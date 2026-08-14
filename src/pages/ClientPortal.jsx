@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw } from 'lucide-react';
+import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw, ArrowLeft } from 'lucide-react';
 import { api, setClientToken } from '../services/api';
 import useAuth from '../hooks/useAuth';
 import LoginForm from '../components/auth/LoginForm';
 import Button from '../components/ui/Button';
 import ErrorBanner from '../components/ui/ErrorBanner';
 import Loader from '../components/ui/Loader';
+import { useNavigate } from 'react-router-dom';
 
 const ClientPortal = ({ business }) => {
+  const navigate = useNavigate();
   const { isAuthenticated, login: authLogin, logout: authLogout } = useAuth('client');
   const [loginStep, setLoginStep] = useState('phone');
   const [clientPhone, setClientPhone] = useState('');
@@ -194,6 +196,11 @@ const ClientPortal = ({ business }) => {
     <div className="min-h-screen bg-[#F6F2EA]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-10">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <span className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-[#A9812E] text-[#C9A860]">
+              <span className="font-serif font-bold text-sm">EB</span>
+            </span>
+          </div>
           <h1 className="font-serif text-3xl md:text-4xl text-[#1C1A16] mb-3">Portal del Cliente</h1>
           <p className="text-[#6B6459]">Accede para ver tu historial de citas</p>
         </div>
@@ -258,19 +265,30 @@ const ClientPortal = ({ business }) => {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm p-6 flex items-center justify-between">
-              <div>
-                <h2 className="font-serif text-xl text-[#1C1A16]">Bienvenido, {clientName || 'Cliente'}</h2>
-                <p className="text-sm text-[#6B6459] mt-1">Teléfono: {clientPhone}</p>
-                {appointments.length > 0 && (
-                  <p className="text-xs text-[#8B6A22] mt-1 font-medium">
-                    Llevas {appointments.filter(a => a.status === 'completed').length} cita(s) completada(s)
-                  </p>
-                )}
+            <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm p-4 sm:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => navigate('/')}
+                    className="p-2 hover:bg-[#F6F2EA] rounded-xl transition-colors"
+                    title="Volver al inicio"
+                  >
+                    <ArrowLeft className="h-5 w-5 text-[#6B6459]" />
+                  </button>
+                  <div>
+                    <h2 className="font-serif text-xl text-[#1C1A16]">Bienvenido, {clientName || 'Cliente'}</h2>
+                    <p className="text-sm text-[#6B6459] mt-1">Teléfono: {clientPhone}</p>
+                  </div>
+                </div>
+                <Button variant="secondary" onClick={handleLogout} size="sm">
+                  Cerrar Sesión
+                </Button>
               </div>
-              <Button variant="secondary" onClick={handleLogout} size="sm">
-                Cerrar Sesión
-              </Button>
+              {appointments.length > 0 && (
+                <p className="text-xs text-[#8B6A22] mt-3 font-medium ml-12">
+                  Llevas {appointments.filter(a => a.status === 'completed').length} cita(s) completada(s)
+                </p>
+              )}
             </div>
             <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm overflow-hidden">
               <div className="px-6 py-4 bg-[#F6F2EA] border-b border-[#E4DCC9]">

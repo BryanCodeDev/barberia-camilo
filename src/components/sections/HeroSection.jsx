@@ -1,6 +1,6 @@
 // src/components/sections/HeroSection.jsx
 import React, { useState, useEffect } from 'react';
-import { Star, MapPin, Phone } from 'lucide-react';
+import { MapPin, Phone, MessageCircle } from 'lucide-react';
 import { openBooking } from '../../utils/booking';
 
 const defaultBusiness = {
@@ -8,12 +8,6 @@ const defaultBusiness = {
   title: "EL BRONX",
   address: "Mosquera, Cundinamarca"
 };
-
-const stats = [
-  { number: "1+", label: "Años de Experiencia" },
-  { number: "1000+", label: "Clientes Satisfechos" },
-  { number: "5.0", label: "Calificación Promedio" }
-];
 
 const HeroSection = ({ business }) => {
   const [localBusiness, setLocalBusiness] = useState(defaultBusiness);
@@ -86,12 +80,15 @@ const HeroSection = ({ business }) => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12 px-4">
-            <button
-              onClick={() => openBooking()}
-              className="bg-[#A9812E] text-[#121113] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:bg-[#C9A860] transition-colors shadow-[0_8px_24px_-8px_rgba(169,129,46,0.5)]"
+            <a
+              href={`https://wa.me/${(localBusiness.phone || '+3015667129').replace(/[^0-9]/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:bg-[#C9A860] transition-colors shadow-[0_8px_24px_-8px_rgba(169,129,46,0.5)]"
             >
-              Agendar Cita
-            </button>
+              <MessageCircle className="h-4 w-4" />
+              Reservar por WhatsApp
+            </a>
             <button
               onClick={scrollToServices}
               className="border border-[#3A362F] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:border-[#A9812E] hover:text-[#C9A860] transition-colors"
@@ -109,11 +106,6 @@ const HeroSection = ({ business }) => {
             <div className="flex items-center">
               <MapPin className="h-4 w-4 text-[#C9A860] mr-2" />
               {localBusiness.address}
-            </div>
-            <div className="hidden sm:block w-1 h-1 bg-[#3A362F] rounded-full" />
-            <div className="flex items-center">
-              <Star className="h-4 w-4 text-[#C9A860] mr-2 fill-current" />
-              5.0 de calificación
             </div>
           </div>
         </div>

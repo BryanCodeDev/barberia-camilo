@@ -81,6 +81,10 @@ const Footer = ({ business }) => {
                 <Phone className="h-4 w-4 text-[#6E6A61] mr-3 flex-shrink-0" />
                 {businessInfo.phone}
               </a>
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center text-[#D8D3C7] hover:text-[#C9A860] transition-colors text-sm">
+                <MessageCircle className="h-4 w-4 text-[#6E6A61] mr-3 flex-shrink-0" />
+                WhatsApp
+              </a>
               <div className="flex items-start">
                 <MapPin className="h-4 w-4 text-[#6E6A61] mr-3 mt-0.5 flex-shrink-0" />
                 <div className="text-[#D8D3C7] text-sm leading-relaxed">
