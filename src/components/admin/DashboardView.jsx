@@ -25,8 +25,8 @@ const DashboardView = ({
     <div className="space-y-6 animate-fade-in" key="dashboard">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="section-title">Resumen del Negocio</h2>
-          <p className="text-sm text-stone mt-1">Metricas clave, rendimiento reciente y agenda del dia</p>
+          <h2 className="section-title">{userRole === 'barber' ? 'Mi Resumen' : 'Resumen del Negocio'}</h2>
+          <p className="text-sm text-stone mt-1">{userRole === 'barber' ? 'Tus metricas y agenda del dia' : 'Metricas clave, rendimiento reciente y agenda del dia'}</p>
         </div>
         <div className="flex items-center gap-2">
           <select

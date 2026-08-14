@@ -49,7 +49,7 @@ const Navbar = ({ business }) => {
         <div className="flex justify-between items-center h-16 md:h-[4.5rem]">
           <Link to="/" className="flex items-center space-x-3 group" onClick={closeMenu}>
             <span className={`flex items-center justify-center w-9 h-9 rounded-full border transition-colors ${isAdminRoute ? 'border-[#A9812E]/30 text-[#A9812E]/70' : 'border-[#A9812E]/60 text-[#C9A860] group-hover:border-[#A9812E]'}`}>
-              <Scissors className="h-4 w-4" />
+              <span className="font-serif font-bold text-xs">EB</span>
             </span>
             <div className="leading-tight">
               <span className={`font-serif text-lg md:text-xl tracking-wide ${isAdminRoute ? 'text-[#9A9488]' : ''}`}>{businessName}</span>

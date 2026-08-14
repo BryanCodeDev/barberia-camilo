@@ -4,7 +4,7 @@ import { api } from '../../services/api';
 
 const WEEKDAYS = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
 
-const PerformanceView = () => {
+const PerformanceView = ({ userRole }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -107,6 +107,7 @@ const PerformanceView = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {userRole !== 'barber' && (
         <div className="card-premium p-5 sm:p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="p-2 rounded-xl bg-status-green/10">
@@ -144,6 +145,7 @@ const PerformanceView = () => {
         </div>
       )}
         </div>
+        )}
 
         <div className="card-premium p-5 sm:p-6">
           <div className="flex items-center gap-3 mb-5">

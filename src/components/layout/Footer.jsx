@@ -32,7 +32,7 @@ const Footer = ({ business }) => {
           <div>
             <div className="flex items-center space-x-3 mb-4">
               <span className="flex items-center justify-center w-9 h-9 rounded-full border border-[#A9812E]/60 text-[#C9A860]">
-                <Scissors className="h-4 w-4" />
+                <span className="font-serif font-bold text-xs">EB</span>
               </span>
               <span className="font-serif text-lg md:text-xl tracking-wide">{businessInfo.name}</span>
             </div>

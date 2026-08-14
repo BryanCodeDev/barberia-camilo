@@ -58,13 +58,17 @@ const BarberAgenda = ({ userRole }) => {
 
   const todayTotal = allAppointments.reduce((sum, apt) => sum + (apt.price_cents || 0), 0);
 
+  const isBarberView = userRole === 'barber';
+  const myAgenda = isBarberView ? (agenda.agenda?.[0]?.appointments || []) : allAppointments;
+  const myName = isBarberView ? agenda.agenda?.[0]?.barber_name : null;
+
   if (loading) {
     return (
       <div className="card-premium p-6">
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="w-10 h-10 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm text-stone">Cargando agenda de barberos...</p>
+            <p className="text-sm text-stone">Cargando agenda...</p>
           </div>
         </div>
       </div>
@@ -75,9 +79,11 @@ const BarberAgenda = ({ userRole }) => {
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="font-serif text-xl text-ink-soft">Agenda de Barberos</h3>
+          <h3 className="font-serif text-xl text-ink-soft">
+            {isBarberView ? 'Mi Agenda' : 'Agenda de Barberos'}
+          </h3>
           <p className="text-sm text-stone mt-1">
-            Visualiza la agenda de cada barbero para el dia seleccionado
+            {isBarberView ? 'Tus citas programadas para el dia seleccionado' : 'Visualiza la agenda de cada barbero para el dia seleccionado'}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -105,15 +111,71 @@ const BarberAgenda = ({ userRole }) => {
         </div>
       )}
 
-      {!agenda.agenda || agenda.agenda.length === 0 ? (
+      {!agenda.agenda || agenda.agenda.length === 0 || (isBarberView && myAgenda.length === 0) ? (
         <div className="card-premium p-8 text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-cream flex items-center justify-center border border-cream-line">
             <Calendar className="h-8 w-8 text-stone-faint" />
           </div>
-          <p className="text-stone text-sm mb-1">No hay barberos registrados.</p>
-          <p className="text-stone-faint text-xs">
-            Los barberos activos apareceran aqui con su agenda del dia.
+          <p className="text-stone text-sm mb-1">
+            {isBarberView ? 'No tienes citas agendadas para este dia.' : 'No hay barberos registrados.'}
           </p>
+          <p className="text-stone-faint text-xs">
+            {isBarberView ? 'Las citas confirmadas apareceran aqui.' : 'Los barberos activos apareceran aqui con su agenda del dia.'}
+          </p>
+        </div>
+      ) : isBarberView ? (
+        <div className="card-premium overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-cream/50 border-b border-cream-line">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Hora</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Duracion</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Cliente</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Servicio</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Estacion</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Estado</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Ganancia</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-cream-line">
+                {myAgenda.map((apt) => (
+                  <tr key={apt.id} className="hover:bg-cream/30 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 text-ink-soft">
+                        <Clock className="h-3.5 w-3.5 text-stone-faint flex-shrink-0" />
+                        {formatTime(apt.appointment_time)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-stone">{apt.duration_minutes} min</td>
+                    <td className="px-4 py-3">
+                      <div className="min-w-0">
+                        <p className="font-medium text-ink-soft truncate max-w-[160px]">{apt.client_name || 'Sin cliente'}</p>
+                        {apt.client_phone && (
+                          <p className="text-xs text-stone-faint truncate max-w-[160px]">{apt.client_phone}</p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 text-stone">
+                        <Scissors className="h-3.5 w-3.5 text-stone-faint flex-shrink-0" />
+                        <span className="truncate max-w-[140px]">{apt.service_name || '--'}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-stone">{apt.workstation_name || '--'}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium border ${STATUS_COLORS[apt.status] || STATUS_COLORS.pending}`}>
+                        {STATUS_LABELS[apt.status] || apt.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="font-medium text-ink-soft">{formatCOP(apt.price_cents)}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : (
         <div className="card-premium overflow-hidden">
@@ -121,27 +183,13 @@ const BarberAgenda = ({ userRole }) => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-cream/50 border-b border-cream-line">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">
-                    Barbero
-                  </th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">
-                    Hora
-                  </th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">
-                    Duracion
-                  </th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">
-                    Cliente
-                  </th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">
-                    Servicio
-                  </th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">
-                    Ganancia
-                  </th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Barbero</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Hora</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Duracion</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Cliente</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Servicio</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Estado</th>
+                  <th className="text-right px-4 py-3 text-xs font-semibold text-stone uppercase tracking-wider">Ganancia</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-cream-line">
@@ -193,18 +241,12 @@ const BarberAgenda = ({ userRole }) => {
                           {formatTime(apt.appointment_time)}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-stone">
-                        {apt.duration_minutes} min
-                      </td>
+                      <td className="px-4 py-3 text-stone">{apt.duration_minutes} min</td>
                       <td className="px-4 py-3">
                         <div className="min-w-0">
-                          <p className="font-medium text-ink-soft truncate max-w-[160px]">
-                            {apt.client_name || 'Sin cliente'}
-                          </p>
+                          <p className="font-medium text-ink-soft truncate max-w-[160px]">{apt.client_name || 'Sin cliente'}</p>
                           {apt.client_phone && (
-                            <p className="text-xs text-stone-faint truncate max-w-[160px]">
-                              {apt.client_phone}
-                            </p>
+                            <p className="text-xs text-stone-faint truncate max-w-[160px]">{apt.client_phone}</p>
                           )}
                         </div>
                       </td>
@@ -215,16 +257,12 @@ const BarberAgenda = ({ userRole }) => {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium border ${STATUS_COLORS[apt.status] || STATUS_COLORS.pending}`}
-                        >
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium border ${STATUS_COLORS[apt.status] || STATUS_COLORS.pending}`}>
                           {STATUS_LABELS[apt.status] || apt.status}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <span className="font-medium text-ink-soft">
-                          {formatCOP(apt.price_cents)}
-                        </span>
+                        <span className="font-medium text-ink-soft">{formatCOP(apt.price_cents)}</span>
                       </td>
                     </tr>
                   ));

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Shield, Users, Scissors, LayoutDashboard, Calendar,
-  BarChart3, MessageSquare, Settings, ChevronRight
+  BarChart3, MessageSquare, Settings, ChevronRight, BookOpen
 } from 'lucide-react';
 import { api } from '../services/api';
 import { invalidateBusinessSettingsCache } from '../hooks/useBusinessSettings';
@@ -19,6 +19,7 @@ import NotificationsCenter from '../components/admin/NotificationsCenter';
 import ClientsView from '../components/admin/ClientsView';
 import PerformanceView from '../components/admin/PerformanceView';
 import SettingsEditor from '../components/admin/SettingsEditor';
+import Help from '../components/admin/Help';
 
 const defaultBusiness = { name: 'BARBERÍA EL BRONX', title: 'EL BRONX' };
 
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { id: 'clients', label: 'Clientes', icon: Users, roles: ['admin', 'barber'] },
   { id: 'performance', label: 'Desempeno', icon: BarChart3, roles: ['admin', 'barber'] },
   { id: 'notifications', label: 'Notificaciones', icon: MessageSquare, roles: ['admin', 'barber'] },
+  { id: 'help', label: 'Ayuda', icon: BookOpen, roles: ['admin'] },
 ];
 
 const TAB_META = {
@@ -42,6 +44,7 @@ const TAB_META = {
   clients: { label: 'Clientes', breadcrumb: ['Gestion', 'Clientes'] },
   performance: { label: 'Desempeno', breadcrumb: ['Analisis', 'Desempeno'] },
   notifications: { label: 'Notificaciones', breadcrumb: ['Sistema', 'Notificaciones'] },
+  help: { label: 'Ayuda', breadcrumb: ['Sistema', 'Ayuda'] },
 };
 
 const AdminPanel = ({ onClose, business }) => {
@@ -151,7 +154,7 @@ const AdminPanel = ({ onClose, business }) => {
           submitLabel="Acceder al Panel"
           headerIcon={Shield}
           headerTitle="Acceso Administrativo"
-          headerSubtitle="Ingresa tus credenciales para continuar"
+          headerSubtitle="Barberia El Bronx - Panel de Control"
         />
       </div>
     );
@@ -171,6 +174,7 @@ const AdminPanel = ({ onClose, business }) => {
         mobileOpen={mobileNavOpen}
         setMobileOpen={setMobileNavOpen}
         onSettingsClick={() => setSettingsModalOpen(true)}
+        userRole={userRole}
       />
 
       <div className="md:ml-64 pb-24 md:pb-8">
@@ -283,6 +287,27 @@ const AdminPanel = ({ onClose, business }) => {
               </div>
               <div className="animate-fade-in" key="notifications">
                 <NotificationsCenter business={businessInfo} userRole={userRole} />
+              </div>
+            </section>
+          )}
+
+          {activeTab === 'help' && (
+            <section className="animate-fade-in">
+              <div className="section-header">
+                <div>
+                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
+                    {meta.breadcrumb.map((crumb, i) => (
+                      <span key={i} className="flex items-center gap-2">
+                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
+                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
+                      </span>
+                    ))}
+                  </nav>
+                  <h2 className="section-title">Ayuda</h2>
+                </div>
+              </div>
+              <div className="animate-fade-in" key="help">
+                <Help />
               </div>
             </section>
           )}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   LayoutDashboard, Calendar, Users, Scissors, BarChart3,
   MessageSquare, Settings, LogOut, X, Menu,
-  ChevronDown, ChevronRight
+  ChevronDown, ChevronRight, BookOpen
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -36,11 +36,12 @@ const NAV_SECTIONS = [
     label: 'Sistema',
     items: [
       { id: 'notifications', label: 'Notificaciones', icon: MessageSquare },
+      { id: 'help', label: 'Ayuda', icon: BookOpen },
     ],
   },
 ];
 
-const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, businessName, mobileOpen, setMobileOpen, onSettingsClick }) => {
+const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, businessName, mobileOpen, setMobileOpen, onSettingsClick, userRole }) => {
   const [sectionsExpanded, setSectionsExpanded] = useState({
     principal: true,
     gestion: true,
@@ -91,7 +92,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
       <div className="p-5 sm:p-6">
         <div className="flex items-center">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center mr-3 shadow-lg shadow-gold/20">
-            <span className="text-ink font-serif font-bold text-lg">BT</span>
+            <span className="text-ink font-serif font-bold text-lg">EB</span>
           </div>
           <div className="min-w-0">
             <h1 className="font-serif text-lg sm:text-xl text-cream leading-tight truncate">Panel Admin</h1>
@@ -160,8 +161,14 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
     </div>
   );
 
-  const primaryTabs = tabs.filter(t => ['dashboard','appointments','services','clients','settings'].includes(t.id));
-  const secondaryTabs = tabs.filter(t => !['dashboard','appointments','services','clients','settings'].includes(t.id));
+  const isBarber = tabs.some(t => t.id === 'help') === false && tabs.some(t => t.id === 'barbers') === false && tabs.some(t => t.id === 'clients') !== false;
+  
+  const primaryTabIds = isBarber
+    ? ['dashboard', 'appointments', 'workstations', 'performance']
+    : ['dashboard', 'appointments', 'services', 'clients', 'settings'];
+  
+  const primaryTabs = tabs.filter(t => primaryTabIds.includes(t.id));
+  const secondaryTabs = tabs.filter(t => !primaryTabIds.includes(t.id));
 
   const iconMap = {
     dashboard: LayoutDashboard,
@@ -173,6 +180,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
     workstations: Scissors,
     performance: BarChart3,
     notifications: MessageSquare,
+    help: BookOpen,
   };
 
   return (
@@ -181,10 +189,10 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
       <div className="md:hidden bg-ink/95 border-b border-ink-line px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-lg">
         <div className="flex items-center">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center mr-3 shadow-lg shadow-gold/20">
-            <span className="text-ink font-serif font-bold text-sm">BT</span>
+            <span className="text-ink font-serif font-bold text-sm">EB</span>
           </div>
           <div>
-            <h1 className="font-serif text-lg text-cream leading-tight">Panel Admin</h1>
+            <h1 className="font-serif text-lg text-cream leading-tight">{userRole === 'barber' ? 'Mi Panel' : 'Panel Admin'}</h1>
             <p className="text-xs text-stone-light truncate">{businessName}</p>
           </div>
         </div>
