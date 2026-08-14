@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import MobileStickyCTA from './components/layout/MobileStickyCTA';
@@ -13,6 +13,7 @@ import { onBookingRequested } from './utils/booking';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
 const AppContent = () => {
+  const location = useLocation();
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [preselectedService, setPreselectedService] = useState(null);
   const { settings } = useBusinessSettings();
@@ -36,6 +37,8 @@ const AppContent = () => {
     instagram: settings?.instagram || '',
     facebook: settings?.facebook || '',
   }), [settings]);
+
+  const isAdminRoute = location.pathname === '/admin';
 
   const handleBookingSuccess = () => {
     setShowBookingForm(false);
@@ -76,8 +79,8 @@ const AppContent = () => {
         />
       )}
 
-      <Footer business={businessInfo} />
-      <MobileStickyCTA business={businessInfo} />
+      {!isAdminRoute && <Footer business={businessInfo} />}
+      {!isAdminRoute && <MobileStickyCTA business={businessInfo} />}
     </div>
   );
 };

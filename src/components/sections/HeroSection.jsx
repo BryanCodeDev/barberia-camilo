@@ -66,19 +66,6 @@ const HeroSection = ({ business }) => {
             detalle, en {localBusiness.address}.
           </p>
 
-          <div className="flex items-center justify-center divide-x divide-[#2A2723] mb-12">
-            {stats.map((stat, index) => (
-              <div key={index} className="px-6 md:px-10 text-center">
-                <div className="font-serif text-2xl md:text-3xl text-[#C9A860] mb-1">
-                  {stat.number}
-                </div>
-                <div className="text-[#8A8579] text-[11px] md:text-xs uppercase tracking-wide">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12 px-4">
             <a
               href={`https://wa.me/${(localBusiness.phone || '+3015667129').replace(/[^0-9]/g, '')}`}

@@ -206,8 +206,10 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex fixed inset-y-0 left-0 w-64 bg-ink border-r border-ink-line z-40 shadow-2xl">
-        <SidebarContent />
+      <aside className="hidden md:flex fixed inset-y-0 left-0 w-64 bg-ink border-r border-ink-line z-40 shadow-2xl h-screen overflow-hidden">
+        <div className="w-full h-full overflow-y-auto custom-scrollbar">
+          <SidebarContent />
+        </div>
       </aside>
 
       {/* Mobile Bottom Nav */}

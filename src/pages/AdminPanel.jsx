@@ -163,7 +163,7 @@ const AdminPanel = ({ onClose, business }) => {
   const meta = TAB_META[activeTab] || { label: '', breadcrumb: [] };
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-cream flex">
       <AdminSidebar
         tabs={visibleNavItems}
         activeTab={activeTab}
@@ -177,7 +177,7 @@ const AdminPanel = ({ onClose, business }) => {
         userRole={userRole}
       />
 
-      <div className="md:ml-64 pb-24 md:pb-8">
+      <div className="flex-1 md:ml-64 pb-24 md:pb-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
           {error && (
             <ErrorBanner message={error} onDismiss={() => setError(null)} className="mb-6" />
@@ -308,48 +308,6 @@ const AdminPanel = ({ onClose, business }) => {
               </div>
               <div className="animate-fade-in" key="help">
                 <Help />
-              </div>
-            </section>
-          )}
-
-          {activeTab === 'clients' && (
-            <section className="animate-fade-in">
-              <div className="section-header">
-                <div>
-                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
-                    {meta.breadcrumb.map((crumb, i) => (
-                      <span key={i} className="flex items-center gap-2">
-                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
-                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
-                      </span>
-                    ))}
-                  </nav>
-                  <h2 className="section-title">Clientes</h2>
-                </div>
-              </div>
-              <div className="animate-fade-in" key="clients">
-                <ClientsView userRole={userRole} />
-              </div>
-            </section>
-          )}
-
-          {activeTab === 'performance' && (
-            <section className="animate-fade-in">
-              <div className="section-header">
-                <div>
-                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
-                    {meta.breadcrumb.map((crumb, i) => (
-                      <span key={i} className="flex items-center gap-2">
-                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
-                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
-                      </span>
-                    ))}
-                  </nav>
-                  <h2 className="section-title">Desempeno</h2>
-                </div>
-              </div>
-              <div className="animate-fade-in" key="performance">
-                <PerformanceView userRole={userRole} />
               </div>
             </section>
           )}

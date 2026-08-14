@@ -101,6 +101,17 @@ const Navbar = ({ business }) => {
                 <CalendarDays className="h-4 w-4" />
                 Agendar Cita
               </button>
+
+              <Link
+                to="/admin"
+                title="Administración"
+                className={`flex items-center gap-1.5 text-xs uppercase tracking-wide transition-colors border-l border-[#2A2723] pl-5 ${
+                  isActive('/admin') ? 'text-[#C9A860]' : 'text-[#6E6A61] hover:text-[#C9A860]'
+                }`}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Admin
+              </Link>
             </div>
           )}
 
@@ -172,6 +183,15 @@ const Navbar = ({ business }) => {
                 <CalendarDays className="h-5 w-5" />
                 Agendar Cita
               </button>
+
+              <Link
+                to="/admin"
+                onClick={closeMenu}
+                className={`flex items-center px-3 py-3 text-xs uppercase tracking-wide transition-colors w-full border-t border-[#2A2723] mt-2 pt-3 ${isActive('/admin') ? 'text-[#C9A860]' : 'text-[#6E6A61] hover:text-[#C9A860]'}`}
+              >
+                <ShieldCheck className="h-5 w-5 mr-2" />
+                Administración
+              </Link>
             </div>
           </div>
         )}
