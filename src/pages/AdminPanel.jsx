@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Shield, Users, Scissors, LayoutDashboard, Calendar,
-  BarChart3, MessageSquare, Settings, ChevronRight, BookOpen
+  BarChart3, MessageSquare, Settings, BookOpen
 } from 'lucide-react';
 import { api } from '../services/api';
 import { invalidateBusinessSettingsCache } from '../hooks/useBusinessSettings';
@@ -213,150 +213,45 @@ const AdminPanel = ({ onClose, business }) => {
           )}
 
           {activeTab === 'barbers' && (
-            <section className="animate-fade-in">
-              <div className="section-header">
-                <div>
-                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
-                    {meta.breadcrumb.map((crumb, i) => (
-                      <span key={i} className="flex items-center gap-2">
-                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
-                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
-                      </span>
-                    ))}
-                  </nav>
-                  <h2 className="section-title">Barberos</h2>
-                </div>
-              </div>
-              <div className="animate-fade-in" key="barbers">
-                <BarberManager business={businessInfo} userRole={userRole} />
-              </div>
-            </section>
+            <div className="animate-fade-in" key="barbers">
+              <BarberManager business={businessInfo} userRole={userRole} />
+            </div>
           )}
 
           {activeTab === 'workstations' && (
-            <section className="animate-fade-in">
-              <div className="section-header">
-                <div>
-                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
-                    {meta.breadcrumb.map((crumb, i) => (
-                      <span key={i} className="flex items-center gap-2">
-                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
-                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
-                      </span>
-                    ))}
-                  </nav>
-                  <h2 className="section-title">Estaciones de Trabajo</h2>
-                </div>
-              </div>
-              <div className="animate-fade-in" key="workstations">
-                <WorkstationManager business={businessInfo} userRole={userRole} />
-              </div>
-            </section>
+            <div className="animate-fade-in" key="workstations">
+              <WorkstationManager business={businessInfo} userRole={userRole} />
+            </div>
           )}
 
           {activeTab === 'services' && (
-            <section className="animate-fade-in">
-              <div className="section-header">
-                <div>
-                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
-                    {meta.breadcrumb.map((crumb, i) => (
-                      <span key={i} className="flex items-center gap-2">
-                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
-                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
-                      </span>
-                    ))}
-                  </nav>
-                  <h2 className="section-title">Servicios</h2>
-                </div>
-              </div>
-              <div className="animate-fade-in" key="services">
-                <ServiceManager business={businessInfo} userRole={userRole} />
-              </div>
-            </section>
+            <div className="animate-fade-in" key="services">
+              <ServiceManager business={businessInfo} userRole={userRole} />
+            </div>
           )}
 
           {activeTab === 'clients' && (
-            <section className="animate-fade-in">
-              <div className="section-header">
-                <div>
-                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
-                    {meta.breadcrumb.map((crumb, i) => (
-                      <span key={i} className="flex items-center gap-2">
-                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
-                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
-                      </span>
-                    ))}
-                  </nav>
-                  <h2 className="section-title">Clientes</h2>
-                </div>
-              </div>
-              <div className="animate-fade-in" key="clients">
-                <ClientManager userRole={userRole} />
-              </div>
-            </section>
+            <div className="animate-fade-in" key="clients">
+              <ClientManager userRole={userRole} />
+            </div>
           )}
 
           {activeTab === 'performance' && (
-            <section className="animate-fade-in">
-              <div className="section-header">
-                <div>
-                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
-                    {meta.breadcrumb.map((crumb, i) => (
-                      <span key={i} className="flex items-center gap-2">
-                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
-                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
-                      </span>
-                    ))}
-                  </nav>
-                  <h2 className="section-title">Desempeno</h2>
-                </div>
-              </div>
-              <div className="animate-fade-in" key="performance">
-                <PerformanceView userRole={userRole} />
-              </div>
-            </section>
+            <div className="animate-fade-in" key="performance">
+              <PerformanceView userRole={userRole} />
+            </div>
           )}
 
           {activeTab === 'notifications' && (
-            <section className="animate-fade-in">
-              <div className="section-header">
-                <div>
-                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
-                    {meta.breadcrumb.map((crumb, i) => (
-                      <span key={i} className="flex items-center gap-2">
-                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
-                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
-                      </span>
-                    ))}
-                  </nav>
-                  <h2 className="section-title">Notificaciones</h2>
-                </div>
-              </div>
-              <div className="animate-fade-in" key="notifications">
-                <NotificationsCenter business={businessInfo} userRole={userRole} />
-              </div>
-            </section>
+            <div className="animate-fade-in" key="notifications">
+              <NotificationsCenter business={businessInfo} userRole={userRole} />
+            </div>
           )}
 
           {activeTab === 'help' && (
-            <section className="animate-fade-in">
-              <div className="section-header">
-                <div>
-                  <nav className="flex items-center gap-2 text-xs text-stone mb-2">
-                    {meta.breadcrumb.map((crumb, i) => (
-                      <span key={i} className="flex items-center gap-2">
-                        {i > 0 && <ChevronRight className="h-3 w-3 text-stone-faint" />}
-                        <span className={i === meta.breadcrumb.length - 1 ? 'text-ink-soft font-medium' : 'text-stone'}>{crumb}</span>
-                      </span>
-                    ))}
-                  </nav>
-                  <h2 className="section-title">Ayuda</h2>
-                </div>
-              </div>
-              <div className="animate-fade-in" key="help">
-                <Help />
-              </div>
-            </section>
+            <div className="animate-fade-in" key="help">
+              <Help />
+            </div>
           )}
 
           <Modal
