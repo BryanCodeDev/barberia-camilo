@@ -36,16 +36,6 @@ const BarberAgenda = ({ userRole, username }) => {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   });
 
-  const handleNotification = useCallback(() => {
-    fetchAgenda();
-  }, [fetchAgenda]);
-
-  const { notifications, unreadCount, refresh: refreshNotifications } = useRealtimeNotifications(
-    userRole,
-    userRole === 'barber' ? username : null,
-    handleNotification
-  );
-
   const fetchAgenda = useCallback(async () => {
     try {
       setLoading(true);
@@ -58,6 +48,16 @@ const BarberAgenda = ({ userRole, username }) => {
       setLoading(false);
     }
   }, [selectedDate]);
+
+  const handleNotification = useCallback(() => {
+    fetchAgenda();
+  }, [fetchAgenda]);
+
+  const { notifications, unreadCount, refresh: refreshNotifications } = useRealtimeNotifications(
+    userRole,
+    userRole === 'barber' ? username : null,
+    handleNotification
+  );
 
   useEffect(() => {
     fetchAgenda();
