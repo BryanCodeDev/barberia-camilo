@@ -16,7 +16,6 @@ import BarberManager from '../components/admin/BarberManager';
 import WorkstationManager from '../components/admin/WorkstationManager';
 import ServiceManager from '../components/admin/ServiceManager';
 import NotificationsCenter from '../components/admin/NotificationsCenter';
-import ClientsView from '../components/admin/ClientsView';
 import PerformanceView from '../components/admin/PerformanceView';
 import SettingsEditor from '../components/admin/SettingsEditor';
 import Help from '../components/admin/Help';

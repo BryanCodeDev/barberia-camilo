@@ -181,7 +181,9 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       errors.phone = 'El teléfono debe tener 10 dígitos';
     }
     if (!clientEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail.trim())) {
-      errors.email = 'El correo electrónico es requerido y debe ser válido';
+      if (clientEmail.trim()) {
+        errors.email = 'El correo electrónico debe ser válido';
+      }
     }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -326,35 +328,39 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
           )}
 
           {showSuccess && (
-            <div className="bg-[#F6F2EA] border border-[#E4DCC9] rounded-sm m-4 sm:m-6">
-              <div className="p-4 sm:p-6 text-center">
-                <div className="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-[#A9812E]/15 mb-4">
-                  <Check className="h-6 w-6 text-[#8B6A22]" />
+            <div className="fixed inset-0 bg-[#121113]/80 flex items-center justify-center p-4 z-[60]">
+              <div className="bg-white rounded-sm shadow-2xl w-full max-w-lg p-6 sm:p-8 text-center animate-fade-in">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-status-green/15 flex items-center justify-center">
+                  <Check className="h-8 w-8 text-status-green.deep" />
                 </div>
-                <h3 className="font-serif text-lg text-[#1C1A16] mb-2">Agendamiento Exitoso</h3>
-                <div className="text-[#6B6459] space-y-2">
-                  <p className="font-medium text-[#1C1A16]">Tu cita ha sido reservada correctamente</p>
-                  <div className="bg-white rounded-sm p-3 sm:p-4 mt-4 border border-[#E4DCC9] text-left">
-                    <div className="text-sm space-y-1 text-[#1C1A16]">
-                      <p><strong>Servicio:</strong> {selectedService?.name}</p>
-                      <p><strong>Fecha:</strong> {selectedDate && formatDateFull(selectedDate)}</p>
-                      <p><strong>Hora:</strong> {selectedTime}</p>
-                      <p><strong>Cliente:</strong> {clientName}</p>
-                      {selectedWorkstation && <p><strong>Estación:</strong> {selectedWorkstation.name}</p>}
-                    </div>
+                <h3 className="font-serif text-2xl text-[#1C1A16] mb-2">Cita Confirmada</h3>
+                <p className="text-sm text-[#6B6459] mb-6">
+                  Te enviamos un correo y un mensaje de WhatsApp con la confirmacion y nuestras recomendaciones personalizadas.
+                </p>
+                <div className="bg-[#F6F2EA] border border-[#E4DCC9] rounded-sm p-4 mb-6 text-left">
+                  <div className="text-sm space-y-1 text-[#1C1A16]">
+                    <p><strong>Servicio:</strong> {selectedService?.name}</p>
+                    <p><strong>Fecha:</strong> {selectedDate && formatDateFull(selectedDate)}</p>
+                    <p><strong>Hora:</strong> {selectedTime}</p>
+                    <p><strong>Cliente:</strong> {clientName}</p>
+                    {selectedWorkstation && <p><strong>Estacion:</strong> {selectedWorkstation.name}</p>}
                   </div>
-                  <div className="mt-4 p-3 bg-white border border-[#E4DCC9] rounded-sm flex items-start gap-2 text-left">
+                  <div className="mt-3 p-3 bg-white border border-[#E4DCC9] rounded-sm flex items-start gap-2">
                     <Info className="h-4 w-4 text-[#A9812E] mt-0.5 flex-shrink-0" />
                     <p className="text-sm text-[#6B6459]"><strong className="text-[#1C1A16]">Recordatorio:</strong> por favor llega 5 minutos antes de tu cita</p>
                   </div>
-                  <p className="text-sm mt-3 text-[#8B6A22]">Te contactaremos pronto para confirmar los detalles</p>
                 </div>
-                <button
-                  onClick={handleFinish}
-                  className="mt-6 w-full sm:w-auto bg-[#121113] text-[#F6F2EA] px-8 py-3 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#1C1A16] transition-colors"
-                >
-                  Listo
-                </button>
+                {recommendations.length > 0 && (
+                  <div className="bg-[#F6F2EA] border border-[#E4DCC9] rounded-sm p-4 mb-6 text-left">
+                    <h4 className="font-medium text-[#1C1A16] mb-2 text-sm uppercase tracking-wide">Recomendaciones para tu servicio</h4>
+                    <ul className="text-sm text-[#6B6459] space-y-2 list-disc list-inside">
+                      {recommendations.map((rec, idx) => (
+                        <li key={idx}>{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <Button onClick={handleFinish} size="lg" className="w-full">Cerrar</Button>
               </div>
             </div>
           )}
@@ -552,7 +558,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                   error={fieldErrors.phone}
                 />
                 <Input
-                  label={<span className="flex items-center"><Mail className="h-4 w-4 mr-2 text-[#A9812E]" />Correo electrónico</span>}
+                  label={<span className="flex items-center"><Mail className="h-4 w-4 mr-2 text-[#A9812E]" />Correo electrónico (opcional)</span>}
                   type="email"
                   value={clientEmail}
                   onChange={(e) => { setClientEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: null })); }}
