@@ -22,12 +22,21 @@ const formatCOP = (cents) => {
   }).format(cents);
 };
 
-const formatTime = (time) => {
-  if (!time) return '--:--';
-  return time;
-};
+  const formatTime = (time) => {
+    if (!time) return '--:--';
+    return time;
+  };
 
-const BarberAgenda = ({ userRole, username }) => {
+  const normalizeName = (name) => {
+    return (name || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[\.\s]+/g, ' ')
+      .trim();
+  };
+
+  const BarberAgenda = ({ userRole, username }) => {
   const [agenda, setAgenda] = useState({ date: '', agenda: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -74,16 +83,24 @@ const BarberAgenda = ({ userRole, username }) => {
   const rawAgenda = agenda.agenda || [];
   let myAgenda = [];
   let myName = null;
+  let associationError = false;
 
   if (isBarberView) {
-    const normalizedUsername = (username || '').replace(/\./g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+    const normalizedUsername = normalizeName(username);
     const matchedBarber = rawAgenda.find((barber) => {
-      const normalizedBarberName = (barber.barber_name || '').toLowerCase();
+      const normalizedBarberName = normalizeName(barber.barber_name);
       return normalizedBarberName.includes(normalizedUsername) || normalizedUsername.includes(normalizedBarberName);
     });
-    const targetBarber = matchedBarber || rawAgenda[0];
-    myAgenda = targetBarber?.appointments || [];
-    myName = targetBarber?.barber_name || null;
+
+    if (matchedBarber) {
+      myAgenda = matchedBarber.appointments || [];
+      myName = matchedBarber.barber_name || null;
+    } else if (rawAgenda.length === 1) {
+      myAgenda = rawAgenda[0].appointments || [];
+      myName = rawAgenda[0].barber_name || null;
+    } else {
+      associationError = true;
+    }
   } else {
     myAgenda = allAppointments;
     myName = null;
@@ -170,7 +187,7 @@ const BarberAgenda = ({ userRole, username }) => {
         </div>
       )}
 
-      {isBarberView && rawAgenda.length > 0 && myAgenda.length === 0 && (
+      {associationError && (
         <div className="bg-status-amber/10 border border-status-amber/20 text-status-amber.deep px-4 py-3 rounded-xl text-sm animate-fade-in">
           No se pudo asociar tu cuenta de barbero con un registro de agenda. Contacta al administrador para vincular tu usuario con tu perfil de barbero.
         </div>
