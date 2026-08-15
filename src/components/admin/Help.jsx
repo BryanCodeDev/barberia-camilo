@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { BookOpen, ChevronRight, Search, X } from 'lucide-react';
+import { BookOpen, ChevronRight, Search, FileText, Users, BarChart3, Calendar, Scissors, Monitor, User, Globe, Bell, Settings, HelpCircle } from 'lucide-react';
 
 const sections = [
   {
     id: 'overview',
     title: 'Que es Barberia El Bronx?',
-    icon: '📋',
+    icon: <FileText className="h-4 w-4" />,
     content: `Barberia El Bronx es un sistema de gestion integral para barberias. Permite administrar citas, clientes, barberos, estaciones de trabajo, servicios y ver estadisticas del negocio en tiempo real.
 
 El sistema esta dividido en dos partes principales:
@@ -15,7 +15,7 @@ El sistema esta dividido en dos partes principales:
   {
     id: 'roles',
     title: 'Roles y Permisos',
-    icon: '👥',
+    icon: <Users className="h-4 w-4" />,
     content: `El sistema maneja tres tipos de acceso:
 
 ### Administrador
@@ -43,7 +43,7 @@ El sistema esta dividido en dos partes principales:
   {
     id: 'dashboard',
     title: 'Dashboard / Resumen',
-    icon: '📊',
+    icon: <BarChart3 className="h-4 w-4" />,
     content: `El dashboard muestra las metricas principales del negocio.
 
 **KPIs principales:**
@@ -64,7 +64,7 @@ Muestra las citas de cada barbero para la fecha seleccionada. Los barberos solo 
   {
     id: 'appointments',
     title: 'Gestion de Citas',
-    icon: '📅',
+    icon: <Calendar className="h-4 w-4" />,
     content: `Las citas son el corazon del sistema. Una cita representa una reserva de un servicio para un cliente en una estacion y fecha/hora especifica.
 
 **Flujo de una cita:**
@@ -98,7 +98,7 @@ Muestra las citas de cada barbero para la fecha seleccionada. Los barberos solo 
   {
     id: 'barbers',
     title: 'Gestion de Barberos',
-    icon: '💈',
+    icon: <Scissors className="h-4 w-4" />,
     content: `Los barberos son los usuarios que atienden las citas. Cada barbero puede tener una o mas estaciones de trabajo asignadas.
 
 **Campos de un barbero:**
@@ -120,7 +120,7 @@ Los barberos inician sesion con usuario y contrasena. El usuario se crea automat
   {
     id: 'workstations',
     title: 'Estaciones de Trabajo',
-    icon: '🪑',
+    icon: <Monitor className="h-4 w-4" />,
     content: `Las estaciones son los puestos fisicos donde trabajan los barberos. Cada estacion puede estar asignada a un barbero especifico.
 
 **Campos de una estacion:**
@@ -138,7 +138,7 @@ Cuando un cliente elige una estacion al agendar, la cita se asigna automaticamen
   {
     id: 'services',
     title: 'Servicios',
-    icon: '✂️',
+    icon: <Scissors className="h-4 w-4" />,
     content: `Los servicios son los trabajos que se pueden agendar. Cada servicio tiene duracion, precio y categoria.
 
 **Categorias disponibles:**
@@ -168,7 +168,7 @@ Cuando un cliente elige una estacion al agendar, la cita se asigna automaticamen
   {
     id: 'clients',
     title: 'Clientes',
-    icon: '👤',
+    icon: <User className="h-4 w-4" />,
     content: `Los clientes son las personas que agendan citas. Cada cliente se identifica por su numero de telefono.
 
 **Campos de un cliente:**
@@ -185,12 +185,12 @@ Cuando un cliente elige una estacion al agendar, la cita se asigna automaticamen
 - Cliente: Ver y editar solo su propio perfil
 
 **Clientes inactivos:**
-El sistema detecta automaticamente clientes que no han agendado en mas de 40 dias. Esto ayuda a crear campañas de re-engagement.`,
+El sistema detecta automaticamente clientes que no han agendado en mas de 40 dias. Esto ayuda a crear campanas de re-engagement.`,
   },
   {
     id: 'client-portal',
     title: 'Portal del Cliente',
-    icon: '🌐',
+    icon: <Globe className="h-4 w-4" />,
     content: `El portal del cliente es la parte publica de la barberia donde los usuarios pueden agendar sus citas sin necesidad de llamar.
 
 **Como agendar una cita:**
@@ -220,7 +220,7 @@ El sistema detecta automaticamente clientes que no han agendado en mas de 40 dia
   {
     id: 'notifications',
     title: 'Notificaciones',
-    icon: '🔔',
+    icon: <Bell className="h-4 w-4" />,
     content: `El sistema registra todas las notificaciones enviadas. Actualmente el registro se guarda en la base de datos.
 
 **Tipos de notificacion:**
@@ -238,7 +238,7 @@ Las variables se configuran en el archivo '.env' del backend.`,
   {
     id: 'settings',
     title: 'Configuracion del Negocio',
-    icon: '⚙️',
+    icon: <Settings className="h-4 w-4" />,
     content: `La configuracion del negocio permite definir los datos publicos que se muestran en el portal del cliente.
 
 **Campos configurables:**
@@ -259,7 +259,7 @@ Solo administradores pueden acceder a la configuracion. Se encuentra en el dashb
   {
     id: 'faq',
     title: 'Preguntas Frecuentes',
-    icon: '❓',
+    icon: <HelpCircle className="h-4 w-4" />,
     content: `**P: No puedo iniciar sesion como barbero**
 R: Verifica que el barbero este activo en la base de datos. El usuario y contrasena son sensibles a mayusculas.
 
@@ -337,7 +337,7 @@ const Help = () => {
                       : 'text-stone hover:text-ink-soft hover:bg-cream'
                   }`}
                 >
-                  <span className="text-base flex-shrink-0">{section.icon}</span>
+                  <span className="flex-shrink-0">{section.icon}</span>
                   <span className="truncate text-left">{section.title}</span>
                   {activeSection === section.id && (
                     <ChevronRight className="h-4 w-4 ml-auto flex-shrink-0 text-gold" />
@@ -358,7 +358,7 @@ const Help = () => {
             {activeContent && (
               <div className="prose prose-stone max-w-none">
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="text-3xl">{activeContent.icon}</span>
+                  <span className="text-gold">{React.cloneElement(activeContent.icon, { className: 'h-8 w-8' })}</span>
                   <h3 className="font-serif text-2xl text-ink-soft m-0">
                     {activeContent.title}
                   </h3>
