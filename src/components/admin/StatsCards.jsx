@@ -32,23 +32,6 @@ const STAT_STYLES = {
     value: 'text-ink-soft',
     icon: 'bg-gold text-ink',
   },
-  confirmed_revenue: {
-    card: 'bg-gradient-to-br from-status-amber/10 to-status-amber/5 border-status-amber/20',
-    label: 'text-status-amber.deep',
-    value: 'text-ink-soft',
-    icon: 'bg-status-amber text-white',
-  },
-  today_revenue: {
-    card: 'bg-gradient-to-br from-status-green/10 to-status-green/5 border-status-green/20',
-    label: 'text-status-green.deep',
-    value: 'text-ink-soft',
-    icon: 'bg-status-green text-white',
-  },
-};
-
-const formatCOP = (cents) => {
-  if (cents === null || cents === undefined) return '$0';
-  return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(cents);
 };
 
 const StatsCards = ({ stats, loading }) => {
@@ -57,9 +40,7 @@ const StatsCards = ({ stats, loading }) => {
     { label: 'Pendientes', value: stats.pending, styleKey: 'pending', icon: Clock },
     { label: 'Confirmadas', value: stats.confirmed, styleKey: 'confirmed', icon: Check },
     { label: 'Canceladas', value: stats.cancelled, styleKey: 'cancelled', icon: AlertTriangle },
-    { label: 'Hoy', value: stats.today, styleKey: 'today', icon: User },
-    { label: 'Ganancia confirmada', value: formatCOP(stats.confirmed_revenue_cents), styleKey: 'confirmed_revenue', icon: DollarSign },
-    { label: 'Ingresos hoy', value: formatCOP(stats.today_revenue_cents), styleKey: 'today_revenue', icon: DollarSign },
+    { label: 'Citas Hoy', value: stats.today, styleKey: 'today', icon: User },
   ];
 
   return (

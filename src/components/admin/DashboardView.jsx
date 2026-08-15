@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Clock, TrendingUp, TrendingDown, Ticket, Settings, CalendarCheck, Wallet } from 'lucide-react';
+import React from 'react';
+import { Clock, TrendingUp, TrendingDown, Ticket, CalendarCheck, Wallet } from 'lucide-react';
 import StatsCards from './StatsCards';
 import BarberAgenda from './BarberAgenda';
 
@@ -14,12 +14,7 @@ const DashboardView = ({
   revenueLoading,
   formatCOP,
   formatPeriodLabel,
-  onSettingsClick,
-  onRefresh,
 }) => {
-  const confirmedRevenue = stats?.confirmed_revenue_cents || 0;
-  const completedRevenue = stats?.completed_revenue_cents || 0;
-  const todayRevenue = stats?.today_revenue_cents || 0;
   const expectedRevenue = revenueData?.current?.confirmed_revenue_cents || 0;
   const actualRevenue = revenueData?.current?.completed_revenue_cents || 0;
 
@@ -40,16 +35,6 @@ const DashboardView = ({
             <option value="week">Esta semana</option>
             <option value="month">Este mes</option>
           </select>
-          {userRole === 'admin' && (
-            <button
-              onClick={onSettingsClick}
-              className="inline-flex items-center gap-1.5 px-3 py-2 border border-cream-line rounded-xl text-sm text-stone hover:text-gold-deep hover:border-gold/60 transition-all duration-200 bg-white"
-              title="Configuracion"
-            >
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Configuracion</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -135,8 +120,8 @@ const DashboardView = ({
 
       <div className="card-premium p-5 sm:p-6">
         <div className="flex items-center gap-3 mb-5">
-          <div className="p-2 bg-gold/10 rounded-xl">
-            <CalendarCheck className="h-5 w-5 text-gold" />
+          <div className="p-2 bg-status-blue/10 rounded-xl">
+            <CalendarCheck className="h-5 w-5 text-status-blue.deep" />
           </div>
           <div>
             <h3 className="font-serif text-lg text-ink-soft">Estado de Citas</h3>

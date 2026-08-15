@@ -198,8 +198,6 @@ const AdminPanel = ({ onClose, business }) => {
               revenueLoading={revenueLoading}
               formatCOP={formatCOP}
               formatPeriodLabel={formatPeriodLabel}
-              onSettingsClick={() => setSettingsModalOpen(true)}
-              onRefresh={refreshAll}
             />
           )}
 
