@@ -9,6 +9,11 @@ const useRealtimeNotifications = (userRole, userId, onNotification) => {
   const intervalRef = useRef(null);
   const lastCheckRef = useRef(null);
 
+  const onNotificationRef = useRef(onNotification);
+  useEffect(() => {
+    onNotificationRef.current = onNotification;
+  }, [onNotification]);
+
   const fetchNotifications = useCallback(async () => {
     if (!userRole || !userId) return;
     try {
@@ -32,8 +37,8 @@ const useRealtimeNotifications = (userRole, userId, onNotification) => {
         if (data.length > 0 && data[0].created_at) {
           lastCheckRef.current = data[0].created_at;
         }
-        if (onNotification && data.length > 0) {
-          data.forEach((n) => onNotification(n));
+        if (onNotificationRef.current && data.length > 0) {
+          data.forEach((n) => onNotificationRef.current(n));
         }
       }
     } catch (err) {
@@ -41,7 +46,7 @@ const useRealtimeNotifications = (userRole, userId, onNotification) => {
     } finally {
       setLoading(false);
     }
-  }, [userRole, userId, onNotification]);
+  }, [userRole, userId]);
 
   useEffect(() => {
     fetchNotifications();
