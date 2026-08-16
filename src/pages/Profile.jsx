@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  User, Mail, Phone, ShieldCheck, Crown, LogOut, Pencil, Lock,
+  User, Mail, Phone, ShieldCheck, Crown, LogOut, Lock,
   ArrowLeft, Loader2
 } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
@@ -16,8 +16,7 @@ const Profile = () => {
   const authRole = isAdminAuth ? 'admin' : isClientAuth ? 'client' : null;
 
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ username: '', email: '' });
+  const [clientPhone, setClientPhone] = useState('');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -27,16 +26,13 @@ const Profile = () => {
 
     const timer = setTimeout(() => {
       setLoading(false);
-      if (user) {
-        setEditForm({
-          username: user.username || '',
-          email: user.email || '',
-        });
+      if (authRole === 'client') {
+        setClientPhone(localStorage.getItem('client_phone') || '');
       }
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, authRole, navigate]);
 
   const handleLogout = () => {
     if (authRole === 'admin') {
@@ -45,20 +41,6 @@ const Profile = () => {
       clientLogout();
     }
     navigate('/');
-  };
-
-  const handleSave = () => {
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    if (user) {
-      setEditForm({
-        username: user.username || '',
-        email: user.email || '',
-      });
-    }
-    setIsEditing(false);
   };
 
   if (!isAuthenticated && !loading) {
@@ -82,8 +64,6 @@ const Profile = () => {
 
   const roleLabel = user?.role === 'admin' ? 'Administrador' : user?.role === 'barber' ? 'Barbero' : 'Usuario';
 
-  const clientPhone = localStorage.getItem('client_phone');
-
   return (
     <div className="min-h-screen bg-[#050505]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -98,7 +78,7 @@ const Profile = () => {
             </button>
             <div>
               <h1 className="font-serif text-2xl sm:text-3xl text-white">Mi Perfil</h1>
-              <p className="text-sm text-[#A3A3A3] mt-1">Gestiona tu información personal</p>
+              <p className="text-sm text-[#A3A3A3] mt-1">Consulta tu informacion personal</p>
             </div>
           </div>
 
@@ -131,14 +111,6 @@ const Profile = () => {
                   </span>
                 </div>
               </div>
-
-              <button
-                onClick={() => setIsEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-[#A3A3A3] hover:text-white hover:bg-[#151515] border border-[rgba(255,255,255,0.05)] hover:border-[rgba(201,168,96,0.20)] transition-all duration-200"
-              >
-                <Pencil className="h-4 w-4" />
-                <span className="hidden sm:inline">Editar perfil</span>
-              </button>
             </div>
           </div>
 
@@ -155,16 +127,7 @@ const Profile = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-[#666666] uppercase tracking-wider mb-1">Nombre de usuario</p>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={editForm.username}
-                        onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                        className="w-full px-3 py-2 bg-[#151515] border border-[rgba(201,168,96,0.20)] rounded-lg text-sm text-white focus:outline-none focus:border-[#C9A860] transition-colors"
-                      />
-                    ) : (
-                      <p className="text-sm text-white truncate">{user?.username || 'No disponible'}</p>
-                    )}
+                    <p className="text-sm text-white truncate">{user?.username || 'No disponible'}</p>
                   </div>
                 </div>
 
@@ -174,16 +137,7 @@ const Profile = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-[#666666] uppercase tracking-wider mb-1">Correo electronico</p>
-                    {isEditing ? (
-                      <input
-                        type="email"
-                        value={editForm.email}
-                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                        className="w-full px-3 py-2 bg-[#151515] border border-[rgba(201,168,96,0.20)] rounded-lg text-sm text-white focus:outline-none focus:border-[#C9A860] transition-colors"
-                      />
-                    ) : (
-                      <p className="text-sm text-white truncate">{user?.email || 'No disponible'}</p>
-                    )}
+                    <p className="text-sm text-white truncate">{user?.email || 'No disponible'}</p>
                   </div>
                 </div>
 
@@ -235,23 +189,6 @@ const Profile = () => {
               </div>
             </div>
           </div>
-
-          {isEditing && (
-            <div className="flex items-center justify-end gap-3 mb-6">
-              <button
-                onClick={handleCancel}
-                className="px-5 py-2.5 rounded-xl text-sm font-medium text-[#A3A3A3] hover:text-white hover:bg-[#151515] border border-[rgba(255,255,255,0.05)] transition-all duration-200"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-[#C9A860] text-[#0A0A0A] hover:bg-[#E0C47A] transition-all duration-200 btn-press"
-              >
-                Guardar cambios
-              </button>
-            </div>
-          )}
 
           <div className="bg-[#101010] border border-[rgba(239,68,68,0.12)] rounded-2xl p-6">
             <button
