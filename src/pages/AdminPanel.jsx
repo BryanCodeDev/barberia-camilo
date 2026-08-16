@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Shield, Users, Scissors, LayoutDashboard, Calendar,
   BarChart3, MessageSquare, Settings, BookOpen
 } from 'lucide-react';
 import { api } from '../services/api';
 import { invalidateBusinessSettingsCache } from '../hooks/useBusinessSettings';
-import useAuth from '../hooks/useAuth';
+import { useSessionManager } from '../hooks/useSessionManager';
+import { useAdminNavigation } from '../hooks/useAdminNavigation';
 import AdminSidebar from '../components/layout/AdminSidebar';
 import LoginForm from '../components/auth/LoginForm';
 import ErrorBanner from '../components/ui/ErrorBanner';
@@ -20,6 +21,7 @@ import PerformanceView from '../components/admin/PerformanceView';
 import NotificationsCenter from '../components/admin/NotificationsCenter';
 import SettingsEditor from '../components/admin/SettingsEditor';
 import Help from '../components/admin/Help';
+import ProfileMenu from '../components/profile/ProfileMenu';
 
 const defaultBusiness = { name: 'BARBERÍA EL BRONX', title: 'EL BRONX' };
 
@@ -48,11 +50,10 @@ const TAB_META = {
 };
 
 const AdminPanel = ({ onClose, business }) => {
-  const { isAuthenticated, login: authLogin, logout: authLogout, user } = useAuth('admin');
+  const { isAuthenticated, login: authLogin, logout: authLogout, user } = useSessionManager('admin');
+  const { activeTab, setActiveTab } = useAdminNavigation();
   const userRole = user?.role || 'guest';
   const visibleNavItems = NAV_ITEMS.filter(item => item.roles.includes(userRole));
-
-  const [activeTab, setActiveTab] = useState(visibleNavItems[0]?.id || 'dashboard');
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -163,7 +164,66 @@ const AdminPanel = ({ onClose, business }) => {
     );
   }
 
-  const meta = TAB_META[activeTab] || { label: '', breadcrumb: [] };
+  const currentView = useMemo(() => {
+    switch (activeTab) {
+      case 'dashboard':
+        return (
+          <DashboardView
+            key="dashboard"
+            userRole={userRole}
+            username={user?.username}
+            stats={stats}
+            statsLoading={statsLoading}
+            revenuePeriod={revenuePeriod}
+            setRevenuePeriod={setRevenuePeriod}
+            revenueData={revenueData}
+            revenueLoading={revenueLoading}
+            formatCOP={formatCOP}
+            formatPeriodLabel={formatPeriodLabel}
+          />
+        );
+      case 'appointments':
+        return (
+          <AppointmentManager
+            key="appointments"
+            userRole={userRole}
+            business={businessInfo}
+            setError={setError}
+            fetchStats={refreshAll}
+          />
+        );
+      case 'barbers':
+        return <BarberManager key="barbers" business={businessInfo} userRole={userRole} />;
+      case 'workstations':
+        return <WorkstationManager key="workstations" business={businessInfo} userRole={userRole} />;
+      case 'services':
+        return <ServiceManager key="services" business={businessInfo} userRole={userRole} />;
+      case 'clients':
+        return <ClientManager key="clients" userRole={userRole} />;
+      case 'performance':
+        return <PerformanceView key="performance" userRole={userRole} />;
+      case 'notifications':
+        return <NotificationsCenter key="notifications" business={businessInfo} userRole={userRole} />;
+      case 'help':
+        return <Help key="help" />;
+      default:
+        return null;
+    }
+  }, [
+    activeTab,
+    userRole,
+    user?.username,
+    stats,
+    statsLoading,
+    revenuePeriod,
+    revenueData,
+    revenueLoading,
+    businessInfo,
+    refreshAll,
+    formatCOP,
+    formatPeriodLabel,
+    setError,
+  ]);
 
   return (
     <div className="min-h-screen bg-cream flex">
@@ -186,71 +246,9 @@ const AdminPanel = ({ onClose, business }) => {
             <ErrorBanner message={error} onDismiss={() => setError(null)} className="mb-6" />
           )}
 
-          {activeTab === 'dashboard' && (
-            <DashboardView
-              userRole={userRole}
-              username={user?.username}
-              stats={stats}
-              statsLoading={statsLoading}
-              revenuePeriod={revenuePeriod}
-              setRevenuePeriod={setRevenuePeriod}
-              revenueData={revenueData}
-              revenueLoading={revenueLoading}
-              formatCOP={formatCOP}
-              formatPeriodLabel={formatPeriodLabel}
-            />
-          )}
-
-          {activeTab === 'appointments' && (
-            <AppointmentManager
-              userRole={userRole}
-              business={businessInfo}
-              setError={setError}
-              fetchStats={refreshAll}
-            />
-          )}
-
-          {activeTab === 'barbers' && (
-            <div className="animate-fade-in" key="barbers">
-              <BarberManager business={businessInfo} userRole={userRole} />
-            </div>
-          )}
-
-          {activeTab === 'workstations' && (
-            <div className="animate-fade-in" key="workstations">
-              <WorkstationManager business={businessInfo} userRole={userRole} />
-            </div>
-          )}
-
-          {activeTab === 'services' && (
-            <div className="animate-fade-in" key="services">
-              <ServiceManager business={businessInfo} userRole={userRole} />
-            </div>
-          )}
-
-          {activeTab === 'clients' && (
-            <div className="animate-fade-in" key="clients">
-              <ClientManager userRole={userRole} />
-            </div>
-          )}
-
-          {activeTab === 'performance' && (
-            <div className="animate-fade-in" key="performance">
-              <PerformanceView userRole={userRole} />
-            </div>
-          )}
-
-          {activeTab === 'notifications' && (
-            <div className="animate-fade-in" key="notifications">
-              <NotificationsCenter business={businessInfo} userRole={userRole} />
-            </div>
-          )}
-
-          {activeTab === 'help' && (
-            <div className="animate-fade-in" key="help">
-              <Help />
-            </div>
-          )}
+          <div className="animate-fade-in">
+            {currentView}
+          </div>
 
           <Modal
             isOpen={settingsModalOpen}

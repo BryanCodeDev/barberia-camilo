@@ -397,3 +397,60 @@
 ::selection {
   @apply bg-gold/20 text-ink-soft;
 }
+
+/* Profile dropdown animations */
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dropdownExit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+}
+
+.ProfileMenu-dropdown-enter {
+  animation: dropdownEnter 0.2s ease-out forwards;
+}
+
+.ProfileMenu-dropdown-exit {
+  animation: dropdownExit 0.15s ease-in forwards;
+}
+
+/* Profile menu responsive */
+@media (max-width: 640px) {
+  .ProfileMenu-dropdown {
+    right: -8px !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 280px !important;
+  }
+}
+
+/* Focus visible for ProfileMenu */
+.ProfileMenu button:focus-visible {
+  outline: 2px solid #C9A860;
+  outline-offset: 2px;
+}
+
+/* Dropdown glow effect */
+.ProfileMenu-dropdown::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to bottom, rgba(201, 168, 96, 0.08), transparent);
+  pointer-events: none;
+}
+

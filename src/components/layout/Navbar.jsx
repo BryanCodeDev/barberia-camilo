@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Scissors, Menu, X, User, ShieldCheck, CalendarDays, MessageCircle } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { openBooking } from '../../utils/booking';
+import ProfileMenu from '../profile/ProfileMenu';
 
 const Navbar = ({ business }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -70,6 +71,7 @@ const Navbar = ({ business }) => {
               >
                 <span>Volver al Inicio</span>
               </Link>
+              <ProfileMenu />
             </div>
           ) : (
             <div className="hidden md:flex items-center space-x-7">

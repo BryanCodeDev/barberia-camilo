@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { api } from '../services/api';
 
 const TOKEN_KEYS = {
   admin: 'admin_token',
@@ -52,7 +53,19 @@ const useAuth = (role) => {
     setUser(null);
   }, [tokenKey]);
 
-  return { token, isAuthenticated, user, login, logout };
+  const verifySession = useCallback(async () => {
+    const stored = localStorage.getItem(tokenKey);
+    if (!stored) return false;
+    try {
+      await api.get('/auth/verify', role === 'client');
+      return true;
+    } catch {
+      logout();
+      return false;
+    }
+  }, [tokenKey, role, logout]);
+
+  return { token, isAuthenticated, user, login, logout, verifySession };
 };
 
 export default useAuth;
