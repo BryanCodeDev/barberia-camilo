@@ -3,6 +3,7 @@ import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw, Ar
 import { api, setClientToken } from '../services/api';
 import useAuth from '../hooks/useAuth';
 import { useSessionManager } from '../hooks/useSessionManager';
+import useWebSocket from '../hooks/useWebSocket';
 import LoginForm from '../components/auth/LoginForm';
 import Button from '../components/ui/Button';
 import ErrorBanner from '../components/ui/ErrorBanner';
@@ -36,6 +37,18 @@ const ClientPortal = ({ business }) => {
   const [remainingAttempts, setRemainingAttempts] = useState(null);
   const [showSessionReplacedModal, setShowSessionReplacedModal] = useState(false);
   const cooldownIntervalRef = useRef(null);
+  const clientToken = isLoggedIn ? localStorage.getItem('client_token') : null;
+  const { subscribe, disconnect: wsDisconnect } = useWebSocket(clientToken);
+
+  useEffect(() => {
+    if (!isLoggedIn || !clientId) return;
+    const unsubs = [
+      subscribe('appointment:status-changed', () => fetchMyAppointments(clientId)),
+      subscribe('appointment:cancelled', () => fetchMyAppointments(clientId)),
+      subscribe('appointment:updated', () => fetchMyAppointments(clientId)),
+    ];
+    return () => unsubs.forEach((u) => u && u());
+  }, [isLoggedIn, clientId, subscribe]);
 
   useEffect(() => {
     if (sessionReplaced) {
@@ -174,6 +187,7 @@ const ClientPortal = ({ business }) => {
   };
 
   const handleLogout = async () => {
+    wsDisconnect();
     try {
       const token = localStorage.getItem('client_token');
       if (token) {

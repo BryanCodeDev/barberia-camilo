@@ -3,6 +3,7 @@ import { Calendar, Clock, Users, Scissors, DollarSign, Filter, Bell } from 'luci
 import { api } from '../../services/api';
 import { APPOINTMENT_STATUS, STATUS_LABELS } from '../../utils/constants';
 import useRealtimeNotifications from '../../hooks/useRealtimeNotifications';
+import useWebSocket from '../../hooks/useWebSocket';
 
 const STATUS_COLORS = {
   pending: 'bg-status-amber/10 text-status-amber.deep border-status-amber/20',
@@ -67,6 +68,26 @@ const formatCOP = (cents) => {
     userRole === 'barber' ? username : null,
     handleNotification
   );
+
+  const { subscribe } = useWebSocket(null);
+
+  useEffect(() => {
+    const events = [
+      'appointment:created',
+      'appointment:updated',
+      'appointment:status-changed',
+      'appointment:cancelled',
+      'appointment:deleted',
+    ];
+    const unsubscribers = events.map((event) =>
+      subscribe(event, () => {
+        fetchAgenda();
+      })
+    );
+    return () => {
+      unsubscribers.forEach((unsub) => unsub && unsub());
+    };
+  }, [subscribe, fetchAgenda]);
 
   useEffect(() => {
     fetchAgenda();

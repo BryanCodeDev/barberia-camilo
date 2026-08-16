@@ -31,3 +31,13 @@ export const STATUS_COLORS = {
   [APPOINTMENT_STATUS.COMPLETED]: 'bg-blue-100 text-blue-800',
   [APPOINTMENT_STATUS.NO_SHOW]: 'bg-gray-100 text-gray-800'
 };
+
+export const WS_EVENTS = {
+  APPOINTMENT_CREATED: 'appointment:created',
+  APPOINTMENT_UPDATED: 'appointment:updated',
+  APPOINTMENT_STATUS_CHANGED: 'appointment:status-changed',
+  APPOINTMENT_CANCELLED: 'appointment:cancelled',
+  APPOINTMENT_DELETED: 'appointment:deleted',
+  NOTIFICATION_NEW: 'notification:new',
+  SESSION_REPLACED: 'session:replaced',
+};

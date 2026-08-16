@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, MessageSquare, Check, X, Clock, Mail, Bell } from 'lucide-react';
 import { api } from '../../services/api';
+import useWebSocket from '../../hooks/useWebSocket';
 
 const STATUS_CONFIG = {
   sent: {
@@ -30,20 +31,30 @@ const NotificationsCenter = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        setLoading(true);
-        const data = await api.get('/admin/notifications');
-        setNotifications(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchNotifications();
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await api.get('/admin/notifications');
+      setNotifications(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const { subscribe } = useWebSocket(null);
+
+  useEffect(() => {
+    const unsub = subscribe('notification:new', () => {
+      fetchNotifications();
+    });
+    return unsub;
+  }, [subscribe, fetchNotifications]);
 
   if (loading) {
     return (

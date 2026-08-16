@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Clock, TrendingUp, TrendingDown, Ticket, CalendarCheck, Wallet } from 'lucide-react';
 import StatsCards from './StatsCards';
 import BarberAgenda from './BarberAgenda';
+import useWebSocket from '../../hooks/useWebSocket';
 
 const DashboardView = ({
   userRole,
@@ -14,7 +15,29 @@ const DashboardView = ({
   revenueLoading,
   formatCOP,
   formatPeriodLabel,
+  onRefresh,
 }) => {
+  const { subscribe } = useWebSocket(null);
+
+  useEffect(() => {
+    const events = [
+      'appointment:created',
+      'appointment:updated',
+      'appointment:status-changed',
+      'appointment:cancelled',
+      'appointment:deleted',
+    ];
+    const unsubscribers = events.map((event) =>
+      subscribe(event, () => {
+        if (typeof onRefresh === 'function') {
+          onRefresh();
+        }
+      })
+    );
+    return () => {
+      unsubscribers.forEach((unsub) => unsub && unsub());
+    };
+  }, [subscribe, onRefresh]);
   const expectedRevenue = revenueData?.current?.confirmed_revenue_cents || 0;
   const actualRevenue = revenueData?.current?.completed_revenue_cents || 0;
 

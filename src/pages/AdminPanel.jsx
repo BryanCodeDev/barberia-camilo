@@ -8,6 +8,7 @@ import { api } from '../services/api';
 import { invalidateBusinessSettingsCache } from '../hooks/useBusinessSettings';
 import { useSessionManager } from '../hooks/useSessionManager';
 import { useAdminNavigation } from '../hooks/useAdminNavigation';
+import useWebSocket from '../hooks/useWebSocket';
 import AdminSidebar from '../components/layout/AdminSidebar';
 import LoginForm from '../components/auth/LoginForm';
 import ErrorBanner from '../components/ui/ErrorBanner';
@@ -58,6 +59,20 @@ const AdminPanel = ({ onClose, business }) => {
   const [showSessionReplacedModal, setShowSessionReplacedModal] = useState(false);
   const userRole = user?.role || 'guest';
   const visibleNavItems = NAV_ITEMS.filter(item => item.roles.includes(userRole));
+  const adminToken = user?.role === 'admin' || user?.role === 'barber' ? localStorage.getItem('admin_token') : null;
+
+  const { connectionState: wsState, subscribe: wsSubscribe, disconnect: wsDisconnect } = useWebSocket(adminToken);
+
+  useEffect(() => {
+    if (wsState === 'connected') {
+      wsSubscribe('session:replaced', () => {
+        setSessionReplaced(true);
+      });
+    }
+    return () => {
+      // cleanup handled by hook internals
+    };
+  }, [wsState, wsSubscribe, setSessionReplaced]);
 
   useEffect(() => {
     if (sessionReplaced) {
@@ -120,6 +135,7 @@ const AdminPanel = ({ onClose, business }) => {
   };
 
   const handleLogout = () => {
+    wsDisconnect();
     authLogout();
     navigate('/');
     setLoginError(null);
@@ -162,22 +178,23 @@ const AdminPanel = ({ onClose, business }) => {
 
   const currentView = useMemo(() => {
     switch (activeTab) {
-      case 'dashboard':
-        return (
-          <DashboardView
-            key="dashboard"
-            userRole={userRole}
-            username={user?.username}
-            stats={stats}
-            statsLoading={statsLoading}
-            revenuePeriod={revenuePeriod}
-            setRevenuePeriod={setRevenuePeriod}
-            revenueData={revenueData}
-            revenueLoading={revenueLoading}
-            formatCOP={formatCOP}
-            formatPeriodLabel={formatPeriodLabel}
-          />
-        );
+       case 'dashboard':
+         return (
+           <DashboardView
+             key="dashboard"
+             userRole={userRole}
+             username={user?.username}
+             stats={stats}
+             statsLoading={statsLoading}
+             revenuePeriod={revenuePeriod}
+             setRevenuePeriod={setRevenuePeriod}
+             revenueData={revenueData}
+             revenueLoading={revenueLoading}
+             formatCOP={formatCOP}
+             formatPeriodLabel={formatPeriodLabel}
+             onRefresh={refreshAll}
+           />
+         );
       case 'appointments':
         return (
           <AppointmentManager
