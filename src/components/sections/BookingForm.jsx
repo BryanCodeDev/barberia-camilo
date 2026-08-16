@@ -41,12 +41,18 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [servicesLoading, setServicesLoading] = useState(true);
   const [workstationsLoading, setWorkstationsLoading] = useState(true);
+  const [modalMounted, setModalMounted] = useState(false);
   const successTimeoutRef = useRef(null);
 
   useEffect(() => {
     return () => {
       if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
     };
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setModalMounted(true), 20);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -270,8 +276,16 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const canContinueStep2 = selectedDate && selectedTime && selectedWorkstation;
 
   return (
-    <div className="fixed inset-0 bg-[#121113]/70 flex items-center justify-center p-2 sm:p-4 z-50">
-      <div className="bg-white rounded-sm shadow-2xl w-full max-w-4xl max-h-screen overflow-hidden flex flex-col">
+    <div
+      className={`fixed inset-0 bg-[#121113]/70 flex items-center justify-center p-2 sm:p-4 z-50 transition-opacity duration-300 ${
+        modalMounted ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <div
+        className={`bg-white rounded-sm shadow-2xl w-full max-w-4xl max-h-screen overflow-hidden flex flex-col transition-all duration-300 ease-out ${
+          modalMounted ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.98]'
+        }`}
+      >
         <div className="bg-white px-4 sm:px-6 py-4 border-b border-[#E4DCC9] flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -366,13 +380,13 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
           )}
 
           {currentStep === 1 && !showSuccess && (
-            <div className="p-4 sm:p-6">
+            <div className="p-4 sm:p-6 animate-fade-in">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 space-y-4 sm:space-y-0">
                 <div>
-                  <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Selecciona tu Servicio</h2>
+                  <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Elige tu Servicio</h2>
                   <div className="text-[#6B6459]">
                     <h3 className="text-base font-medium text-[#1C1A16]">{localBusiness.name}</h3>
-                    <p className="text-sm text-[#6B6459]">{localBusiness.title} · Experiencia VIP</p>
+                    <p className="text-sm text-[#6B6459]">{localBusiness.title} · Experiencia premium</p>
                   </div>
                 </div>
                 <div className="text-left sm:text-right">
@@ -389,11 +403,12 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                 ) : services.length === 0 ? (
                   <p className="text-[#6B6459] text-center py-4 text-sm">No hay servicios disponibles en este momento.</p>
                 ) : (
-                  services.map((service) => (
+                  services.map((service, idx) => (
                     <div
                       key={service.id}
                       onClick={() => handleServiceSelect(service)}
-                      className="border border-[#E4DCC9] rounded-sm p-4 hover:border-[#A9812E] hover:bg-[#F6F2EA]/60 cursor-pointer transition-all duration-200"
+                      style={{ animationDelay: `${idx * 60}ms` }}
+                      className="animate-fade-in border border-[#E4DCC9] rounded-sm p-4 hover:border-[#A9812E] hover:bg-[#F6F2EA]/60 hover:shadow-[0_8px_20px_-10px_rgba(169,129,46,0.4)] hover:-translate-y-0.5 cursor-pointer transition-all duration-200"
                     >
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
                         <div className="flex-1">
@@ -424,10 +439,10 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
           )}
 
           {currentStep === 2 && !showSuccess && (
-            <div className="p-4 sm:p-6">
+            <div className="p-4 sm:p-6 animate-fade-in">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 space-y-4 sm:space-y-0">
                 <div>
-                  <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Selecciona Estación, Fecha y Hora</h2>
+                  <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Escoge Estación, Fecha y Hora</h2>
                   <div className="text-[#6B6459] text-base font-medium">{formatDateForCalendar(new Date())}</div>
                 </div>
                 <div className="text-left sm:text-right">
@@ -458,9 +473,9 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                       <button
                         key={ws.id}
                         onClick={() => handleWorkstationSelect(ws)}
-                        className={`p-4 border rounded-sm text-center transition-all duration-200 ${
-                          selectedWorkstation?.id === ws.id ? 'border-[#A9812E] bg-[#F6F2EA] text-[#8B6A22] shadow-sm' :
-                          'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60'
+                        className={`p-4 border rounded-sm text-center transition-all duration-200 hover:-translate-y-0.5 ${
+                          selectedWorkstation?.id === ws.id ? 'border-[#A9812E] bg-[#F6F2EA] text-[#8B6A22] shadow-md scale-[1.02]' :
+                          'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60 hover:shadow-sm'
                         }`}
                       >
                         <Scissors className="h-5 w-5 mx-auto mb-2 text-[#A9812E]" />
@@ -531,11 +546,11 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
           )}
 
           {currentStep === 3 && !showSuccess && (
-            <div className="p-4 sm:p-6">
+            <div className="p-4 sm:p-6 animate-fade-in">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 space-y-4 sm:space-y-0">
                 <div>
                   <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Tus Datos</h2>
-                  <p className="text-[#6B6459] text-sm">Para confirmar tu cita necesitamos tus datos</p>
+                  <p className="text-[#6B6459] text-sm">Ya casi terminas: cuéntanos quién viene a la cita</p>
                 </div>
               </div>
 
@@ -577,15 +592,15 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
           )}
 
           {currentStep === 4 && !showSuccess && (
-            <div className="p-4 sm:p-6">
+            <div className="p-4 sm:p-6 animate-fade-in">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 space-y-4 sm:space-y-0">
                 <div>
                   <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Confirmar Reserva</h2>
-                  <p className="text-[#6B6459] text-sm">Revisa los detalles de tu cita</p>
+                  <p className="text-[#6B6459] text-sm">Un último vistazo antes de asegurar tu cupo</p>
                 </div>
               </div>
 
-              <div className="bg-[#F6F2EA] border border-[#E4DCC9] rounded-sm p-4 sm:p-6 mb-6">
+              <div className="bg-[#F6F2EA] border border-[#E4DCC9] rounded-sm p-4 sm:p-6 mb-6 transition-shadow duration-300 hover:shadow-sm">
                 <div className="flex flex-col space-y-4">
                   <div>
                     <h3 className="font-semibold text-[#1C1A16] text-base sm:text-lg">{selectedService?.name}</h3>
@@ -623,10 +638,13 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         {showSuccess && (
           <div className="fixed inset-0 bg-[#121113]/80 flex items-center justify-center p-4 z-[60]">
             <div className="bg-white rounded-sm shadow-2xl w-full max-w-lg p-6 sm:p-8 text-center animate-fade-in">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-status-green/15 flex items-center justify-center">
-                <Check className="h-8 w-8 text-status-green.deep" />
+              <div className="relative w-16 h-16 mx-auto mb-4">
+                <div className="absolute inset-0 rounded-full bg-status-green/20 animate-ping" />
+                <div className="relative w-16 h-16 rounded-full bg-status-green/15 flex items-center justify-center">
+                  <Check className="h-8 w-8 text-status-green.deep" />
+                </div>
               </div>
-              <h3 className="font-serif text-2xl text-[#1C1A16] mb-2">Cita Confirmada</h3>
+              <h3 className="font-serif text-2xl text-[#1C1A16] mb-2">¡Tu cita está confirmada!</h3>
               <p className="text-sm text-[#6B6459] mb-6">
                 Te enviamos un correo y un mensaje de WhatsApp con la confirmación y nuestras recomendaciones personalizadas.
               </p>

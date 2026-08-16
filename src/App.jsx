@@ -8,6 +8,7 @@ import ServicesSection from './components/sections/ServicesSection';
 import BookingForm from './components/sections/BookingForm';
 import AdminPanel from './pages/AdminPanel';
 import ClientPortal from './pages/ClientPortal';
+import Profile from './pages/Profile';
 import { useBusinessSettings } from './hooks/useBusinessSettings';
 import { onBookingRequested } from './utils/booking';
 import ErrorBoundary from './components/common/ErrorBoundary';
@@ -67,6 +68,7 @@ const AppContent = () => {
         } />
         <Route path="/admin" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
         <Route path="/cliente" element={<ClientPortal business={businessInfo} />} />
+        <Route path="/perfil" element={<Profile business={businessInfo} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 

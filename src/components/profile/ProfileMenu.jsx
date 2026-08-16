@@ -129,15 +129,17 @@ const ProfileMenu = ({ onLogout: onLogoutProp }) => {
           </div>
 
           <div className="p-2 space-y-0.5 bg-[#101010]">
-            <button
-              type="button"
-              className="group flex items-center gap-3 px-4 py-2.5 text-sm text-[#A3A3A3] hover:text-white hover:bg-[rgba(201,168,96,0.08)] rounded-lg transition-all duration-200 w-full text-left"
+            <Link
+              to="/perfil"
+              onClick={closeMenu}
+              className="group flex items-center gap-3 px-4 py-2.5 text-sm text-[#A3A3A3] hover:text-white hover:bg-[rgba(201,168,96,0.08)] rounded-lg transition-all duration-200"
             >
               <User className="h-4 w-4 text-[#C9A860]/80 group-hover:text-[#C9A860] transition-colors" />
               <span>Perfil</span>
-            </button>
+            </Link>
             <Link
               to={dashboardHref}
+              onClick={closeMenu}
               className="group flex items-center gap-3 px-4 py-2.5 text-sm text-[#A3A3A3] hover:text-white hover:bg-[rgba(201,168,96,0.08)] rounded-lg transition-all duration-200"
             >
               <LayoutDashboard className="h-4 w-4 text-[#C9A860]/80 group-hover:text-[#C9A860] transition-colors" />

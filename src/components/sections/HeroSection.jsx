@@ -1,6 +1,6 @@
 // src/components/sections/HeroSection.jsx
 import React, { useState, useEffect } from 'react';
-import { MapPin, Phone, MessageCircle } from 'lucide-react';
+import { MapPin, Phone, MessageCircle, Star, Award, Users, ChevronDown } from 'lucide-react';
 import { openBooking } from '../../utils/booking';
 
 const defaultBusiness = {
@@ -9,8 +9,16 @@ const defaultBusiness = {
   address: "Mosquera, Cundinamarca"
 };
 
+// Ajusta estos indicadores con las cifras reales del negocio.
+const stats = [
+  { icon: Star, value: '4.9/5', label: 'Valoración de clientes' },
+  { icon: Users, value: '+2.500', label: 'Cortes realizados' },
+  { icon: Award, value: '+10 años', label: 'De trayectoria' },
+];
+
 const HeroSection = ({ business }) => {
   const [localBusiness, setLocalBusiness] = useState(defaultBusiness);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     if (business) {
@@ -23,6 +31,11 @@ const HeroSection = ({ business }) => {
     }
   }, [business]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 80);
+    return () => clearTimeout(timer);
+  }, []);
+
   const scrollToServices = () => {
     const servicesSection = document.getElementById('servicios');
     if (servicesSection) {
@@ -30,61 +43,149 @@ const HeroSection = ({ business }) => {
     }
   };
 
+  // Ayudante de animación de entrada escalonada
+  const reveal = () =>
+    `transition-all duration-700 ease-out ${
+      mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+    }`;
+  const revealStyle = (delayMs) => ({ transitionDelay: `${delayMs}ms` });
+
   return (
-    <section className="relative bg-[#121113] text-[#F6F2EA] py-20 md:py-28 overflow-hidden">
+    <section className="relative bg-[#121113] text-[#F6F2EA] py-24 md:py-32 overflow-hidden">
+      <style>{`
+        @keyframes bronx-float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-14px); }
+        }
+        @keyframes bronx-shimmer {
+          0% { transform: translateX(-120%); }
+          100% { transform: translateX(220%); }
+        }
+        @keyframes bronx-bounce {
+          0%, 100% { transform: translateY(0); opacity: 0.5; }
+          50% { transform: translateY(6px); opacity: 1; }
+        }
+        .bronx-shine::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.35) 35%, transparent 55%);
+          transform: translateX(-120%);
+          pointer-events: none;
+        }
+        .bronx-shine:hover::after {
+          animation: bronx-shimmer 1.1s ease forwards;
+        }
+      `}</style>
+
+      {/* Texturas laterales */}
       <div
         className="absolute inset-y-0 right-0 w-24 md:w-40 opacity-[0.07] pointer-events-none"
         style={{
           backgroundImage:
-            'repeating-linear-gradient(45deg, #C9A860 0px, #C9A860 2px, transparent 2px, transparent 18px)'
+            'repeating-linear-gradient(45deg, #C9A860 0px, #C9A860 2px, transparent 2px, transparent 18px)',
+          animation: 'bronx-float 9s ease-in-out infinite',
         }}
       />
       <div
         className="absolute inset-y-0 left-0 w-24 md:w-40 opacity-[0.05] pointer-events-none"
         style={{
           backgroundImage:
-            'repeating-linear-gradient(45deg, #8B2E2E 0px, #8B2E2E 2px, transparent 2px, transparent 18px)'
+            'repeating-linear-gradient(45deg, #8B2E2E 0px, #8B2E2E 2px, transparent 2px, transparent 18px)',
+          animation: 'bronx-float 11s ease-in-out infinite reverse',
+        }}
+      />
+
+      {/* Halo dorado ambiental */}
+      <div
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full pointer-events-none opacity-[0.08]"
+        style={{
+          background: 'radial-gradient(circle, #C9A860 0%, transparent 70%)',
+          animation: 'bronx-float 8s ease-in-out infinite',
         }}
       />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-6">
+          <div
+            className={`inline-flex items-center justify-center gap-3 mb-6 ${reveal()}`}
+            style={revealStyle(0)}
+          >
             <span className="h-px w-8 bg-[#3A362F]" />
-            <span className="text-xs uppercase tracking-[0.35em] text-[#C9A860]">
-              {localBusiness.title} · {localBusiness.address.split(',')[0]}
+            <span className="relative text-xs uppercase tracking-[0.35em] text-[#C9A860]">
+              {localBusiness.title} · Barbería de autor en {localBusiness.address.split(',')[0]}
+              <span className="absolute -bottom-1.5 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#C9A860] to-transparent" />
             </span>
             <span className="h-px w-8 bg-[#3A362F]" />
           </div>
 
-          <h1 className="font-serif text-5xl md:text-7xl font-medium mb-6 tracking-tight">
+          <h1
+            className={`font-serif text-5xl md:text-7xl font-medium mb-4 tracking-tight ${reveal()}`}
+            style={revealStyle(120)}
+          >
             {localBusiness.name}
           </h1>
 
-          <p className="text-base md:text-lg text-[#B7B1A3] max-w-2xl mx-auto leading-relaxed mb-12 px-4">
-            Cortes precisos, arreglo de barba y una experiencia de barbería cuidada al
-            detalle, en {localBusiness.address}.
+          <p
+            className={`text-sm md:text-base uppercase tracking-[0.25em] text-[#C9A860] mb-8 ${reveal()}`}
+            style={revealStyle(200)}
+          >
+            Precisión, oficio y estilo — en cada cita
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12 px-4">
+          <p
+            className={`text-base md:text-lg text-[#B7B1A3] max-w-2xl mx-auto leading-relaxed mb-10 px-4 ${reveal()}`}
+            style={revealStyle(280)}
+          >
+            Cortes de precisión, diseño de barba y una experiencia de barbería cuidada
+            hasta el último detalle, en {localBusiness.address}.
+          </p>
+
+          <div
+            className={`flex flex-col sm:flex-row gap-3 justify-center mb-14 px-4 ${reveal()}`}
+            style={revealStyle(360)}
+          >
             <a
               href={`https://wa.me/${(localBusiness.phone || '+3015667129').replace(/[^0-9]/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:bg-[#C9A860] transition-colors shadow-[0_8px_24px_-8px_rgba(169,129,46,0.5)]"
+              className="bronx-shine relative overflow-hidden flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:bg-[#C9A860] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(169,129,46,0.6)] transition-all duration-300 shadow-[0_8px_24px_-8px_rgba(169,129,46,0.5)]"
             >
               <MessageCircle className="h-4 w-4" />
               Reservar por WhatsApp
             </a>
             <button
               onClick={scrollToServices}
-              className="border border-[#3A362F] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:border-[#A9812E] hover:text-[#C9A860] transition-colors"
+              className="group flex items-center justify-center gap-2 border border-[#3A362F] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:border-[#A9812E] hover:text-[#C9A860] hover:-translate-y-0.5 transition-all duration-300"
             >
               Ver Servicios
+              <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
             </button>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-[#8A8579] text-sm px-4">
+          {/* Indicadores de confianza */}
+          <div
+            className={`grid grid-cols-3 gap-4 sm:gap-8 max-w-xl mx-auto mb-14 px-2 ${reveal()}`}
+            style={revealStyle(440)}
+          >
+            {stats.map(({ icon: Icon, value, label }, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col items-center gap-1.5 border-t border-[#3A362F] pt-4"
+              >
+                <Icon className="h-4 w-4 text-[#C9A860] mb-1" />
+                <div className="font-serif text-xl sm:text-2xl text-[#F6F2EA]">{value}</div>
+                <div className="text-[10px] sm:text-xs uppercase tracking-wide text-[#8A8579] text-center leading-tight">
+                  {label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div
+            className={`flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-[#8A8579] text-sm px-4 ${reveal()}`}
+            style={revealStyle(500)}
+          >
             <div className="flex items-center">
               <Phone className="h-4 w-4 text-[#C9A860] mr-2" />
               {localBusiness.phone || '+301 566 7129'}
@@ -97,6 +198,16 @@ const HeroSection = ({ business }) => {
           </div>
         </div>
       </div>
+
+      {/* Indicador de scroll */}
+      <button
+        onClick={scrollToServices}
+        aria-label="Ir a servicios"
+        className="hidden sm:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1 text-[#8A8579] hover:text-[#C9A860] transition-colors"
+      >
+        <span className="text-[10px] uppercase tracking-[0.3em]">Descubre más</span>
+        <ChevronDown className="h-4 w-4" style={{ animation: 'bronx-bounce 1.8s ease-in-out infinite' }} />
+      </button>
     </section>
   );
 };

@@ -147,26 +147,6 @@ const AdminPanel = ({ onClose, business }) => {
     }
   }, [isAuthenticated, refreshAll]);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-ink flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <LoginForm
-          fields={[
-            { name: 'username', label: 'Usuario', type: 'text', placeholder: 'Ingresa tu usuario', required: true },
-            { name: 'password', label: 'Contrasena', type: 'password', placeholder: 'Ingresa tu contrasena', required: true },
-          ]}
-          onSubmit={handleLogin}
-          loading={false}
-          error={loginError}
-          submitLabel="Acceder al Panel"
-          headerIcon={Shield}
-          headerTitle="Acceso Administrativo"
-          headerSubtitle="Barberia El Bronx - Panel de Control"
-        />
-      </div>
-    );
-  }
-
   const currentView = useMemo(() => {
     switch (activeTab) {
       case 'dashboard':
@@ -227,6 +207,26 @@ const AdminPanel = ({ onClose, business }) => {
     formatPeriodLabel,
     setError,
   ]);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-ink flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <LoginForm
+          fields={[
+            { name: 'username', label: 'Usuario', type: 'text', placeholder: 'Ingresa tu usuario', required: true },
+            { name: 'password', label: 'Contrasena', type: 'password', placeholder: 'Ingresa tu contrasena', required: true },
+          ]}
+          onSubmit={handleLogin}
+          loading={false}
+          error={loginError}
+          submitLabel="Acceder al Panel"
+          headerIcon={Shield}
+          headerTitle="Acceso Administrativo"
+          headerSubtitle="Barberia El Bronx - Panel de Control"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cream flex">
