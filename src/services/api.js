@@ -36,12 +36,18 @@ const handleResponse = async (response) => {
     if (!response.ok) {
       const err = new Error(data.error || data.message || `Error ${response.status}`);
       err.data = data;
+      err.status = response.status;
+      if (response.status === 409 && data.error === 'SESSION_REPLACED') {
+        err.message = 'SESSION_REPLACED';
+      }
       throw err;
     }
     return data;
   }
   if (!response.ok) {
-    throw new Error(`Error ${response.status}`);
+    const err = new Error(`Error ${response.status}`);
+    err.status = response.status;
+    throw err;
   }
   return response.text();
 };

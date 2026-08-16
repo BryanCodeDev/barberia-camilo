@@ -28,6 +28,7 @@ export function useSessionManager(role = 'admin') {
   const heartbeatRef = useRef(null);
   const expiryRef = useRef(null);
   const [sessionReplaced, setSessionReplaced] = useState(false);
+  const sessionReplacementHandled = useRef(false);
 
   const checkSessionExpiry = useCallback(() => {
     const meta = getSessionMeta();
@@ -55,7 +56,10 @@ export function useSessionManager(role = 'admin') {
         await api.get('/auth/verify', role === 'client');
       } catch (err) {
         if (err.message === 'SESSION_REPLACED' || (err.data && err.data.error === 'SESSION_REPLACED')) {
-          setSessionReplaced(true);
+          if (!sessionReplacementHandled.current) {
+            sessionReplacementHandled.current = true;
+            setSessionReplaced(true);
+          }
         }
         logout();
         clearSessionMeta();
@@ -100,6 +104,7 @@ export function useSessionManager(role = 'admin') {
         userAgent: navigator.userAgent,
       };
       setSessionMeta(meta);
+      sessionReplacementHandled.current = false;
       setSessionReplaced(false);
       login(token);
     },
