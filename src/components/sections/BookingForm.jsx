@@ -195,6 +195,12 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     return Object.keys(errors).length === 0;
   };
 
+  const handleContinueStep3 = () => {
+    if (validateClientForm()) {
+      setCurrentStep(4);
+    }
+  };
+
   const confirmBooking = async () => {
     if (!validateClientForm()) {
       setCurrentStep(3);
@@ -634,6 +640,68 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
             </div>
           )}
         </div>
+
+        {/* Barra de navegación inferior: aquí se avanza entre pasos */}
+        {!showSuccess && currentStep > 1 && (
+          <div className="border-t border-[#E4DCC9] px-4 sm:px-6 py-4 flex items-center justify-between gap-3 flex-shrink-0 bg-white">
+            <button
+              onClick={goBack}
+              className="flex items-center gap-1.5 text-sm text-[#6B6459] hover:text-[#1C1A16] px-3 py-2.5 rounded-sm hover:bg-[#F6F2EA] transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Atrás
+            </button>
+
+            <div className="flex flex-col items-end gap-1.5">
+              {currentStep === 2 && !canContinueStep2 && (
+                <span className="text-xs text-[#B7B1A3] hidden sm:block">
+                  Elige estación, fecha y hora para continuar
+                </span>
+              )}
+              {currentStep === 2 && (
+                <Button
+                  onClick={() => setCurrentStep(3)}
+                  disabled={!canContinueStep2}
+                  size="lg"
+                  className="flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Continuar
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
+              {currentStep === 3 && (
+                <Button
+                  onClick={handleContinueStep3}
+                  size="lg"
+                  className="flex items-center gap-2"
+                >
+                  Continuar
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
+              {currentStep === 4 && (
+                <Button
+                  onClick={confirmBooking}
+                  disabled={submitLoading}
+                  size="lg"
+                  className="flex items-center gap-2 disabled:opacity-70"
+                >
+                  {submitLoading ? (
+                    <>
+                      <Loader size="sm" />
+                      Agendando...
+                    </>
+                  ) : (
+                    <>
+                      Confirmar Cita
+                      <Send className="h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
 
         {showSuccess && (
           <div className="fixed inset-0 bg-[#121113]/80 flex items-center justify-center p-4 z-[60]">

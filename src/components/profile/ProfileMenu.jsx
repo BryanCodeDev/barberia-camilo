@@ -8,7 +8,17 @@ const ProfileMenu = ({ onLogout: onLogoutProp }) => {
   const [isClosing, setIsClosing] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
-  const { user, logout } = useAuth('admin');
+
+  const { isAuthenticated: isAdminAuth } = useAuth('admin');
+  const { isAuthenticated: isClientAuth } = useAuth('client');
+  const authRole = isAdminAuth ? 'admin' : isClientAuth ? 'client' : null;
+
+  const { user: adminUser } = useAuth('admin');
+  const { user: clientUser } = useAuth('client');
+  const user = adminUser || clientUser;
+
+  const { logout: adminLogout } = useAuth('admin');
+  const { logout: clientLogout } = useAuth('client');
 
   const initials = user?.username
     ? user.username.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -49,13 +59,20 @@ const ProfileMenu = ({ onLogout: onLogoutProp }) => {
       if (onLogoutProp) {
         onLogoutProp();
       } else {
-        logout();
+        if (authRole === 'admin') {
+          adminLogout();
+        } else if (authRole === 'client') {
+          clientLogout();
+        }
         navigate('/');
       }
     }, 300);
   };
 
-  const dashboardHref = user?.role === 'admin' ? '/admin' : '/cliente';
+  const dashboardHref = authRole === 'admin' ? '/admin' : '/cliente';
+  const roleLabel = user?.role === 'admin' ? 'Administrador' : user?.role === 'barber' ? 'Barbero' : 'Usuario';
+
+  if (!authRole) return null;
 
   return (
     <div className="relative" ref={menuRef}>
@@ -116,12 +133,12 @@ const ProfileMenu = ({ onLogout: onLogoutProp }) => {
                   {user?.username || 'Usuario VIP'}
                 </p>
                 <p className="text-xs text-[#A3A3A3] truncate mt-0.5">
-                  {user?.email || 'admin@barberia.com'}
+                  {user?.email || 'usuario@barberia.com'}
                 </p>
                 <div className="flex items-center gap-1.5 mt-2">
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[rgba(201,168,96,0.10)] border border-[rgba(201,168,96,0.25)] text-[10px] font-semibold text-[#C9A860] uppercase tracking-wider">
                     <Shield className="h-3 w-3" />
-                    {user?.role === 'admin' ? 'Administrador' : 'Barbero'}
+                    {roleLabel}
                   </span>
                 </div>
               </div>

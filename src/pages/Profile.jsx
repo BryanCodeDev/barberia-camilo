@@ -2,15 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone, ShieldCheck, Crown, LogOut, Pencil, Lock,
-  ArrowLeft, Loader2, AlertCircle
+  ArrowLeft, Loader2
 } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout } = useAuth('admin');
+  const { isAuthenticated: isAdminAuth, user: adminUser, logout: adminLogout } = useAuth('admin');
+  const { isAuthenticated: isClientAuth, user: clientUser, logout: clientLogout } = useAuth('client');
+
+  const isAuthenticated = isAdminAuth || isClientAuth;
+  const user = adminUser || clientUser;
+  const authRole = isAdminAuth ? 'admin' : isClientAuth ? 'client' : null;
+
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ username: '', email: '' });
 
@@ -34,7 +39,11 @@ const Profile = () => {
   }, [isAuthenticated, user, navigate]);
 
   const handleLogout = () => {
-    logout();
+    if (authRole === 'admin') {
+      adminLogout();
+    } else if (authRole === 'client') {
+      clientLogout();
+    }
     navigate('/');
   };
 
@@ -72,6 +81,8 @@ const Profile = () => {
     : 'US';
 
   const roleLabel = user?.role === 'admin' ? 'Administrador' : user?.role === 'barber' ? 'Barbero' : 'Usuario';
+
+  const clientPhone = localStorage.getItem('client_phone');
 
   return (
     <div className="min-h-screen bg-[#050505]">
@@ -186,14 +197,14 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {user?.role === 'client' && (
+                {authRole === 'client' && clientPhone && (
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-lg bg-[#151515] border border-[rgba(255,255,255,0.05)]">
                       <Phone className="h-4 w-4 text-[#A3A3A3]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-[#666666] uppercase tracking-wider mb-1">Telefono</p>
-                      <p className="text-sm text-white">{localStorage.getItem('client_phone') || 'No disponible'}</p>
+                      <p className="text-sm text-white">{clientPhone}</p>
                     </div>
                   </div>
                 )}
@@ -206,19 +217,19 @@ const Profile = () => {
                 Seguridad
               </h3>
               <div className="space-y-3">
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-[#151515] border border-[rgba(255,255,255,0.05)] hover:border-[rgba(201,168,96,0.20)] transition-all duration-200 cursor-pointer">
-                  <Lock className="h-5 w-5 text-[#A3A3A3]" />
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-[#151515] border border-[rgba(255,255,255,0.05)] opacity-60 cursor-not-allowed">
+                  <Lock className="h-5 w-5 text-[#666666]" />
                   <div className="flex-1">
-                    <p className="text-sm text-white">Cambiar contrasena</p>
-                    <p className="text-xs text-[#666666]">Actualiza tu clave de acceso</p>
+                    <p className="text-sm text-[#A3A3A3]">Cambiar contrasena</p>
+                    <p className="text-xs text-[#666666]">Proximamente</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-[#151515] border border-[rgba(255,255,255,0.05)] hover:border-[rgba(201,168,96,0.20)] transition-all duration-200 cursor-pointer">
-                  <ShieldCheck className="h-5 w-5 text-[#A3A3A3]" />
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-[#151515] border border-[rgba(255,255,255,0.05)] opacity-60 cursor-not-allowed">
+                  <ShieldCheck className="h-5 w-5 text-[#666666]" />
                   <div className="flex-1">
-                    <p className="text-sm text-white">Sesiones activas</p>
-                    <p className="text-xs text-[#666666]">Gestiona tus dispositivos conectados</p>
+                    <p className="text-sm text-[#A3A3A3]">Sesiones activas</p>
+                    <p className="text-xs text-[#666666]">Proximamente</p>
                   </div>
                 </div>
               </div>

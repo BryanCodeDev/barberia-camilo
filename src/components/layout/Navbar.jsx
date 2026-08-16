@@ -1,5 +1,5 @@
 // src/components/layout/Navbar.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Scissors, Menu, X, User, ShieldCheck, CalendarDays, MessageCircle } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { openBooking } from '../../utils/booking';
@@ -10,7 +10,6 @@ const Navbar = ({ business }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const [authTick, setAuthTick] = useState(0);
 
   const { isAuthenticated: isAdminAuth } = useAuth('admin');
   const { isAuthenticated: isClientAuth } = useAuth('client');
@@ -25,16 +24,6 @@ const Navbar = ({ business }) => {
   const isActive = (path) => location.pathname === path;
 
   const closeMenu = () => setIsMenuOpen(false);
-
-  useEffect(() => {
-    const handleAuthChange = () => setAuthTick(t => t + 1);
-    window.addEventListener('auth-login', handleAuthChange);
-    window.addEventListener('auth-logout', handleAuthChange);
-    return () => {
-      window.removeEventListener('auth-login', handleAuthChange);
-      window.removeEventListener('auth-logout', handleAuthChange);
-    };
-  }, []);
 
   const goToServices = (e) => {
     e.preventDefault();
@@ -223,3 +212,4 @@ const Navbar = ({ business }) => {
 };
 
 export default Navbar;
+

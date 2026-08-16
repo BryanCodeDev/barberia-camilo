@@ -165,6 +165,7 @@ const ClientPortal = ({ business }) => {
     setResendCooldown(0);
     localStorage.removeItem('client_id');
     localStorage.removeItem('client_phone');
+    navigate('/');
   };
 
   const formatDate = (dateString) => {
