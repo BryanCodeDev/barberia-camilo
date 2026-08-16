@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronDown, User, LayoutDashboard, LogOut, Crown, Shield } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 
-const ProfileMenu = () => {
+const ProfileMenu = ({ onLogout: onLogoutProp }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const menuRef = useRef(null);
+  const navigate = useNavigate();
   const { user, logout } = useAuth('admin');
 
   const initials = user?.username
@@ -43,8 +45,17 @@ const ProfileMenu = () => {
 
   const handleLogout = () => {
     closeMenu();
-    setTimeout(() => logout(), 300);
+    setTimeout(() => {
+      if (onLogoutProp) {
+        onLogoutProp();
+      } else {
+        logout();
+        navigate('/');
+      }
+    }, 300);
   };
+
+  const dashboardHref = user?.role === 'admin' ? '/admin' : '/cliente';
 
   return (
     <div className="relative" ref={menuRef}>
@@ -118,14 +129,20 @@ const ProfileMenu = () => {
           </div>
 
           <div className="p-2 space-y-0.5 bg-[#101010]">
-            <div className="group flex items-center gap-3 px-4 py-2.5 text-sm text-[#A3A3A3] hover:text-white hover:bg-[rgba(201,168,96,0.08)] rounded-lg transition-all duration-200 cursor-pointer">
+            <button
+              type="button"
+              className="group flex items-center gap-3 px-4 py-2.5 text-sm text-[#A3A3A3] hover:text-white hover:bg-[rgba(201,168,96,0.08)] rounded-lg transition-all duration-200 w-full text-left"
+            >
               <User className="h-4 w-4 text-[#C9A860]/80 group-hover:text-[#C9A860] transition-colors" />
               <span>Perfil</span>
-            </div>
-            <div className="group flex items-center gap-3 px-4 py-2.5 text-sm text-[#A3A3A3] hover:text-white hover:bg-[rgba(201,168,96,0.08)] rounded-lg transition-all duration-200 cursor-pointer">
+            </button>
+            <Link
+              to={dashboardHref}
+              className="group flex items-center gap-3 px-4 py-2.5 text-sm text-[#A3A3A3] hover:text-white hover:bg-[rgba(201,168,96,0.08)] rounded-lg transition-all duration-200"
+            >
               <LayoutDashboard className="h-4 w-4 text-[#C9A860]/80 group-hover:text-[#C9A860] transition-colors" />
               <span>Dashboard</span>
-            </div>
+            </Link>
           </div>
 
           <div className="px-2 py-1.5 border-t border-[rgba(201,168,96,0.10)] my-1 bg-[#101010]">
