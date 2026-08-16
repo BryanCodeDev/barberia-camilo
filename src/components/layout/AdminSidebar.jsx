@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   LayoutDashboard, Calendar, Users, Scissors, BarChart3,
   MessageSquare, Settings, LogOut, X, Menu,
@@ -48,23 +48,89 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
     analisis: true,
     sistema: true,
   });
+  const [isDrawerClosing, setIsDrawerClosing] = useState(false);
+  const drawerRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const previousActiveElement = useRef(null);
 
   const toggleSection = (sectionId) => {
     setSectionsExpanded(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
   };
+
+  const isAdmin = userRole === 'admin';
+  const isBarber = userRole === 'barber';
+  const visibleTabIds = tabs.map(t => t.id);
+
+  const primaryTabIds = isBarber
+    ? ['dashboard', 'appointments', 'workstations', 'performance']
+    : ['dashboard', 'appointments', 'services', 'clients'];
+
+  const primaryTabs = tabs.filter(t => primaryTabIds.includes(t.id));
+  const secondaryTabs = tabs.filter(t => !primaryTabIds.includes(t.id));
+
+  const iconMap = {
+    dashboard: LayoutDashboard,
+    appointments: Calendar,
+    services: Scissors,
+    clients: Users,
+    settings: Settings,
+    barbers: Users,
+    workstations: Scissors,
+    performance: BarChart3,
+    notifications: MessageSquare,
+    help: BookOpen,
+  };
+
+  const closeDrawer = useCallback(() => {
+    setIsDrawerClosing(true);
+    setTimeout(() => {
+      setMobileOpen(false);
+      setIsDrawerClosing(false);
+      if (previousActiveElement.current) {
+        previousActiveElement.current.focus();
+      }
+    }, 200);
+  }, [setMobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    previousActiveElement.current = document.activeElement;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        closeDrawer();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen, closeDrawer]);
+
+  useEffect(() => {
+    if (mobileOpen && drawerRef.current) {
+      drawerRef.current.focus();
+    }
+  }, [mobileOpen]);
 
   const NavItem = ({ item }) => {
     const isActive = activeTab === item.id;
     const isSettings = item.id === 'settings';
     return (
       <button
+        type="button"
         onClick={() => {
           if (isSettings && onSettingsClick) {
             onSettingsClick();
           } else {
             setActiveTab(item.id);
           }
-          setMobileOpen(false);
+          closeDrawer();
         }}
         className={`
           w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium
@@ -109,7 +175,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
       <nav className="flex-1 px-3 sm:px-4 py-2 overflow-y-auto custom-scrollbar">
         {NAV_SECTIONS.map((section, sectionIndex) => {
           const sectionItems = section.items.filter(item =>
-            tabs.some(t => t.id === item.id)
+            visibleTabIds.includes(item.id)
           );
           if (sectionItems.length === 0) return null;
 
@@ -117,6 +183,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
           return (
             <div key={section.id} className={sectionIndex > 0 ? 'mt-5' : ''}>
               <button
+                type="button"
                 onClick={() => toggleSection(section.id)}
                 className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-semibold text-[#666666] uppercase tracking-[0.15em] hover:text-[#A3A3A3] transition-colors"
               >
@@ -138,7 +205,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
           );
         })}
 
-        {onSettingsClick && userRole === 'admin' && (
+        {isAdmin && onSettingsClick && (
           <div className="mt-5 pt-4 border-t border-[rgba(255,255,255,0.05)]">
             <NavItem item={{ id: 'settings', label: 'Configuracion', icon: Settings }} />
           </div>
@@ -147,6 +214,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
 
       <div className="p-3 sm:p-4 border-t border-[rgba(255,255,255,0.05)] space-y-1">
         <button
+          type="button"
           onClick={onLogout}
           className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#EF4444] hover:bg-[#EF4444]/10 transition-all duration-200"
         >
@@ -155,6 +223,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
         </button>
         {onClose && (
           <button
+            type="button"
             onClick={onClose}
             className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#666666] hover:text-white hover:bg-[#151515] transition-all duration-200"
           >
@@ -166,28 +235,6 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
     </div>
   );
 
-  const isBarber = tabs.some(t => t.id === 'help') === false && tabs.some(t => t.id === 'barbers') === false && tabs.some(t => t.id === 'clients') !== false;
-
-  const primaryTabIds = isBarber
-    ? ['dashboard', 'appointments', 'workstations', 'performance']
-    : ['dashboard', 'appointments', 'services', 'clients', 'settings'];
-
-  const primaryTabs = tabs.filter(t => primaryTabIds.includes(t.id));
-  const secondaryTabs = tabs.filter(t => !primaryTabIds.includes(t.id));
-
-  const iconMap = {
-    dashboard: LayoutDashboard,
-    appointments: Calendar,
-    services: Scissors,
-    clients: Users,
-    settings: Settings,
-    barbers: Users,
-    workstations: Scissors,
-    performance: BarChart3,
-    notifications: MessageSquare,
-    help: BookOpen,
-  };
-
   return (
     <>
       {/* Mobile Header */}
@@ -197,11 +244,12 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
             <span className="text-[#0A0A0A] font-serif font-bold text-sm">EB</span>
           </div>
           <div>
-            <h1 className="font-serif text-lg text-white leading-tight">{userRole === 'barber' ? 'Mi Panel' : 'Panel Admin'}</h1>
+            <h1 className="font-serif text-lg text-white leading-tight">{isBarber ? 'Mi Panel' : 'Panel Admin'}</h1>
             <p className="text-xs text-[#A3A3A3] truncate">{businessName}</p>
           </div>
         </div>
         <button
+          type="button"
           onClick={() => setMobileOpen(true)}
           className="p-2.5 text-[#A3A3A3] hover:text-white hover:bg-[#151515] rounded-xl transition-all duration-200"
           aria-label="Abrir menu"
@@ -226,6 +274,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => { setActiveTab(tab.id); }}
                 className={[
                   'admin-bottom-nav-item flex-1',
@@ -239,6 +288,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
           })}
           {secondaryTabs.length > 0 && (
             <button
+              type="button"
               onClick={() => setMobileOpen(true)}
               className="admin-bottom-nav-item text-[#666666] flex-1"
               aria-label="Mas opciones"
@@ -252,17 +302,32 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
 
       {/* Mobile Slide-out Drawer */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50">
+        <div className="md:hidden fixed inset-0 z-[60]">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
-            onClick={() => setMobileOpen(false)}
+            onClick={closeDrawer}
+            aria-hidden="true"
           />
-          <div className="absolute inset-y-0 left-0 w-72 bg-[#090909] border-r border-[rgba(255,255,255,0.05)] shadow-2xl transform transition-transform duration-300 ease-out animate-slide-right">
+          <div
+            ref={drawerRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu de navegacion"
+            tabIndex={-1}
+            className={`
+              absolute inset-y-0 left-0 w-72 bg-[#090909] border-r border-[rgba(255,255,255,0.05)] shadow-2xl
+              transform transition-transform duration-300 ease-out outline-none
+              ${isDrawerClosing ? 'translate-x-[-100%]' : 'translate-x-0'}
+            `}
+          >
             <div className="flex items-center justify-between p-4 border-b border-[rgba(255,255,255,0.05)]">
               <span className="font-serif text-lg text-white">Menu</span>
               <button
-                onClick={() => setMobileOpen(false)}
+                ref={closeButtonRef}
+                type="button"
+                onClick={closeDrawer}
                 className="p-2 text-[#A3A3A3] hover:text-white hover:bg-[#151515] rounded-lg transition-all duration-200"
+                aria-label="Cerrar menu"
               >
                 <X className="h-5 w-5" />
               </button>
