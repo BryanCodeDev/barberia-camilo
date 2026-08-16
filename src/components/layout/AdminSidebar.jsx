@@ -237,68 +237,12 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
 
   return (
     <>
-      {/* Mobile Header */}
-      <div className="md:hidden bg-[#090909]/95 border-b border-[rgba(255,255,255,0.05)] px-4 py-3 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#C9A860] flex items-center justify-center">
-            <span className="text-[#0A0A0A] font-serif font-bold text-sm">EB</span>
-          </div>
-          <div>
-            <h1 className="font-serif text-lg text-white leading-tight">{isBarber ? 'Mi Panel' : 'Panel Admin'}</h1>
-            <p className="text-xs text-[#A3A3A3] truncate">{businessName}</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setMobileOpen(true)}
-          className="p-2.5 text-[#A3A3A3] hover:text-white hover:bg-[#151515] rounded-xl transition-all duration-200"
-          aria-label="Abrir menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-      </div>
-
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed inset-y-0 left-0 w-64 bg-[#090909] border-r border-[rgba(255,255,255,0.05)] z-40 h-screen overflow-hidden">
         <div className="w-full h-full overflow-y-auto custom-scrollbar">
           <SidebarContent />
         </div>
       </aside>
-
-      {/* Mobile Bottom Nav */}
-      <nav className="admin-bottom-nav md:hidden">
-        <div className="flex items-center justify-around">
-          {primaryTabs.map((tab) => {
-            const Icon = iconMap[tab.id];
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => { setActiveTab(tab.id); }}
-                className={[
-                  'admin-bottom-nav-item flex-1',
-                  isActive ? 'active' : ''
-                ].join(' ')}
-              >
-                {Icon && <Icon className="h-5 w-5 mb-0.5" />}
-                <span className="truncate">{tab.label}</span>
-              </button>
-            );
-          })}
-          {secondaryTabs.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setMobileOpen(true)}
-              className="admin-bottom-nav-item text-[#666666] flex-1"
-              aria-label="Mas opciones"
-            >
-              <Menu className="h-5 w-5 mb-0.5" />
-              <span>Mas</span>
-            </button>
-          )}
-        </div>
-      </nav>
 
       {/* Mobile Slide-out Drawer */}
       {mobileOpen && (

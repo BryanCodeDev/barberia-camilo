@@ -2,15 +2,28 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw, ArrowLeft } from 'lucide-react';
 import { api, setClientToken } from '../services/api';
 import useAuth from '../hooks/useAuth';
+import { useSessionManager } from '../hooks/useSessionManager';
 import LoginForm from '../components/auth/LoginForm';
 import Button from '../components/ui/Button';
 import ErrorBanner from '../components/ui/ErrorBanner';
 import Loader from '../components/ui/Loader';
+import SessionReplacedModal from '../components/common/SessionReplacedModal';
 import { useNavigate } from 'react-router-dom';
 
 const ClientPortal = ({ business }) => {
   const navigate = useNavigate();
-  const { isAuthenticated, login: authLogin, logout: authLogout } = useAuth('client');
+  const { isAuthenticated: adminAuth } = useAuth('admin');
+  const { isAuthenticated: clientAuth, login: clientLogin, logout: clientLogout, user: clientUser } = useAuth('client');
+  const {
+    isAuthenticated: sessionOk,
+    login: sessionLogin,
+    logout: sessionLogout,
+    user: sessionUser,
+    sessionReplaced,
+    setSessionReplaced,
+  } = useSessionManager('client');
+  const isLoggedIn = clientAuth && sessionOk;
+  const effectiveUser = sessionUser || clientUser;
   const [loginStep, setLoginStep] = useState('phone');
   const [clientPhone, setClientPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -19,19 +32,28 @@ const ClientPortal = ({ business }) => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [remainingAttempts, setRemainingAttempts] = useState(null);
+  const [showSessionReplacedModal, setShowSessionReplacedModal] = useState(false);
   const cooldownIntervalRef = useRef(null);
+
+  useEffect(() => {
+    if (sessionReplaced) {
+      setShowSessionReplacedModal(true);
+    }
+  }, [sessionReplaced]);
+
+  const handleSessionReplacedClose = useCallback(() => {
+    setShowSessionReplacedModal(false);
+    setSessionReplaced(false);
+  }, [setSessionReplaced]);
 
   useEffect(() => {
     const storedId = localStorage.getItem('client_id');
     const storedPhone = localStorage.getItem('client_phone');
-    if (storedId && storedPhone) {
+    if (storedId && storedPhone && !isLoggedIn) {
       setClientId(storedId);
       setClientPhone(storedPhone);
-      fetchMyAppointments(storedId);
-      setIsLoggedIn(true);
     }
   }, []);
 
@@ -109,13 +131,13 @@ const ClientPortal = ({ business }) => {
       });
 
       if (data.token) {
-        authLogin(data.token);
+        setClientToken(data.token);
+        sessionLogin(data.token);
       }
       localStorage.setItem('client_id', data.id);
       localStorage.setItem('client_phone', clientPhone);
       setClientId(data.id);
       setClientName(data.name);
-      setIsLoggedIn(true);
       setLoginStep('logged_in');
       fetchMyAppointments(data.id);
     } catch (err) {
@@ -151,21 +173,30 @@ const ClientPortal = ({ business }) => {
     }
   };
 
-  const handleLogout = () => {
-    authLogout();
-    setIsLoggedIn(false);
-    setClientId(null);
-    setClientPhone('');
-    setClientName('');
-    setAppointments([]);
-    setLoginStep('phone');
-    setOtpCode('');
-    setRemainingAttempts(null);
-    if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
-    setResendCooldown(0);
-    localStorage.removeItem('client_id');
-    localStorage.removeItem('client_phone');
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('client_token');
+      if (token) {
+        await api.post('/auth/logout', {}, true);
+      }
+    } catch {
+      // noop
+    } finally {
+      sessionLogout();
+      clientLogout();
+      setClientId(null);
+      setClientPhone('');
+      setClientName('');
+      setAppointments([]);
+      setLoginStep('phone');
+      setOtpCode('');
+      setRemainingAttempts(null);
+      if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
+      setResendCooldown(0);
+      localStorage.removeItem('client_id');
+      localStorage.removeItem('client_phone');
+      navigate('/');
+    }
   };
 
   const formatDate = (dateString) => {
@@ -195,6 +226,10 @@ const ClientPortal = ({ business }) => {
 
   return (
     <div className="min-h-screen bg-[#F6F2EA]">
+      <SessionReplacedModal
+        isOpen={showSessionReplacedModal}
+        onClose={handleSessionReplacedClose}
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-4">

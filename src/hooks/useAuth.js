@@ -46,12 +46,20 @@ const useAuth = (role) => {
     setUser(decodeToken(newToken));
   }, [tokenKey]);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    const stored = localStorage.getItem(tokenKey);
+    if (stored) {
+      try {
+        await api.post('/auth/logout', {}, role === 'client');
+      } catch {
+        // noop: logout local debe seguir funcionando incluso si el backend falla
+      }
+    }
     localStorage.removeItem(tokenKey);
     setTokenState(null);
     setIsAuthenticated(false);
     setUser(null);
-  }, [tokenKey]);
+  }, [tokenKey, role]);
 
   const verifySession = useCallback(async () => {
     const stored = localStorage.getItem(tokenKey);

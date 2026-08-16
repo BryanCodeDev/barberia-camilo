@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import useAuth from './useAuth';
 import { api } from '../services/api';
 
@@ -27,6 +27,7 @@ export function useSessionManager(role = 'admin') {
   const { isAuthenticated, user, logout, login } = useAuth(role);
   const heartbeatRef = useRef(null);
   const expiryRef = useRef(null);
+  const [sessionReplaced, setSessionReplaced] = useState(false);
 
   const checkSessionExpiry = useCallback(() => {
     const meta = getSessionMeta();
@@ -52,7 +53,10 @@ export function useSessionManager(role = 'admin') {
 
       try {
         await api.get('/auth/verify', role === 'client');
-      } catch {
+      } catch (err) {
+        if (err.message === 'SESSION_REPLACED' || (err.data && err.data.error === 'SESSION_REPLACED')) {
+          setSessionReplaced(true);
+        }
         logout();
         clearSessionMeta();
         stopHeartbeat();
@@ -96,6 +100,7 @@ export function useSessionManager(role = 'admin') {
         userAgent: navigator.userAgent,
       };
       setSessionMeta(meta);
+      setSessionReplaced(false);
       login(token);
     },
     logout,
@@ -112,5 +117,7 @@ export function useSessionManager(role = 'admin') {
       }
     },
     checkSessionExpiry,
+    sessionReplaced,
+    setSessionReplaced,
   };
 }

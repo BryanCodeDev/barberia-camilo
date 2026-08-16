@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Shield, Users, Scissors, LayoutDashboard, Calendar,
-  BarChart3, MessageSquare, Settings, BookOpen
+  BarChart3, MessageSquare, Settings, BookOpen, Menu
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -23,6 +23,7 @@ import NotificationsCenter from '../components/admin/NotificationsCenter';
 import SettingsEditor from '../components/admin/SettingsEditor';
 import Help from '../components/admin/Help';
 import ProfileMenu from '../components/profile/ProfileMenu';
+import SessionReplacedModal from '../components/common/SessionReplacedModal';
 
 const defaultBusiness = { name: 'BARBERÍA EL BRONX', title: 'EL BRONX' };
 
@@ -52,10 +53,22 @@ const TAB_META = {
 
 const AdminPanel = ({ onClose, business }) => {
   const navigate = useNavigate();
-  const { isAuthenticated, login: authLogin, logout: authLogout, user } = useSessionManager('admin');
+  const { isAuthenticated, login: authLogin, logout: authLogout, user, sessionReplaced, setSessionReplaced } = useSessionManager('admin');
   const { activeTab, setActiveTab } = useAdminNavigation();
+  const [showSessionReplacedModal, setShowSessionReplacedModal] = useState(false);
   const userRole = user?.role || 'guest';
   const visibleNavItems = NAV_ITEMS.filter(item => item.roles.includes(userRole));
+
+  useEffect(() => {
+    if (sessionReplaced) {
+      setShowSessionReplacedModal(true);
+    }
+  }, [sessionReplaced]);
+
+  const handleSessionReplacedClose = useCallback(() => {
+    setShowSessionReplacedModal(false);
+    setSessionReplaced(false);
+  }, [setSessionReplaced]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -208,6 +221,29 @@ const AdminPanel = ({ onClose, business }) => {
     setError,
   ]);
 
+  const primaryTabIds = useMemo(() => {
+    if (userRole === 'barber') {
+      return ['dashboard', 'appointments', 'workstations', 'performance'];
+    }
+    return ['dashboard', 'appointments', 'services', 'clients'];
+  }, [userRole]);
+
+  const primaryTabs = useMemo(() => visibleNavItems.filter(t => primaryTabIds.includes(t.id)), [visibleNavItems, primaryTabIds]);
+  const secondaryTabs = useMemo(() => visibleNavItems.filter(t => !primaryTabIds.includes(t.id)), [visibleNavItems, primaryTabIds]);
+
+  const iconMap = {
+    dashboard: LayoutDashboard,
+    appointments: Calendar,
+    services: Scissors,
+    clients: Users,
+    settings: Settings,
+    barbers: Users,
+    workstations: Scissors,
+    performance: BarChart3,
+    notifications: MessageSquare,
+    help: BookOpen,
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-ink flex items-center justify-center p-4 sm:p-6 lg:p-8">
@@ -229,7 +265,28 @@ const AdminPanel = ({ onClose, business }) => {
   }
 
   return (
-    <div className="min-h-screen bg-cream flex">
+    <div className="min-h-screen bg-cream">
+      {/* Mobile Header */}
+      <div className="md:hidden bg-[#090909]/95 border-b border-[rgba(255,255,255,0.05)] px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[#C9A860] flex items-center justify-center">
+            <span className="text-[#0A0A0A] font-serif font-bold text-sm">EB</span>
+          </div>
+          <div>
+            <h1 className="font-serif text-lg text-white leading-tight">{userRole === 'barber' ? 'Mi Panel' : 'Panel Admin'}</h1>
+            <p className="text-xs text-[#A3A3A3] truncate">{businessInfo.name}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMobileNavOpen(true)}
+          className="p-2.5 text-[#A3A3A3] hover:text-white hover:bg-[#151515] rounded-xl transition-all duration-200"
+          aria-label="Abrir menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      </div>
+
       <AdminSidebar
         tabs={visibleNavItems}
         activeTab={activeTab}
@@ -243,11 +300,17 @@ const AdminPanel = ({ onClose, business }) => {
         userRole={userRole}
       />
 
-      <div className="flex-1 md:ml-64 pb-24 md:pb-8 overflow-y-auto">
+      {/* Main Content */}
+      <div className="md:ml-64 pb-24 md:pb-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
           {error && (
             <ErrorBanner message={error} onDismiss={() => setError(null)} className="mb-6" />
           )}
+
+          <SessionReplacedModal
+            isOpen={showSessionReplacedModal}
+            onClose={handleSessionReplacedClose}
+          />
 
           <div className="animate-fade-in">
             {currentView}
@@ -271,6 +334,41 @@ const AdminPanel = ({ onClose, business }) => {
           </Modal>
         </div>
       </div>
+
+      {/* Mobile Bottom Nav */}
+      <nav className="admin-bottom-nav md:hidden fixed bottom-0 left-0 right-0 z-40">
+        <div className="flex items-center justify-around">
+          {primaryTabs.map((tab) => {
+            const Icon = iconMap[tab.id];
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => { setActiveTab(tab.id); }}
+                className={[
+                  'admin-bottom-nav-item flex-1',
+                  isActive ? 'active' : ''
+                ].join(' ')}
+              >
+                {Icon && <Icon className="h-5 w-5 mb-0.5" />}
+                <span className="truncate">{tab.label}</span>
+              </button>
+            );
+          })}
+          {secondaryTabs.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(true)}
+              className="admin-bottom-nav-item text-[#666666] flex-1"
+              aria-label="Mas opciones"
+            >
+              <Menu className="h-5 w-5 mb-0.5" />
+              <span>Mas</span>
+            </button>
+          )}
+        </div>
+      </nav>
     </div>
   );
 };
