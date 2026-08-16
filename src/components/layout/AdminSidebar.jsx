@@ -66,22 +66,27 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
           }
           setMobileOpen(false);
         }}
-        className={[
-          'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative group',
-          isActive && !isSettings
-            ? 'bg-gold/15 text-gold-light shadow-sm'
+        className={`
+          w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium
+          transition-all duration-200 relative group
+          ${isActive && !isSettings
+            ? 'bg-[#151515] text-white'
             : isSettings
-              ? 'text-stone-light hover:text-cream hover:bg-ink-panel'
-              : 'text-stone-light hover:text-cream hover:bg-ink-panel',
-        ].join(' ')}
+              ? 'text-[#A3A3A3] hover:text-white hover:bg-[#151515]'
+              : 'text-[#A3A3A3] hover:text-white hover:bg-[#151515]'
+          }
+        `}
       >
         {isActive && !isSettings && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-gold rounded-r-full" />
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[18px] bg-[#C9A860] rounded-r-full" />
         )}
-        <item.icon className={[
-          'h-5 w-5 flex-shrink-0 transition-colors',
-          isActive && !isSettings ? 'text-gold-light' : 'text-stone-dim group-hover:text-cream',
-        ].join(' ')} />
+        <item.icon className={`
+          h-[18px] w-[18px] flex-shrink-0 transition-all duration-200
+          ${isActive && !isSettings
+            ? 'text-[#C9A860]'
+            : 'text-[#666666] group-hover:text-[#C9A860] group-hover:translate-x-[1px]'
+          }
+        `} />
         <span className="truncate">{item.label}</span>
       </button>
     );
@@ -90,19 +95,19 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-5 sm:p-6">
-        <div className="flex items-center">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center mr-3 shadow-lg shadow-gold/20">
-            <span className="text-ink font-serif font-bold text-lg">EB</span>
+        <div className="flex items-center gap-3">
+          <div className="w-[44px] h-[44px] rounded-xl bg-[#C9A860] flex items-center justify-center flex-shrink-0">
+            <span className="text-[#0A0A0A] font-serif font-bold text-lg">EB</span>
           </div>
           <div className="min-w-0">
-            <h1 className="font-serif text-lg sm:text-xl text-cream leading-tight truncate">Panel Admin</h1>
-            <p className="text-xs text-stone-light truncate">{businessName}</p>
+            <h1 className="font-serif text-lg text-white leading-tight truncate">Panel Admin</h1>
+            <p className="text-xs text-[#A3A3A3] truncate mt-0.5">{businessName}</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 px-3 sm:px-4 py-2 space-y-1 overflow-y-auto custom-scrollbar">
-        {NAV_SECTIONS.map((section) => {
+      <nav className="flex-1 px-3 sm:px-4 py-2 overflow-y-auto custom-scrollbar">
+        {NAV_SECTIONS.map((section, sectionIndex) => {
           const sectionItems = section.items.filter(item =>
             tabs.some(t => t.id === item.id)
           );
@@ -110,20 +115,20 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
 
           const isExpanded = sectionsExpanded[section.id];
           return (
-            <div key={section.id} className="mb-2">
+            <div key={section.id} className={sectionIndex > 0 ? 'mt-5' : ''}>
               <button
                 onClick={() => toggleSection(section.id)}
-                className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-stone-faint uppercase tracking-wider hover:text-stone-light transition-colors"
+                className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-semibold text-[#666666] uppercase tracking-[0.15em] hover:text-[#A3A3A3] transition-colors"
               >
                 <span>{section.label}</span>
                 {isExpanded ? (
-                  <ChevronDown className="h-3 w-3" />
+                  <ChevronDown className="h-3.5 w-3.5 text-[#666666] transition-transform duration-200" />
                 ) : (
-                  <ChevronRight className="h-3 w-3" />
+                  <ChevronRight className="h-3.5 w-3.5 text-[#666666] transition-transform duration-200" />
                 )}
               </button>
               {isExpanded && (
-                <div className="space-y-1 animate-slide-down">
+                <div className="space-y-0.5 animate-slide-down">
                   {sectionItems.map((item) => (
                     <NavItem key={item.id} item={item} />
                   ))}
@@ -134,26 +139,26 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
         })}
 
         {onSettingsClick && userRole === 'admin' && (
-          <div className="mt-4 pt-4 border-t border-ink-line">
+          <div className="mt-5 pt-4 border-t border-[rgba(255,255,255,0.05)]">
             <NavItem item={{ id: 'settings', label: 'Configuracion', icon: Settings }} />
           </div>
         )}
       </nav>
 
-      <div className="p-3 sm:p-4 border-t border-ink-line space-y-1">
+      <div className="p-3 sm:p-4 border-t border-[rgba(255,255,255,0.05)] space-y-1">
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-stone-light hover:text-status-red hover:bg-status-red/10 transition-all duration-200"
+          className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#EF4444] hover:bg-[#EF4444]/10 transition-all duration-200"
         >
-          <LogOut className="h-4 w-4 flex-shrink-0" />
+          <LogOut className="h-4 w-4 flex-shrink-0 transition-colors" />
           <span>Cerrar Sesion</span>
         </button>
         {onClose && (
           <button
             onClick={onClose}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-stone-light hover:text-cream hover:bg-ink-panel transition-all duration-200"
+            className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#666666] hover:text-white hover:bg-[#151515] transition-all duration-200"
           >
-            <X className="h-4 w-4 flex-shrink-0" />
+            <X className="h-4 w-4 flex-shrink-0 transition-colors" />
             <span>Cerrar Panel</span>
           </button>
         )}
@@ -162,11 +167,11 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
   );
 
   const isBarber = tabs.some(t => t.id === 'help') === false && tabs.some(t => t.id === 'barbers') === false && tabs.some(t => t.id === 'clients') !== false;
-  
+
   const primaryTabIds = isBarber
     ? ['dashboard', 'appointments', 'workstations', 'performance']
     : ['dashboard', 'appointments', 'services', 'clients', 'settings'];
-  
+
   const primaryTabs = tabs.filter(t => primaryTabIds.includes(t.id));
   const secondaryTabs = tabs.filter(t => !primaryTabIds.includes(t.id));
 
@@ -186,19 +191,19 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden bg-ink/95 border-b border-ink-line px-4 py-3 flex items-center justify-between sticky top-0 z-40 backdrop-blur-lg">
-        <div className="flex items-center">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center mr-3 shadow-lg shadow-gold/20">
-            <span className="text-ink font-serif font-bold text-sm">EB</span>
+      <div className="md:hidden bg-[#090909]/95 border-b border-[rgba(255,255,255,0.05)] px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[#C9A860] flex items-center justify-center">
+            <span className="text-[#0A0A0A] font-serif font-bold text-sm">EB</span>
           </div>
           <div>
-            <h1 className="font-serif text-lg text-cream leading-tight">{userRole === 'barber' ? 'Mi Panel' : 'Panel Admin'}</h1>
-            <p className="text-xs text-stone-light truncate">{businessName}</p>
+            <h1 className="font-serif text-lg text-white leading-tight">{userRole === 'barber' ? 'Mi Panel' : 'Panel Admin'}</h1>
+            <p className="text-xs text-[#A3A3A3] truncate">{businessName}</p>
           </div>
         </div>
         <button
           onClick={() => setMobileOpen(true)}
-          className="p-2.5 text-stone-light hover:text-cream hover:bg-ink-panel rounded-xl transition-all duration-200"
+          className="p-2.5 text-[#A3A3A3] hover:text-white hover:bg-[#151515] rounded-xl transition-all duration-200"
           aria-label="Abrir menu"
         >
           <Menu className="h-5 w-5" />
@@ -206,7 +211,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex fixed inset-y-0 left-0 w-64 bg-ink border-r border-ink-line z-40 shadow-2xl h-screen overflow-hidden">
+      <aside className="hidden md:flex fixed inset-y-0 left-0 w-64 bg-[#090909] border-r border-[rgba(255,255,255,0.05)] z-40 h-screen overflow-hidden">
         <div className="w-full h-full overflow-y-auto custom-scrollbar">
           <SidebarContent />
         </div>
@@ -235,7 +240,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
           {secondaryTabs.length > 0 && (
             <button
               onClick={() => setMobileOpen(true)}
-              className="admin-bottom-nav-item text-stone-dim flex-1"
+              className="admin-bottom-nav-item text-[#666666] flex-1"
               aria-label="Mas opciones"
             >
               <Menu className="h-5 w-5 mb-0.5" />
@@ -252,17 +257,19 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 w-72 bg-ink border-r border-ink-line shadow-2xl transform transition-transform duration-300 ease-out animate-slide-right">
-            <div className="flex items-center justify-between p-4 border-b border-ink-line">
-              <span className="font-serif text-lg text-cream">Menu</span>
+          <div className="absolute inset-y-0 left-0 w-72 bg-[#090909] border-r border-[rgba(255,255,255,0.05)] shadow-2xl transform transition-transform duration-300 ease-out animate-slide-right">
+            <div className="flex items-center justify-between p-4 border-b border-[rgba(255,255,255,0.05)]">
+              <span className="font-serif text-lg text-white">Menu</span>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-2 text-stone-light hover:text-cream hover:bg-ink-panel rounded-lg transition-colors"
+                className="p-2 text-[#A3A3A3] hover:text-white hover:bg-[#151515] rounded-lg transition-all duration-200"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <SidebarContent />
+            <div className="h-full overflow-y-auto custom-scrollbar">
+              <SidebarContent />
+            </div>
           </div>
         </div>
       )}

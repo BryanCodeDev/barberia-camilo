@@ -314,7 +314,7 @@
   }
 
   .admin-bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 bg-ink border-t border-ink-line z-40 md:hidden backdrop-blur-lg bg-opacity-95;
+    @apply fixed bottom-0 left-0 right-0 bg-[#090909] border-t border-[rgba(255,255,255,0.05)] z-40 md:hidden;
   }
 
   .admin-bottom-nav-item {
@@ -322,15 +322,15 @@
   }
 
   .admin-bottom-nav-item.active {
-    @apply text-gold-light;
+    @apply text-[#C9A860];
   }
 
   .admin-bottom-nav-item:not(.active) {
-    @apply text-stone-dim hover:text-stone-light;
+    @apply text-[#666666] hover:text-[#A3A3A3];
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -338,12 +338,12 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #E4DCC9;
+    background: #2A2A2A;
     border-radius: 3px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #A9812E;
+    background: #3A3A3A;
   }
 
   .skeleton-pulse {
