@@ -399,10 +399,10 @@
 }
 
 /* Profile dropdown animations */
-@keyframes dropdownEnter {
+@keyframes profileDropdownEnter {
   from {
     opacity: 0;
-    transform: translateY(-8px) scale(0.96);
+    transform: translateY(-6px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -410,23 +410,23 @@
   }
 }
 
-@keyframes dropdownExit {
+@keyframes profileDropdownExit {
   from {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
   to {
     opacity: 0;
-    transform: translateY(-8px) scale(0.96);
+    transform: translateY(-6px) scale(0.98);
   }
 }
 
 .ProfileMenu-dropdown-enter {
-  animation: dropdownEnter 0.2s ease-out forwards;
+  animation: profileDropdownEnter 0.2s ease-out forwards;
 }
 
 .ProfileMenu-dropdown-exit {
-  animation: dropdownExit 0.15s ease-in forwards;
+  animation: profileDropdownExit 0.15s ease-in forwards;
 }
 
 /* Profile menu responsive */
@@ -444,13 +444,8 @@
   outline-offset: 2px;
 }
 
-/* Dropdown glow effect */
-.ProfileMenu-dropdown::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(to bottom, rgba(201, 168, 96, 0.08), transparent);
-  pointer-events: none;
+/* Profile menu item hover fix for group */
+.group:hover .group-hover\:text-\[\#C9A860\] {
+  color: #C9A860;
 }
 
