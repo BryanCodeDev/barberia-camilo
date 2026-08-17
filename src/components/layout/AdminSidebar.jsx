@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import {
   LayoutDashboard, Calendar, Users, Scissors, BarChart3,
   MessageSquare, Settings, LogOut, X, Menu,
@@ -41,124 +41,44 @@ const NAV_SECTIONS = [
   },
 ];
 
-const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, businessName, mobileOpen, setMobileOpen, onSettingsClick, userRole }) => {
-  const [sectionsExpanded, setSectionsExpanded] = useState({
-    principal: true,
-    gestion: true,
-    analisis: true,
-    sistema: true,
-  });
-  const [isDrawerClosing, setIsDrawerClosing] = useState(false);
-  const drawerRef = useRef(null);
-  const closeButtonRef = useRef(null);
-  const previousActiveElement = useRef(null);
+const AdminNavItem = memo(({ item, isActive, isSettings, onSelect, closeDrawer }) => {
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        onSelect(item.id);
+        closeDrawer();
+      }}
+      className={`
+        w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium
+        transition-colors duration-200 relative group
+        ${isActive && !isSettings
+          ? 'bg-[#151515] text-white'
+          : isSettings
+            ? 'text-[#A3A3A3] hover:text-white hover:bg-[#151515]'
+            : 'text-[#A3A3A3] hover:text-white hover:bg-[#151515]'
+        }
+      `}
+    >
+      {isActive && !isSettings && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[18px] bg-[#C9A860] rounded-r-full" />
+      )}
+      <item.icon className={`
+        h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200
+        ${isActive && !isSettings
+          ? 'text-[#C9A860]'
+          : 'text-[#666666] group-hover:text-[#C9A860] group-hover:translate-x-[1px]'
+        }
+      `} />
+      <span className="truncate">{item.label}</span>
+    </button>
+  );
+});
 
-  const toggleSection = (sectionId) => {
-    setSectionsExpanded(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
-  };
-
-  const isAdmin = userRole === 'admin';
-  const isBarber = userRole === 'barber';
+const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, onLogout, onClose, closeDrawer, businessName, isAdmin, sectionsExpanded, toggleSection }) => {
   const visibleTabIds = tabs.map(t => t.id);
 
-  const primaryTabIds = isBarber
-    ? ['dashboard', 'appointments', 'workstations', 'performance']
-    : ['dashboard', 'appointments', 'services', 'clients'];
-
-  const primaryTabs = tabs.filter(t => primaryTabIds.includes(t.id));
-  const secondaryTabs = tabs.filter(t => !primaryTabIds.includes(t.id));
-
-  const iconMap = {
-    dashboard: LayoutDashboard,
-    appointments: Calendar,
-    services: Scissors,
-    clients: Users,
-    settings: Settings,
-    barbers: Users,
-    workstations: Scissors,
-    performance: BarChart3,
-    notifications: MessageSquare,
-    help: BookOpen,
-  };
-
-  const closeDrawer = useCallback(() => {
-    setIsDrawerClosing(true);
-    setTimeout(() => {
-      setMobileOpen(false);
-      setIsDrawerClosing(false);
-      if (previousActiveElement.current) {
-        previousActiveElement.current.focus();
-      }
-    }, 200);
-  }, [setMobileOpen]);
-
-  useEffect(() => {
-    if (!mobileOpen) return;
-
-    previousActiveElement.current = document.activeElement;
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        closeDrawer();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
-    };
-  }, [mobileOpen, closeDrawer]);
-
-  useEffect(() => {
-    if (mobileOpen && drawerRef.current) {
-      drawerRef.current.focus();
-    }
-  }, [mobileOpen]);
-
-  const NavItem = ({ item }) => {
-    const isActive = activeTab === item.id;
-    const isSettings = item.id === 'settings';
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          if (isSettings && onSettingsClick) {
-            onSettingsClick();
-          } else {
-            setActiveTab(item.id);
-          }
-          closeDrawer();
-        }}
-        className={`
-          w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium
-          transition-all duration-200 relative group
-          ${isActive && !isSettings
-            ? 'bg-[#151515] text-white'
-            : isSettings
-              ? 'text-[#A3A3A3] hover:text-white hover:bg-[#151515]'
-              : 'text-[#A3A3A3] hover:text-white hover:bg-[#151515]'
-          }
-        `}
-      >
-        {isActive && !isSettings && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[18px] bg-[#C9A860] rounded-r-full" />
-        )}
-        <item.icon className={`
-          h-[18px] w-[18px] flex-shrink-0 transition-all duration-200
-          ${isActive && !isSettings
-            ? 'text-[#C9A860]'
-            : 'text-[#666666] group-hover:text-[#C9A860] group-hover:translate-x-[1px]'
-          }
-        `} />
-        <span className="truncate">{item.label}</span>
-      </button>
-    );
-  };
-
-  const SidebarContent = () => (
+  return (
     <div className="flex flex-col h-full">
       <div className="p-5 sm:p-6">
         <div className="flex items-center gap-3">
@@ -197,7 +117,20 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
               {isExpanded && (
                 <div className="space-y-0.5 animate-slide-down">
                   {sectionItems.map((item) => (
-                    <NavItem key={item.id} item={item} />
+                    <AdminNavItem
+                      key={item.id}
+                      item={item}
+                      isActive={activeTab === item.id}
+                      isSettings={item.id === 'settings'}
+                      onSelect={(id) => {
+                        if (id === 'settings' && onSettingsClick) {
+                          onSettingsClick();
+                        } else {
+                          setActiveTab(id);
+                        }
+                      }}
+                      closeDrawer={closeDrawer}
+                    />
                   ))}
                 </div>
               )}
@@ -207,7 +140,17 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
 
         {isAdmin && onSettingsClick && (
           <div className="mt-5 pt-4 border-t border-[rgba(255,255,255,0.05)]">
-            <NavItem item={{ id: 'settings', label: 'Configuracion', icon: Settings }} />
+            <AdminNavItem
+              item={{ id: 'settings', label: 'Configuracion', icon: Settings }}
+              isActive={false}
+              isSettings={true}
+              onSelect={(id) => {
+                if (onSettingsClick) {
+                  onSettingsClick();
+                }
+              }}
+              closeDrawer={closeDrawer}
+            />
           </div>
         )}
       </nav>
@@ -215,8 +158,11 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
       <div className="p-3 sm:p-4 border-t border-[rgba(255,255,255,0.05)] space-y-1">
         <button
           type="button"
-          onClick={onLogout}
-          className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#EF4444] hover:bg-[#EF4444]/10 transition-all duration-200"
+          onClick={() => {
+            onLogout();
+            closeDrawer();
+          }}
+          className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors duration-200"
         >
           <LogOut className="h-4 w-4 flex-shrink-0 transition-colors" />
           <span>Cerrar Sesion</span>
@@ -224,8 +170,11 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
         {onClose && (
           <button
             type="button"
-            onClick={onClose}
-            className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#666666] hover:text-white hover:bg-[#151515] transition-all duration-200"
+            onClick={() => {
+              onClose();
+              closeDrawer();
+            }}
+            className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#666666] hover:text-white hover:bg-[#151515] transition-colors duration-200"
           >
             <X className="h-4 w-4 flex-shrink-0 transition-colors" />
             <span>Cerrar Panel</span>
@@ -234,13 +183,85 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
       </div>
     </div>
   );
+};
+
+const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, businessName, mobileOpen, setMobileOpen, onSettingsClick, userRole }) => {
+  const [sectionsExpanded, setSectionsExpanded] = useState({
+    principal: true,
+    gestion: true,
+    analisis: true,
+    sistema: true,
+  });
+  const [isDrawerClosing, setIsDrawerClosing] = useState(false);
+  const drawerRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const previousActiveElement = useRef(null);
+
+  const toggleSection = useCallback((sectionId) => {
+    setSectionsExpanded(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    setIsDrawerClosing(true);
+    setTimeout(() => {
+      setMobileOpen(false);
+      setIsDrawerClosing(false);
+      if (previousActiveElement.current) {
+        previousActiveElement.current.focus();
+      }
+    }, 200);
+  }, [setMobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    previousActiveElement.current = document.activeElement;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        closeDrawer();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen, closeDrawer]);
+
+  useEffect(() => {
+    if (mobileOpen && drawerRef.current) {
+      drawerRef.current.focus();
+    }
+  }, [mobileOpen]);
+
+  const isAdmin = userRole === 'admin';
+
+  const sidebarContent = (
+    <AdminSidebarContent
+      tabs={tabs}
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      onSettingsClick={onSettingsClick}
+      onLogout={onLogout}
+      onClose={onClose}
+      closeDrawer={closeDrawer}
+      businessName={businessName}
+      isAdmin={isAdmin}
+      sectionsExpanded={sectionsExpanded}
+      toggleSection={toggleSection}
+    />
+  );
 
   return (
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed inset-y-0 left-0 w-64 bg-[#090909] border-r border-[rgba(255,255,255,0.05)] z-40 h-screen overflow-hidden">
         <div className="w-full h-full overflow-y-auto custom-scrollbar">
-          <SidebarContent />
+          {sidebarContent}
         </div>
       </aside>
 
@@ -277,7 +298,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
               </button>
             </div>
             <div className="h-full overflow-y-auto custom-scrollbar">
-              <SidebarContent />
+              {sidebarContent}
             </div>
           </div>
         </div>

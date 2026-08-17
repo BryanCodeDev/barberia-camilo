@@ -58,10 +58,22 @@ const AdminPanel = ({ onClose, business }) => {
   const { activeTab, setActiveTab } = useAdminNavigation();
   const [showSessionReplacedModal, setShowSessionReplacedModal] = useState(false);
   const userRole = user?.role || 'guest';
-  const visibleNavItems = NAV_ITEMS.filter(item => item.roles.includes(userRole));
+  const visibleNavItems = useMemo(() => NAV_ITEMS.filter(item => item.roles.includes(userRole)), [userRole]);
   const adminToken = user?.role === 'admin' || user?.role === 'barber' ? localStorage.getItem('admin_token') : null;
 
   const { connectionState: wsState, subscribe: wsSubscribe, disconnect: wsDisconnect } = useWebSocket(adminToken);
+
+  const handleLogout = useCallback(() => {
+    wsDisconnect();
+    authLogout();
+    navigate('/');
+    setLoginError(null);
+    setStats({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0, confirmed_revenue_cents: 0, completed_revenue_cents: 0, today_revenue_cents: 0 });
+  }, [wsDisconnect, authLogout, navigate]);
+
+  const onSettingsClick = useCallback(() => {
+    setSettingsModalOpen(true);
+  }, []);
 
   useEffect(() => {
     if (wsState === 'connected') {
@@ -132,14 +144,6 @@ const AdminPanel = ({ onClose, business }) => {
       console.error('Login error:', err);
       setLoginError(err.message);
     }
-  };
-
-  const handleLogout = () => {
-    wsDisconnect();
-    authLogout();
-    navigate('/');
-    setLoginError(null);
-    setStats({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0, confirmed_revenue_cents: 0, completed_revenue_cents: 0, today_revenue_cents: 0 });
   };
 
   const fetchStats = useCallback(async () => {
@@ -313,7 +317,7 @@ const AdminPanel = ({ onClose, business }) => {
         businessName={businessInfo.name}
         mobileOpen={mobileNavOpen}
         setMobileOpen={setMobileNavOpen}
-        onSettingsClick={() => setSettingsModalOpen(true)}
+        onSettingsClick={onSettingsClick}
         userRole={userRole}
       />
 
