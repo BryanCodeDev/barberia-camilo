@@ -75,7 +75,7 @@ const AdminNavItem = memo(({ item, isActive, isSettings, onSelect, closeDrawer }
   );
 });
 
-const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, onLogout, onClose, closeDrawer, businessName, isAdmin, sectionsExpanded, toggleSection }) => {
+const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, onLogout, onClose, closeDrawer, businessName, isAdmin, sectionsExpanded, toggleSection, handleClosePanel }) => {
   const visibleTabIds = tabs.map(t => t.id);
 
   return (
@@ -255,6 +255,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
       isAdmin={isAdmin}
       sectionsExpanded={sectionsExpanded}
       toggleSection={toggleSection}
+      handleClosePanel={handleClosePanel}
     />
   );
 
