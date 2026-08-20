@@ -170,10 +170,7 @@ const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, o
         {onClose && (
           <button
             type="button"
-            onClick={() => {
-              onClose();
-              closeDrawer();
-            }}
+            onClick={handleClosePanel}
             className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#666666] hover:text-white hover:bg-[#151515] transition-colors duration-200"
           >
             <X className="h-4 w-4 flex-shrink-0 transition-colors" />
@@ -185,7 +182,7 @@ const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, o
   );
 };
 
-const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, businessName, mobileOpen, setMobileOpen, onSettingsClick, userRole }) => {
+const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, businessName, mobileOpen, setMobileOpen, onSettingsClick, userRole, navigate }) => {
   const [sectionsExpanded, setSectionsExpanded] = useState({
     principal: true,
     gestion: true,
@@ -211,6 +208,11 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
       }
     }, 200);
   }, [setMobileOpen]);
+
+  const handleClosePanel = useCallback(() => {
+    if (onClose) onClose();
+    navigate('/');
+  }, [onClose, navigate]);
 
   useEffect(() => {
     if (!mobileOpen) return;

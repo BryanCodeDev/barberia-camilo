@@ -3,7 +3,7 @@ import {
   Shield, Users, Scissors, LayoutDashboard, Calendar,
   BarChart3, MessageSquare, Settings, BookOpen, Menu
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 import { invalidateBusinessSettingsCache } from '../hooks/useBusinessSettings';
 import { useSessionManager } from '../hooks/useSessionManager';
@@ -54,6 +54,7 @@ const TAB_META = {
 
 const AdminPanel = ({ onClose, business }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, login: authLogin, logout: authLogout, user, sessionReplaced, setSessionReplaced } = useSessionManager('admin');
   const { activeTab, setActiveTab } = useAdminNavigation();
   const [showSessionReplacedModal, setShowSessionReplacedModal] = useState(false);
@@ -140,6 +141,7 @@ const AdminPanel = ({ onClose, business }) => {
         password: values.password,
       });
       authLogin(data.token);
+      navigate(location.pathname || '/admin', { replace: true });
     } catch (err) {
       console.error('Login error:', err);
       setLoginError(err.message);
@@ -319,6 +321,7 @@ const AdminPanel = ({ onClose, business }) => {
         setMobileOpen={setMobileNavOpen}
         onSettingsClick={onSettingsClick}
         userRole={userRole}
+        navigate={navigate}
       />
 
       {/* Main Content */}

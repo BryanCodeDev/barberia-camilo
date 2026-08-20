@@ -39,7 +39,7 @@ const AppContent = () => {
     facebook: settings?.facebook || '',
   }), [settings]);
 
-  const isAdminRoute = location.pathname === '/admin';
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   const handleBookingSuccess = () => {
     setShowBookingForm(false);
@@ -67,6 +67,14 @@ const AppContent = () => {
           </>
         } />
         <Route path="/admin" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
+        <Route path="/admin/citas" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
+        <Route path="/admin/barberos" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
+        <Route path="/admin/estaciones" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
+        <Route path="/admin/servicios" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
+        <Route path="/admin/clientes" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
+        <Route path="/admin/desempeno" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
+        <Route path="/admin/notificaciones" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
+        <Route path="/admin/ayuda" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
         <Route path="/cliente" element={<ClientPortal business={businessInfo} />} />
         <Route path="/perfil" element={<Profile business={businessInfo} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
