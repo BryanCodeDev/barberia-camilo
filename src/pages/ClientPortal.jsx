@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw, ArrowLeft } from 'lucide-react';
 import { api, setClientToken } from '../services/api';
 import useAuth from '../hooks/useAuth';
