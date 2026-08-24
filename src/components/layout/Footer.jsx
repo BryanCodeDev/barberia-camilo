@@ -31,8 +31,8 @@ const Footer = ({ business }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
           <div>
             <div className="flex items-center space-x-3 mb-4">
-              <span className="flex items-center justify-center w-9 h-9 rounded-full border border-[#A9812E]/60 text-[#C9A860]">
-                <span className="font-serif font-bold text-xs">EB</span>
+              <span className="flex items-center justify-center w-9 h-9 rounded-full border border-[#A9812E]/60 text-[#C9A860] overflow-hidden">
+                <img src="/assets/img/logo.webp" alt="Logo" className="w-6 h-6 object-contain" />
               </span>
               <span className="font-serif text-lg md:text-xl tracking-wide">{businessInfo.name}</span>
             </div>

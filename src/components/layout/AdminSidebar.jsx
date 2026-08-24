@@ -82,8 +82,8 @@ const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, o
     <div className="flex flex-col h-full">
       <div className="p-5 sm:p-6">
         <div className="flex items-center gap-3">
-          <div className="w-[44px] h-[44px] rounded-xl bg-[#C9A860] flex items-center justify-center flex-shrink-0">
-            <span className="text-[#0A0A0A] font-serif font-bold text-lg">EB</span>
+          <div className="w-[44px] h-[44px] rounded-xl bg-[#C9A860] flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <img src="/assets/img/logo.webp" alt="Logo" className="w-8 h-8 object-contain" />
           </div>
           <div className="min-w-0">
             <h1 className="font-serif text-lg text-white leading-tight truncate">Panel Admin</h1>
