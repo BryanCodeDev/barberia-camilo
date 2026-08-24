@@ -129,7 +129,7 @@ const ServicesSection = () => {
         >
           <button
             onClick={handleGeneralBooking}
-            className="group inline-flex items-center gap-2 bg-black text-[#E0C47A] px-8 py-3.5 rounded-sm font-semibold text-sm uppercase tracking-wide border border-black hover:bg-[#1A1A1A] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(0,0,0,0.4)] transition-all duration-300"
+            className="group inline-flex items-center gap-2 bg-[#C9A860] text-[#0A0A0A] px-8 py-3.5 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#E0C47A] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(201,168,96,0.4)] transition-all duration-300"
           >
             Agendar Cita
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
