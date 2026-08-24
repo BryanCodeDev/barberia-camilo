@@ -63,10 +63,10 @@ const ServiceCard = ({ service, index }) => {
       {/* Action Button */}
       <button
         onClick={handleBookingClick}
-        className="relative w-full flex items-center justify-center gap-2 py-3 px-4 rounded-sm font-semibold text-sm uppercase tracking-wide bg-black text-[#E0C47A] hover:bg-[#1A1A1A] hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)] transition-all duration-300 group/btn overflow-hidden"
+        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-sm font-semibold text-sm uppercase tracking-wide bg-[#C9A860] text-[#0A0A0A] hover:bg-[#E0C47A] transition-colors"
       >
-        <span className="relative z-10">Agendar este servicio</span>
-        <ArrowRight className="relative z-10 h-3.5 w-3.5 group-hover/btn:translate-x-1 transition-transform duration-300" />
+        Agendar este servicio
+        <ArrowRight className="h-3.5 w-3.5" />
       </button>
     </div>
   );
