@@ -1,6 +1,6 @@
 // src/components/layout/Navbar.jsx
 import React, { useState } from 'react';
-import { Scissors, Menu, X, User, ShieldCheck, CalendarDays, MessageCircle } from 'lucide-react';
+import { Scissors, Menu, X, User, ShieldCheck, CalendarDays, MessageCircle, Home } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { openBooking } from '../../utils/booking';
 import ProfileMenu from '../profile/ProfileMenu';
@@ -156,7 +156,7 @@ const Navbar = ({ business }) => {
                 onClick={closeMenu}
                 className={`flex items-center px-3 py-3 text-sm uppercase tracking-wide transition-colors rounded-xl ${isActive('/') ? 'bg-[#A9812E]/15 text-[#C9A860] font-semibold' : 'text-[#D8D3C7] hover:text-[#C9A860] hover:bg-[#1C1A16]'}`}
               >
-                <span className="w-8 text-center mr-2">🏠</span>
+                <Home className="h-5 w-5 mr-2" />
                 Inicio
               </Link>
               <a
@@ -164,7 +164,7 @@ const Navbar = ({ business }) => {
                 onClick={goToServices}
                 className="flex items-center px-3 py-3 text-sm uppercase tracking-wide text-[#D8D3C7] hover:text-[#C9A860] hover:bg-[#1C1A16] transition-colors rounded-xl"
               >
-                <span className="w-8 text-center mr-2">✂️</span>
+                <Scissors className="h-5 w-5 mr-2" />
                 Servicios
               </a>
               <Link
