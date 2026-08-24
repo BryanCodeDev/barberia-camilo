@@ -36,8 +36,8 @@ const ServiceCard = ({ service, index }) => {
 
       {/* Header */}
       <div className="relative flex items-start mb-4">
-        <div className="bg-black p-2.5 rounded-sm mr-3 group-hover:bg-[#1A1A1A] group-hover:shadow-[0_0_14px_rgba(0,0,0,0.25)] transition-all duration-300">
-          <Scissors className="h-4 w-4 text-[#E0C47A]" />
+        <div className="bg-[#C9A860] p-2.5 rounded-sm mr-3 group-hover:bg-[#E0C47A] transition-all duration-300">
+          <Scissors className="h-4 w-4 text-[#0A0A0A]" />
         </div>
         <h3 className="font-serif text-lg text-black leading-snug pt-1.5">
           {service.name}
