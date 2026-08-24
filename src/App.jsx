@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useMemo, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
@@ -53,19 +52,21 @@ const AppContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F3E9D6]">
+    <div className="min-h-screen">
       <Navbar
         business={businessInfo}
       />
 
       <Routes>
         <Route path="/" element={
-          <>
-            <HeroSection business={businessInfo} />
-            <div id="servicios">
-              <ServicesSection />
-            </div>
-          </>
+          <div className="bg-[#F3E9D6]">
+            <>
+              <HeroSection business={businessInfo} />
+              <div id="servicios">
+                <ServicesSection />
+              </div>
+            </>
+          </div>
         } />
         <Route path="/admin" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />
         <Route path="/admin/citas" element={<AdminPanel onClose={() => {}} business={businessInfo} />} />

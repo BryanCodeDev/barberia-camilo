@@ -1,4 +1,3 @@
-// src/components/sections/ServicesSection.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, Gem, CalendarCheck, ArrowRight } from 'lucide-react';
 import ServiceCard from '../common/ServiceCard';

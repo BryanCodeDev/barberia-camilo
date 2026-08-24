@@ -1,4 +1,3 @@
-// src/components/common/ServiceCard.jsx
 import React from 'react';
 import { Clock, Scissors, ArrowRight, Sparkles } from 'lucide-react';
 import { openBooking } from '../../utils/booking';
@@ -18,14 +17,14 @@ const ServiceCard = ({ service, index }) => {
 
   return (
     <div
-      className="relative group bg-[#F3E9D6] rounded-md p-6 border border-[#DCC9A3] hover:border-[#C9A860] hover:-translate-y-2 transition-all duration-300 ease-out shadow-[0_4px_16px_rgba(112,66,20,0.08)] hover:shadow-[0_25px_45px_rgba(112,66,20,0.18)] overflow-hidden"
+      className="relative group bg-white rounded-md p-6 border border-[#EADFC6] hover:border-[#C9A860] hover:-translate-y-2 transition-all duration-300 ease-out shadow-[0_4px_16px_rgba(112,66,20,0.08)] hover:shadow-[0_25px_45px_rgba(112,66,20,0.18)] overflow-hidden"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       {/* Línea negra superior animada */}
       <div className="absolute top-0 left-0 h-[3px] w-0 bg-gradient-to-r from-black via-[#2A2A2A] to-black group-hover:w-full transition-all duration-500 ease-out" />
 
       {/* Marca de agua / ícono decorativo de fondo */}
-      <Scissors className="absolute -right-4 -bottom-4 h-28 w-28 text-black/[0.05] rotate-12 group-hover:rotate-[24deg] group-hover:scale-110 transition-transform duration-500 pointer-events-none" />
+      <Scissors className="absolute -right-4 -bottom-4 h-28 w-28 text-black/[0.04] rotate-12 group-hover:rotate-[24deg] group-hover:scale-110 transition-transform duration-500 pointer-events-none" />
 
       {/* Popular tag */}
       {service.popular && (
@@ -46,7 +45,7 @@ const ServiceCard = ({ service, index }) => {
       </div>
 
       {/* Duration and Price */}
-      <div className="relative flex items-center justify-between mb-4 pb-4 border-b border-[#DCC9A3]">
+      <div className="relative flex items-center justify-between mb-4 pb-4 border-b border-[#EADFC6]">
         <div className="flex items-center text-black/55">
           <Clock className="h-3.5 w-3.5 mr-1.5" />
           <span className="text-xs font-medium uppercase tracking-wide">{service.duration}</span>
