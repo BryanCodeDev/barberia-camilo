@@ -7,7 +7,7 @@ const Footer = ({ business }) => {
     name: business?.name || "BARBERÍA EL BRONX",
     phone: business?.phone || "+301 566 7129",
     whatsapp: business?.whatsapp || "3015667129",
-    email: business?.email || "",
+    email: business?.email || "elbronxofficial@gmail.com",
     address: {
       street: business?.address || "KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL",
       city: "Mosquera",

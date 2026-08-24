@@ -34,7 +34,7 @@ const AppContent = () => {
     address_line: settings?.address || 'KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL',
     phone: settings?.phone || '+301 566 7129',
     whatsapp: settings?.whatsapp_number || '3015667129',
-    email: settings?.email || '',
+    email: settings?.email || 'elbronxofficial@gmail.com',
     instagram: settings?.instagram || '',
     facebook: settings?.facebook || '',
   }), [settings]);

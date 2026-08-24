@@ -236,8 +236,8 @@ const Profile = () => {
           <div className="bg-[#101010] border border-[rgba(201,168,96,0.12)] rounded-2xl p-6 sm:p-8 mb-6">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               <div className="relative flex-shrink-0">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#C9A860] flex items-center justify-center shadow-lg shadow-black/40">
-                  <span className="text-[#0A0A0A] font-serif font-bold text-3xl sm:text-4xl">{initials}</span>
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#C9A860] flex items-center justify-center shadow-lg shadow-black/40 overflow-hidden">
+                  <img src="/assets/img/logo.webp" alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#101010] rounded-full flex items-center justify-center border border-[rgba(201,168,96,0.25)]">
                   <Crown className="h-3 w-3 text-[#C9A860]" />
