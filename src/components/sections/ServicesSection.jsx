@@ -59,13 +59,13 @@ const ServicesSection = () => {
 
   if (loading) {
     return (
-      <section id="servicios" className="py-16 md:py-24 bg-[#f5efe6]">
+      <section id="servicios" className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="animate-pulse flex space-x-4 justify-center">
-              <div className="h-4 bg-[#E4DCC9] rounded w-48"></div>
+              <div className="h-4 bg-[#EFE9DD] rounded w-48"></div>
             </div>
-            <p className="mt-4 text-[#6B6459] text-sm">Cargando servicios...</p>
+            <p className="mt-4 text-black/50 text-sm">Cargando servicios...</p>
           </div>
         </div>
       </section>
@@ -73,7 +73,7 @@ const ServicesSection = () => {
   }
 
   return (
-    <section id="servicios" className="py-16 md:py-24 bg-[#f5efe6] overflow-hidden">
+    <section id="servicios" className="py-16 md:py-24 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           ref={headerRef}
@@ -81,14 +81,14 @@ const ServicesSection = () => {
             headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
-          <span className="relative inline-block text-xs uppercase tracking-[0.35em] text-[#8B6240]">
+          <span className="relative inline-block text-xs uppercase tracking-[0.35em] text-[#C9A860]">
             Carta de servicios
-            <span className="absolute -bottom-1.5 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#8B6240] to-transparent" />
+            <span className="absolute -bottom-1.5 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#C9A860] to-transparent" />
           </span>
-          <h2 className="font-serif text-3xl md:text-5xl text-[#1C1A16] mt-4 mb-4">
+          <h2 className="font-serif text-3xl md:text-5xl text-black mt-4 mb-4">
             El estilo que te representa
           </h2>
-          <p className="text-base md:text-lg text-[#6B6459] max-w-xl mx-auto">
+          <p className="text-base md:text-lg text-black/60 max-w-xl mx-auto">
             Servicios diseñados para el hombre moderno, ejecutados con la técnica y el
             criterio de un equipo que vive de los detalles.
           </p>
@@ -101,8 +101,8 @@ const ServicesSection = () => {
           }`}
         >
           {trustPoints.map(({ icon: Icon, text }, idx) => (
-            <div key={idx} className="flex items-center gap-2 text-sm text-[#6B6459]">
-              <Icon className="h-4 w-4 text-[#8B6240]" />
+            <div key={idx} className="flex items-center gap-2 text-sm text-black/60">
+              <Icon className="h-4 w-4 text-[#C9A860]" />
               {text}
             </div>
           ))}
@@ -117,7 +117,7 @@ const ServicesSection = () => {
               }`}
               style={{ transitionDelay: gridInView ? `${idx * 90}ms` : '0ms' }}
             >
-              <ServiceCard service={service} />
+              <ServiceCard service={service} index={idx} />
             </div>
           ))}
         </div>
@@ -130,12 +130,12 @@ const ServicesSection = () => {
         >
           <button
             onClick={handleGeneralBooking}
-            className="group inline-flex items-center gap-2 bg-[#704214] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#8B6240] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(112,66,20,0.4)] transition-all duration-300"
+            className="group inline-flex items-center gap-2 bg-black text-[#E0C47A] px-8 py-3.5 rounded-sm font-semibold text-sm uppercase tracking-wide border border-black hover:bg-[#C9A860] hover:text-black hover:border-[#C9A860] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(201,168,96,0.5)] transition-all duration-300"
           >
             Agendar Cita
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </button>
-          <p className="mt-3 text-xs text-[#6B6459] uppercase tracking-wide">
+          <p className="mt-3 text-xs text-black/50 uppercase tracking-wide">
             Confirmación inmediata · Sin filas de espera
           </p>
         </div>

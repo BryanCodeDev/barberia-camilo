@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useMemo, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
@@ -52,7 +53,7 @@ const AppContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5efe6]">
+    <div className="min-h-screen bg-white">
       <Navbar
         business={businessInfo}
       />
