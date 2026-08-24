@@ -1,6 +1,6 @@
 // src/components/layout/Footer.jsx
 import React from 'react';
-import { Scissors, Phone, MapPin, Instagram, Facebook, Clock, MessageCircle } from 'lucide-react';
+import { Scissors, Phone, MapPin, Instagram, Facebook, Clock, MessageCircle, Youtube, Music } from 'lucide-react';
 
 const Footer = ({ business }) => {
   const businessInfo = {
@@ -17,8 +17,9 @@ const Footer = ({ business }) => {
     },
     socialMedia: {
       instagram: business?.instagram || "elbronx.official",
-      facebook: business?.facebook || "",
-      tiktok: ""
+      facebook: business?.facebook || "elbronx.official",
+      tiktok: business?.tiktok || "@elbronxbarber",
+      youtube: business?.youtube || "@elbronxofficial"
     }
   };
 
@@ -39,39 +40,61 @@ const Footer = ({ business }) => {
             <p className="text-[#9A9488] mb-5 text-sm leading-relaxed">
               Barbería clásica, masculina, elegante, urbana y profesional. Cortes de cabello, arreglo de barba y servicios de grooming masculino en Mosquera, Cundinamarca.
             </p>
-            <div className="flex space-x-4">
-              {businessInfo.socialMedia.instagram && (
-                <a
-                  href={`https://instagram.com/${businessInfo.socialMedia.instagram.replace('@', '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="h-4 w-4" />
-                </a>
-              )}
-              {businessInfo.socialMedia.facebook && (
-                <a
-                  href={`https://facebook.com/${businessInfo.socialMedia.facebook.replace(/\s+/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                  aria-label="Facebook"
-                >
-                  <Facebook className="h-4 w-4" />
-                </a>
-              )}
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle className="h-4 w-4" />
-              </a>
-            </div>
+             <div className="flex space-x-4">
+               {businessInfo.socialMedia.instagram && (
+                 <a
+                   href={`https://www.instagram.com/${businessInfo.socialMedia.instagram.replace('@', '')}`}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
+                   aria-label="Instagram"
+                 >
+                   <Instagram className="h-4 w-4" />
+                 </a>
+               )}
+               {businessInfo.socialMedia.facebook && (
+                 <a
+                   href={`https://www.facebook.com/${businessInfo.socialMedia.facebook.replace(/\s+/g, '')}`}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
+                   aria-label="Facebook"
+                 >
+                   <Facebook className="h-4 w-4" />
+                 </a>
+               )}
+               {businessInfo.socialMedia.tiktok && (
+                 <a
+                   href={`https://www.tiktok.com/${businessInfo.socialMedia.tiktok.replace('@', '')}`}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
+                   aria-label="TikTok"
+                 >
+                   <Music className="h-4 w-4" />
+                 </a>
+               )}
+               {businessInfo.socialMedia.youtube && (
+                 <a
+                   href={`https://www.youtube.com/${businessInfo.socialMedia.youtube.replace('@', '')}`}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
+                   aria-label="YouTube"
+                 >
+                   <Youtube className="h-4 w-4" />
+                 </a>
+               )}
+               <a
+                 href={whatsappLink}
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
+                 aria-label="WhatsApp"
+               >
+                 <MessageCircle className="h-4 w-4" />
+               </a>
+             </div>
           </div>
 
           <div>

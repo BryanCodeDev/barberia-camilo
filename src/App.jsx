@@ -36,7 +36,9 @@ const AppContent = () => {
     whatsapp: settings?.whatsapp_number || '3015667129',
     email: settings?.email || 'elbronxofficial@gmail.com',
     instagram: settings?.instagram || 'elbronx.official',
-    facebook: settings?.facebook || '',
+    facebook: settings?.facebook || 'elbronx.official',
+    tiktok: settings?.tiktok || '@elbronxbarber',
+    youtube: settings?.youtube || '@elbronxofficial',
   }), [settings]);
 
   const isAdminRoute = location.pathname.startsWith('/admin');

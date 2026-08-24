@@ -75,6 +75,10 @@ const SettingsEditor = ({ onUpdate, userRole }) => {
             <Input label="Email" name="email" value={settings?.email || ''} onChange={handleChange} type="email" disabled={userRole !== 'admin'} />
             <Input label="Direccion" name="address" value={settings?.address || ''} onChange={handleChange} disabled={userRole !== 'admin'} />
             <Input label="Zona horaria" name="timezone" value={settings?.timezone || 'America/Bogota'} onChange={handleChange} disabled={userRole !== 'admin'} />
+            <Input label="Instagram" name="instagram" value={settings?.instagram || ''} onChange={handleChange} placeholder="elbronx.official" disabled={userRole !== 'admin'} />
+            <Input label="Facebook" name="facebook" value={settings?.facebook || ''} onChange={handleChange} placeholder="elbronx.official" disabled={userRole !== 'admin'} />
+            <Input label="TikTok" name="tiktok" value={settings?.tiktok || ''} onChange={handleChange} placeholder="@elbronxbarber" disabled={userRole !== 'admin'} />
+            <Input label="YouTube" name="youtube" value={settings?.youtube || ''} onChange={handleChange} placeholder="@elbronxofficial" disabled={userRole !== 'admin'} />
           </div>
         </div>
 
