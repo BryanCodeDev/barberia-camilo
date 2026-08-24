@@ -302,8 +302,8 @@ const AdminPanel = ({ onClose, business }) => {
       {/* Mobile Header */}
       <div className="md:hidden bg-[#090909]/95 border-b border-[rgba(255,255,255,0.05)] px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#C9A860] flex items-center justify-center">
-            <span className="text-[#0A0A0A] font-serif font-bold text-sm">EB</span>
+          <div className="w-9 h-9 rounded-xl bg-[#C9A860] flex items-center justify-center overflow-hidden">
+            <img src="/assets/img/logo.webp" alt="Logo" className="w-6 h-6 object-contain" />
           </div>
           <div>
             <h1 className="font-serif text-lg text-white leading-tight">{userRole === 'barber' ? 'Mi Panel' : 'Panel Admin'}</h1>

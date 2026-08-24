@@ -257,8 +257,8 @@ const ClientPortal = ({ business }) => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <span className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-[#A9812E] text-[#C9A860]">
-              <span className="font-serif font-bold text-sm">EB</span>
+            <span className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-[#A9812E] text-[#C9A860] overflow-hidden">
+              <img src="/assets/img/logo.webp" alt="Logo" className="w-6 h-6 object-contain" />
             </span>
           </div>
           <h1 className="font-serif text-3xl md:text-4xl text-white mb-3">Portal del Cliente</h1>
