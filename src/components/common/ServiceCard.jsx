@@ -17,7 +17,7 @@ const ServiceCard = ({ service, index }) => {
   };
 
   return (
-    <div className="relative group bg-[#1C1A16] rounded-sm p-6 border border-[#3A362F] hover:border-[#C9A860]/60 hover:-translate-y-1 transition-all duration-200 shadow-sm hover:shadow-md">
+    <div className="relative group bg-[#3A2E28] rounded-sm p-6 border border-[#4A3F38] hover:border-[#C9A860]/60 hover:-translate-y-1 transition-all duration-200 shadow-sm hover:shadow-md">
       {/* Popular tag */}
       {service.popular && (
         <div className="absolute -top-2.5 right-5 bg-[#C9A860] text-[#0A0A0A] text-[10px] font-semibold uppercase tracking-wider px-3 py-1 rounded-sm">
@@ -36,18 +36,18 @@ const ServiceCard = ({ service, index }) => {
       </div>
 
       {/* Duration and Price */}
-      <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#3A362F]">
-        <div className="flex items-center text-[#9A9488]">
+      <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#4A3F38]">
+        <div className="flex items-center text-[#C4B8A9]">
           <Clock className="h-3.5 w-3.5 mr-1.5" />
           <span className="text-xs font-medium">{service.duration}</span>
         </div>
-        <div className="text-xl font-semibold text-[#C9A860]">
+        <div className="text-xl font-semibold text-[#E0C47A]">
           {formatPrice(service.price)}
         </div>
       </div>
 
       {/* Description */}
-      <p className="text-[#9A9488] text-sm leading-relaxed mb-5 line-clamp-3">
+      <p className="text-[#C4B8A9] text-sm leading-relaxed mb-5 line-clamp-3">
         {service.description}
       </p>
 
