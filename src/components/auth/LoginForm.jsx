@@ -35,7 +35,17 @@ const LoginForm = ({ fields, onSubmit, loading, error, submitLabel, headerIcon: 
   };
 
   return (
-    <div className="w-full max-w-md mx-auto animate-scale-in">
+    <div className="relative w-full max-w-md mx-auto animate-scale-in">
+      <div
+        className="absolute inset-0 -z-10 rounded-2xl overflow-hidden"
+        style={{
+          backgroundImage: "url('/assets/img/herosection.webp')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      <div className="absolute inset-0 -z-10 bg-ink/90 rounded-2xl" />
       <div className="bg-ink border border-ink-line rounded-2xl shadow-2xl overflow-hidden">
         <div className="p-6 sm:p-8 text-center border-b border-ink-line">
           <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-lg shadow-gold/20">
