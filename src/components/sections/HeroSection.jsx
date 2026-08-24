@@ -61,7 +61,7 @@ const HeroSection = ({ business }) => {
           backgroundRepeat: 'no-repeat',
         }}
       />
-      <div className="absolute inset-0 bg-[#121113]/80 z-[1]" />
+      <div className="absolute inset-0 bg-[#121113]/92 z-[1]" />
       <style>{`
         @keyframes bronx-float {
           0%, 100% { transform: translateY(0px); }
