@@ -45,7 +45,7 @@ const LoginForm = ({ fields, onSubmit, loading, error, submitLabel, headerIcon: 
           backgroundRepeat: 'no-repeat',
         }}
       />
-      <div className="absolute inset-0 -z-10 bg-ink/90 rounded-2xl" />
+      <div className="absolute inset-0 -z-10 bg-ink/85 rounded-2xl" />
       <div className="bg-ink border border-ink-line rounded-2xl shadow-2xl overflow-hidden">
         <div className="p-6 sm:p-8 text-center border-b border-ink-line">
           <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-lg shadow-gold/20">

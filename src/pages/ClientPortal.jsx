@@ -239,7 +239,17 @@ const ClientPortal = ({ business }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F2EA]">
+    <div className="relative min-h-screen bg-[#F6F2EA]">
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          backgroundImage: "url('/assets/img/herosection.webp')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      <div className="absolute inset-0 -z-10 bg-[#F6F2EA]/85" />
       <SessionReplacedModal
         isOpen={showSessionReplacedModal}
         onClose={handleSessionReplacedClose}
