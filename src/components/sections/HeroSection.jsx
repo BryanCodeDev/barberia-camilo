@@ -52,6 +52,16 @@ const HeroSection = ({ business }) => {
 
   return (
     <section className="relative bg-[#121113] text-[#F6F2EA] py-24 md:py-32 overflow-hidden">
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: "url('/assets/img/herosection.webp')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      <div className="absolute inset-0 bg-[#121113]/80 z-[1]" />
       <style>{`
         @keyframes bronx-float {
           0%, 100% { transform: translateY(0px); }
