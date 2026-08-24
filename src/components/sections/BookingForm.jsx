@@ -61,7 +61,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         name: business.name || 'BARBERÍA EL BRONX',
         title: business.title || 'EL BRONX',
         address: business.address || 'Mosquera, Cundinamarca',
-        address_line: business.address_line || 'CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01',
+        address_line: business.address_line || 'KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL',
       });
     }
   }, [business]);
@@ -397,7 +397,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                 </div>
                 <div className="text-left sm:text-right">
                   <div className="text-sm text-[#6B6459]">{localBusiness.address || 'Mosquera, Cundinamarca'}</div>
-                  <div className="text-xs text-[#B7B1A3]">{localBusiness.address_line || 'CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01'}</div>
+                  <div className="text-xs text-[#B7B1A3]">{localBusiness.address_line || 'KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL'}</div>
                 </div>
               </div>
               <div className="space-y-3">

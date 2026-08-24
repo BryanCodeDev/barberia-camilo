@@ -9,11 +9,11 @@ const Footer = ({ business }) => {
     whatsapp: business?.whatsapp || "3015667129",
     email: business?.email || "",
     address: {
-      street: business?.address || "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01",
+      street: business?.address || "KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL",
       city: "Mosquera",
       state: "Cundinamarca",
       country: "Colombia",
-      full: business?.address || "CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01, Mosquera, Cundinamarca"
+      full: business?.address || "KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL, Mosquera, Cundinamarca"
     },
     socialMedia: {
       instagram: business?.instagram || "",

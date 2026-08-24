@@ -21,7 +21,7 @@ const ServiceManager = ({ userRole }) => {
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
-  const [form, setForm] = useState({ name: '', category: 'corte', duration_minutes: 30, price_cents: 0, description: '', is_popular: false, is_active: true });
+  const [form, setForm] = useState({ name: '', category: 'corte', duration_minutes: 30, price_cents: 0, description: '', is_popular: false });
   const [saving, setSaving] = useState(false);
 
   const fetchServices = async () => {
@@ -40,7 +40,7 @@ const ServiceManager = ({ userRole }) => {
 
   const openCreateModal = () => {
     setEditingService(null);
-    setForm({ name: '', category: 'corte', duration_minutes: 30, price_cents: 0, description: '', is_popular: false, is_active: true });
+    setForm({ name: '', category: 'corte', duration_minutes: 30, price_cents: 0, description: '', is_popular: false });
     setModalOpen(true);
   };
 
@@ -53,7 +53,6 @@ const ServiceManager = ({ userRole }) => {
       price_cents: service.price_cents,
       description: service.description || '',
       is_popular: !!service.is_popular,
-      is_active: !!service.is_active,
     });
     setModalOpen(true);
   };
@@ -78,7 +77,7 @@ const ServiceManager = ({ userRole }) => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Desactivar este servicio?')) return;
+    if (!window.confirm('Eliminar este servicio permanentemente?')) return;
     try {
       await api.delete(`/admin/services/${id}`);
       fetchServices();
@@ -153,9 +152,6 @@ const ServiceManager = ({ userRole }) => {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-3">
-                    <span className={`px-2.5 py-0.5 rounded-lg text-xs font-medium border ${service.is_active ? 'bg-status-green/10 text-status-green.deep border-status-green/20' : 'bg-status-red/10 text-status-red.deep border-status-red/20'}`}>
-                      {service.is_active ? 'Activo' : 'Inactivo'}
-                    </span>
                     {service.is_popular && (
                       <span className="px-2.5 py-0.5 rounded-lg text-xs font-medium bg-gold/10 text-gold-deep border border-gold/20">
                         Popular
@@ -175,7 +171,7 @@ const ServiceManager = ({ userRole }) => {
                     <button
                       onClick={() => handleDelete(service.id)}
                       className="action-btn action-btn-delete"
-                      title="Desactivar"
+                      title="Eliminar"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -250,15 +246,6 @@ const ServiceManager = ({ userRole }) => {
                   className="w-4 h-4 rounded border-cream-line text-gold focus:ring-gold/40"
                 />
                 <span>Servicio popular</span>
-              </label>
-              <label className="flex items-center gap-2.5 text-sm text-stone cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.is_active}
-                  onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                  className="w-4 h-4 rounded border-cream-line text-gold focus:ring-gold/40"
-                />
-                <span>Activo</span>
               </label>
             </div>
           </div>

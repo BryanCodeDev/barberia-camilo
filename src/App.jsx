@@ -31,7 +31,7 @@ const AppContent = () => {
     name: settings?.business_name || 'BARBERÍA EL BRONX',
     title: settings?.barber_name || 'EL BRONX',
     address: settings?.address || 'Mosquera, Cundinamarca',
-    address_line: settings?.address || 'CALLE 3 #4 - 77 EDIFICIO INFINITO LOCAL 01',
+    address_line: settings?.address || 'KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL',
     phone: settings?.phone || '+301 566 7129',
     whatsapp: settings?.whatsapp_number || '3015667129',
     email: settings?.email || '',
