@@ -16,7 +16,7 @@ const Footer = ({ business }) => {
       full: business?.address || "KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL, Mosquera, Cundinamarca"
     },
     socialMedia: {
-      instagram: business?.instagram || "",
+      instagram: business?.instagram || "elbronx.official",
       facebook: business?.facebook || "",
       tiktok: ""
     }

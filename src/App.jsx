@@ -35,7 +35,7 @@ const AppContent = () => {
     phone: settings?.phone || '+301 566 7129',
     whatsapp: settings?.whatsapp_number || '3015667129',
     email: settings?.email || 'elbronxofficial@gmail.com',
-    instagram: settings?.instagram || '',
+    instagram: settings?.instagram || 'elbronx.official',
     facebook: settings?.facebook || '',
   }), [settings]);
 
