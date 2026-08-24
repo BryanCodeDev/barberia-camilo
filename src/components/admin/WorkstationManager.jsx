@@ -13,6 +13,8 @@ const WorkstationManager = ({ userRole }) => {
   const [editingWorkstation, setEditingWorkstation] = useState(null);
   const [form, setForm] = useState({ name: '', barber_id: '', is_active: true });
   const [saving, setSaving] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const fetchWorkstations = async () => {
     try {
@@ -74,12 +76,20 @@ const WorkstationManager = ({ userRole }) => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Desactivar esta estacion?')) return;
+    setItemToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      await api.delete(`/admin/workstations/${id}`);
+      await api.delete(`/admin/workstations/${itemToDelete}`);
       fetchWorkstations();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -213,6 +223,29 @@ const WorkstationManager = ({ userRole }) => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => { setDeleteModalOpen(false); setItemToDelete(null); }}
+        title="Eliminar estacion"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-stone">Esta accion desactivara la estacion permanentemente. No se puede deshacer.</p>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => { setDeleteModalOpen(false); setItemToDelete(null); }}
+              className="btn-secondary"
+            >
+              Cancelar
+            </button>
+            <button type="button" onClick={confirmDelete} className="bg-status-red text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-all">
+              Eliminar
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

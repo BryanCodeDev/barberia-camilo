@@ -13,6 +13,8 @@ const ClientManager = ({ userRole }) => {
   const [editingClient, setEditingClient] = useState(null);
   const [form, setForm] = useState({ name: '', phone: '', email: '', notes: '' });
   const [saving, setSaving] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
   const canEdit = userRole === 'admin';
 
   const fetchClients = useCallback(async () => {
@@ -61,12 +63,20 @@ const ClientManager = ({ userRole }) => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Eliminar este cliente?')) return;
+    setItemToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      await api.delete(`/admin/clients/${id}`);
+      await api.delete(`/admin/clients/${itemToDelete}`);
       fetchClients();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -188,6 +198,29 @@ const ClientManager = ({ userRole }) => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => { setDeleteModalOpen(false); setItemToDelete(null); }}
+        title="Eliminar cliente"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-stone">Esta accion eliminara el cliente permanentemente. No se puede deshacer.</p>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => { setDeleteModalOpen(false); setItemToDelete(null); }}
+              className="btn-secondary"
+            >
+              Cancelar
+            </button>
+            <button type="button" onClick={confirmDelete} className="bg-status-red text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-all">
+              Eliminar
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

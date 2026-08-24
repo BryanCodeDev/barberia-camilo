@@ -34,6 +34,8 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
   });
   const [appointmentSaving, setAppointmentSaving] = useState(false);
   const [profitMessage, setProfitMessage] = useState('');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const fetchAppointments = useCallback(async () => {
     try {
@@ -72,14 +74,22 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
   };
 
   const handleDeleteAppointment = async (id) => {
-    if (!window.confirm('Estas seguro de que quieres eliminar esta cita?')) return;
+    setItemToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDeleteAppointment = async () => {
+    if (!itemToDelete) return;
     try {
       setError(null);
-      await api.delete(`/appointments/${id}`);
+      await api.delete(`/appointments/${itemToDelete}`);
       await fetchAppointments();
       await fetchStats();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -484,6 +494,29 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => { setDeleteModalOpen(false); setItemToDelete(null); }}
+        title="Eliminar cita"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-stone">Esta accion eliminara la cita permanentemente. No se puede deshacer.</p>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => { setDeleteModalOpen(false); setItemToDelete(null); }}
+              className="btn-secondary"
+            >
+              Cancelar
+            </button>
+            <button type="button" onClick={confirmDeleteAppointment} className="bg-status-red text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-all">
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
