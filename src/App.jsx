@@ -53,7 +53,7 @@ const AppContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F3E9D6]">
       <Navbar
         business={businessInfo}
       />
