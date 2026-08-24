@@ -25,7 +25,7 @@ const ServiceCard = ({ service, index }) => {
       <div className="absolute top-0 left-0 h-[3px] w-0 bg-gradient-to-r from-[#C9A860] via-[#E0C47A] to-[#C9A860] group-hover:w-full transition-all duration-500 ease-out" />
 
       {/* Marca de agua / ícono decorativo de fondo */}
-      <Scissors className="absolute -right-4 -bottom-4 h-28 w-28 text-white/[0.04] rotate-12 group-hover:rotate-[24deg] group-hover:scale-110 transition-transform duration-500 pointer-events-none" />
+      <Scissors className="absolute -right-4 -bottom-4 h-28 w-28 text-[#C9A860]/[0.06] rotate-12 group-hover:rotate-[24deg] group-hover:scale-110 group-hover:text-[#C9A860]/[0.1] transition-all duration-500 pointer-events-none" />
 
       {/* Popular tag */}
       {service.popular && (
@@ -37,7 +37,7 @@ const ServiceCard = ({ service, index }) => {
 
       {/* Header */}
       <div className="relative flex items-start mb-4">
-        <div className="bg-[#C9A860] p-2.5 rounded-sm mr-3 group-hover:bg-white transition-colors duration-300">
+        <div className="bg-[#C9A860] p-2.5 rounded-sm mr-3 group-hover:bg-[#E0C47A] group-hover:shadow-[0_0_16px_rgba(201,168,96,0.5)] transition-all duration-300">
           <Scissors className="h-4 w-4 text-black" />
         </div>
         <h3 className="font-serif text-lg text-white leading-snug pt-1.5">
@@ -64,7 +64,7 @@ const ServiceCard = ({ service, index }) => {
       {/* Action Button */}
       <button
         onClick={handleBookingClick}
-        className="relative w-full flex items-center justify-center gap-2 py-3 px-4 rounded-sm font-semibold text-sm uppercase tracking-wide bg-[#C9A860] text-black hover:bg-white hover:text-black transition-all duration-300 group/btn overflow-hidden"
+        className="relative w-full flex items-center justify-center gap-2 py-3 px-4 rounded-sm font-semibold text-sm uppercase tracking-wide bg-[#C9A860] text-black hover:bg-[#E0C47A] hover:shadow-[0_8px_20px_rgba(201,168,96,0.35)] transition-all duration-300 group/btn overflow-hidden"
       >
         <span className="relative z-10">Agendar este servicio</span>
         <ArrowRight className="relative z-10 h-3.5 w-3.5 group-hover/btn:translate-x-1 transition-transform duration-300" />
