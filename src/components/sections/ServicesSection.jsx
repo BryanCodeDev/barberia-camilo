@@ -59,13 +59,13 @@ const ServicesSection = () => {
 
   if (loading) {
     return (
-      <section id="servicios" className="py-16 md:py-24 bg-[#F6F2EA]">
+      <section id="servicios" className="py-16 md:py-24 bg-[#1C1A16]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="animate-pulse flex space-x-4 justify-center">
-              <div className="h-4 bg-[#E4DCC9] rounded w-48"></div>
+              <div className="h-4 bg-[#2A2723] rounded w-48"></div>
             </div>
-            <p className="mt-4 text-[#6B6459] text-sm">Cargando servicios...</p>
+            <p className="mt-4 text-[#9A9488] text-sm">Cargando servicios...</p>
           </div>
         </div>
       </section>
@@ -73,7 +73,7 @@ const ServicesSection = () => {
   }
 
   return (
-    <section id="servicios" className="py-16 md:py-24 bg-[#F6F2EA] overflow-hidden">
+    <section id="servicios" className="py-16 md:py-24 bg-[#1C1A16] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           ref={headerRef}
@@ -81,14 +81,14 @@ const ServicesSection = () => {
             headerInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
           }`}
         >
-          <span className="relative inline-block text-xs uppercase tracking-[0.35em] text-[#A9812E]">
+          <span className="relative inline-block text-xs uppercase tracking-[0.35em] text-[#C9A860]">
             Carta de servicios
-            <span className="absolute -bottom-1.5 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#A9812E] to-transparent" />
+            <span className="absolute -bottom-1.5 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#C9A860] to-transparent" />
           </span>
-          <h2 className="font-serif text-3xl md:text-5xl text-[#1C1A16] mt-4 mb-4">
+          <h2 className="font-serif text-3xl md:text-5xl text-[#F6F2EA] mt-4 mb-4">
             El estilo que te representa
           </h2>
-          <p className="text-base md:text-lg text-[#6B6459] max-w-xl mx-auto">
+          <p className="text-base md:text-lg text-[#9A9488] max-w-xl mx-auto">
             Servicios diseñados para el hombre moderno, ejecutados con la técnica y el
             criterio de un equipo que vive de los detalles.
           </p>
@@ -101,8 +101,8 @@ const ServicesSection = () => {
           }`}
         >
           {trustPoints.map(({ icon: Icon, text }, idx) => (
-            <div key={idx} className="flex items-center gap-2 text-sm text-[#6B6459]">
-              <Icon className="h-4 w-4 text-[#A9812E]" />
+            <div key={idx} className="flex items-center gap-2 text-sm text-[#9A9488]">
+              <Icon className="h-4 w-4 text-[#C9A860]" />
               {text}
             </div>
           ))}
@@ -130,12 +130,12 @@ const ServicesSection = () => {
         >
           <button
             onClick={handleGeneralBooking}
-            className="group inline-flex items-center gap-2 bg-[#121113] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#A9812E] hover:text-[#121113] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(18,17,19,0.5)] transition-all duration-300"
+            className="group inline-flex items-center gap-2 bg-[#C9A860] text-[#0A0A0A] px-8 py-3.5 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#E0C47A] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(201,168,96,0.4)] transition-all duration-300"
           >
             Agendar Cita
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </button>
-          <p className="mt-3 text-xs text-[#8A8579] uppercase tracking-wide">
+          <p className="mt-3 text-xs text-[#9A9488] uppercase tracking-wide">
             Confirmación inmediata · Sin filas de espera
           </p>
         </div>
