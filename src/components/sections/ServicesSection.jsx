@@ -59,7 +59,7 @@ const ServicesSection = () => {
 
   if (loading) {
     return (
-      <section id="servicios" className="py-16 md:py-24 bg-[#EDE9E0]">
+      <section id="servicios" className="py-16 md:py-24 bg-[#f0c095]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="animate-pulse flex space-x-4 justify-center">
@@ -73,7 +73,7 @@ const ServicesSection = () => {
   }
 
   return (
-    <section id="servicios" className="py-16 md:py-24 bg-[#EDE9E0] overflow-hidden">
+    <section id="servicios" className="py-16 md:py-24 bg-[#f0c095] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           ref={headerRef}
