@@ -59,11 +59,11 @@ const ServicesSection = () => {
 
   if (loading) {
     return (
-      <section id="servicios" className="py-16 md:py-24 bg-[#f0c095]">
+      <section id="servicios" className="py-16 md:py-24 bg-[#f5efe6]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="animate-pulse flex space-x-4 justify-center">
-              <div className="h-4 bg-[#D4CFC6] rounded w-48"></div>
+              <div className="h-4 bg-[#E4DCC9] rounded w-48"></div>
             </div>
             <p className="mt-4 text-[#6B6459] text-sm">Cargando servicios...</p>
           </div>
@@ -73,7 +73,7 @@ const ServicesSection = () => {
   }
 
   return (
-    <section id="servicios" className="py-16 md:py-24 bg-[#f0c095] overflow-hidden">
+    <section id="servicios" className="py-16 md:py-24 bg-[#f5efe6] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           ref={headerRef}
