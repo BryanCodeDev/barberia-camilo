@@ -249,7 +249,7 @@ const ClientPortal = ({ business }) => {
           backgroundRepeat: 'no-repeat',
         }}
       />
-      <div className="absolute inset-0 -z-10 bg-[#F6F2EA]/85" />
+      <div className="absolute inset-0 -z-10 bg-[#121113]/85" />
       <SessionReplacedModal
         isOpen={showSessionReplacedModal}
         onClose={handleSessionReplacedClose}
@@ -261,8 +261,8 @@ const ClientPortal = ({ business }) => {
               <span className="font-serif font-bold text-sm">EB</span>
             </span>
           </div>
-          <h1 className="font-serif text-3xl md:text-4xl text-[#1C1A16] mb-3">Portal del Cliente</h1>
-          <p className="text-[#6B6459]">Accede para ver tu historial de citas</p>
+          <h1 className="font-serif text-3xl md:text-4xl text-white mb-3">Portal del Cliente</h1>
+          <p className="text-[#A3A3A3]">Accede para ver tu historial de citas</p>
         </div>
 
         {!isLoggedIn ? (
