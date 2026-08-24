@@ -2,13 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { X, Monitor, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const SessionReplacedModal = ({ isOpen, onClose, onConfirm }) => {
+const SessionReplacedModal = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!isOpen) return;
     const handleEsc = (e) => {
-      if (e.key === 'Escape') onConfirm();
+      if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', handleEsc);
     document.body.style.overflow = 'hidden';
@@ -16,7 +16,7 @@ const SessionReplacedModal = ({ isOpen, onClose, onConfirm }) => {
       document.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = '';
     };
-  }, [isOpen, onConfirm]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -24,7 +24,7 @@ const SessionReplacedModal = ({ isOpen, onClose, onConfirm }) => {
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4">
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in"
-        onClick={onConfirm}
+        onClick={onClose}
         aria-hidden="true"
       />
       <div
@@ -52,7 +52,7 @@ const SessionReplacedModal = ({ isOpen, onClose, onConfirm }) => {
 
           <button
             onClick={() => {
-              onConfirm();
+              onClose();
               navigate('/');
             }}
             className="w-full px-5 py-3 rounded-xl text-sm font-semibold bg-[#C9A860] text-[#0A0A0A] hover:bg-[#E0C47A] transition-all duration-200 btn-press"
