@@ -239,7 +239,7 @@ const ClientPortal = ({ business }) => {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#F6F2EA]">
+    <div className="relative min-h-screen">
       <div
         className="absolute inset-0 -z-10"
         style={{

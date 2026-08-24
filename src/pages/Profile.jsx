@@ -199,7 +199,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#050505]">
+    <div className="relative min-h-screen">
       <div
         className="absolute inset-0 -z-10"
         style={{
