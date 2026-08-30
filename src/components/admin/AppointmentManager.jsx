@@ -37,6 +37,9 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
   const [profitMessage, setProfitMessage] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [itemToCancel, setItemToCancel] = useState(null);
+  const [cancelReason, setCancelReason] = useState('');
 
   const fetchAppointments = useCallback(async () => {
     try {
@@ -77,6 +80,31 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
   const handleDeleteAppointment = async (id) => {
     setItemToDelete(id);
     setDeleteModalOpen(true);
+  };
+
+  const handleCancelInit = async (id) => {
+    setItemToCancel(id);
+    setCancelReason('');
+    setCancelModalOpen(true);
+  };
+
+  const confirmCancel = async () => {
+    if (!itemToCancel) return;
+    try {
+      setError(null);
+      await api.patch(`/appointments/${itemToCancel}/status`, {
+        status: 'cancelled',
+        cancelled_reason: cancelReason.trim() || null,
+      });
+      await fetchAppointments();
+      await fetchStats();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setCancelModalOpen(false);
+      setItemToCancel(null);
+      setCancelReason('');
+    }
   };
 
   const confirmDeleteAppointment = async () => {
@@ -339,7 +367,7 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
             <AppointmentList
               appointments={filteredAppointments}
               onConfirm={handleStatusChange}
-              onCancel={handleStatusChange}
+              onCancel={handleCancelInit}
               onComplete={handleStatusChange}
               onNoShow={handleStatusChange}
               onDelete={handleDeleteAppointment}
@@ -495,6 +523,36 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={cancelModalOpen}
+        onClose={() => { setCancelModalOpen(false); setItemToCancel(null); setCancelReason(''); }}
+        title="Cancelar cita"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-stone">Ingresa el motivo de la cancelacion (opcional):</p>
+          <textarea
+            className="w-full px-3 py-2.5 border border-cream-line rounded-xl text-sm bg-white focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none transition-all duration-200 resize-none text-ink-soft"
+            rows="3"
+            placeholder="Motivo de cancelacion..."
+            value={cancelReason}
+            onChange={e => setCancelReason(e.target.value)}
+          />
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => { setCancelModalOpen(false); setItemToCancel(null); setCancelReason(''); }}
+              className="btn-secondary"
+            >
+              Volver
+            </button>
+            <button type="button" onClick={confirmCancel} className="bg-status-red text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-all">
+              Cancelar cita
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal
         isOpen={deleteModalOpen}

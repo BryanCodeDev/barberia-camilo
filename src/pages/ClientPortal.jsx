@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw, ArrowLeft, Mail } from 'lucide-react';
+import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw, ArrowLeft, Mail, Lock } from 'lucide-react';
 import { api, setClientToken } from '../services/api';
 import useAuth from '../hooks/useAuth';
 import { useSessionManager } from '../hooks/useSessionManager';
@@ -25,7 +25,7 @@ const ClientPortal = ({ business }) => {
   } = useSessionManager('client');
   const isLoggedIn = clientAuth && sessionOk;
   const effectiveUser = sessionUser || clientUser;
-  const [loginStep, setLoginStep] = useState('email');
+  const [loginMethod, setLoginMethod] = useState('email');
   const [clientEmail, setClientEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [clientName, setClientName] = useState('');
@@ -36,6 +36,9 @@ const ClientPortal = ({ business }) => {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [remainingAttempts, setRemainingAttempts] = useState(null);
   const [showSessionReplacedModal, setShowSessionReplacedModal] = useState(false);
+  const [requiresPasswordSetup, setRequiresPasswordSetup] = useState(false);
+  const [passwordSetup, setPasswordSetup] = useState({ password: '', confirm: '' });
+  const [passwordErrors, setPasswordErrors] = useState({});
   const cooldownIntervalRef = useRef(null);
   const clientToken = isLoggedIn ? localStorage.getItem('client_token') : null;
   const { subscribe, disconnect: wsDisconnect } = useWebSocket(clientToken);
@@ -103,6 +106,18 @@ const ClientPortal = ({ business }) => {
     }
   };
 
+  const validatePasswordSetup = () => {
+    const errors = {};
+    if (!passwordSetup.password || passwordSetup.password.length < 6) {
+      errors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }
+    if (passwordSetup.password !== passwordSetup.confirm) {
+      errors.confirm = 'Las contraseñas no coinciden';
+    }
+    setPasswordErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleRequestEmailOtp = async (values) => {
     setError(null);
     const email = values.email.trim();
@@ -114,7 +129,7 @@ const ClientPortal = ({ business }) => {
       setLoading(true);
       await api.post('/auth/client/request-email-otp', { email });
       setClientEmail(email);
-      setLoginStep('otp');
+      setLoginMethod('otp');
       setOtpCode('');
       setRemainingAttempts(null);
       startCooldown(60);
@@ -143,6 +158,13 @@ const ClientPortal = ({ business }) => {
         code: code,
       });
 
+      if (data.has_password) {
+        setLoginMethod('password');
+        setOtpCode('');
+        setError(null);
+        return;
+      }
+
       if (data.token) {
         setClientToken(data.token);
         sessionLogin(data.token);
@@ -161,6 +183,39 @@ const ClientPortal = ({ business }) => {
         }
       } else {
         setError(err.message || 'Error al verificar el código');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordLogin = async (values) => {
+    setError(null);
+    const email = values.email.trim();
+    const password = values.password;
+    if (!email || !password) {
+      setError('Ingresa tu correo y contraseña');
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = await api.post('/auth/client/login', { email, password });
+
+      if (data.token) {
+        setClientToken(data.token);
+        sessionLogin(data.token);
+      }
+      localStorage.setItem('client_id', data.id);
+      localStorage.setItem('client_email', email);
+      setClientId(data.id);
+      setClientName(data.name);
+      setLoginStep('logged_in');
+      fetchMyAppointments(data.id);
+    } catch (err) {
+      if (err.data?.error) {
+        setError(err.data.error);
+      } else {
+        setError(err.message || 'Error al iniciar sesión');
       }
     } finally {
       setLoading(false);
@@ -202,9 +257,12 @@ const ClientPortal = ({ business }) => {
       setClientEmail('');
       setClientName('');
       setAppointments([]);
-      setLoginStep('email');
+      setLoginMethod('email');
       setOtpCode('');
       setRemainingAttempts(null);
+      setRequiresPasswordSetup(false);
+      setPasswordSetup({ password: '', confirm: '' });
+      setPasswordErrors({});
       if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
       setResendCooldown(0);
       localStorage.removeItem('client_id');
@@ -267,26 +325,56 @@ const ClientPortal = ({ business }) => {
 
         {!isLoggedIn ? (
           <div>
-            {loginStep === 'email' && (
-              <LoginForm
-                fields={[
-                  { name: 'email', label: 'Correo electrónico', type: 'email', placeholder: 'tu@email.com', required: true },
-                ]}
-                onSubmit={handleRequestEmailOtp}
-                loading={loading}
-                error={error}
-                submitLabel={
-                  <span className="flex items-center justify-center gap-2">
-                    <Send className="h-5 w-5" /> Enviar Código
-                  </span>
-                }
-                headerIcon={Mail}
-                headerTitle="Iniciar Sesión"
-                headerSubtitle="Ingresa tu correo electrónico y te enviaremos un código de verificación de 6 dígitos"
-              />
+            {loginMethod === 'email' && (
+              <div className="max-w-md mx-auto">
+                <div className="bg-ink border border-ink-line rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="p-6 sm:p-8 text-center border-b border-ink-line">
+                    <div className="w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center shadow-lg shadow-gold/20 overflow-hidden">
+                      <img src="/assets/img/logo.webp" alt="Logo" className="w-12 h-12 object-contain" />
+                    </div>
+                    <h2 className="font-serif text-2xl text-cream mb-2">Iniciar Sesion</h2>
+                    <p className="text-sm text-stone-light">Ingresa tu correo electronico para recibir un codigo de 6 digitos</p>
+                  </div>
+                  <div className="p-6 sm:p-8 space-y-4">
+                    {error && <ErrorBanner message={error} className="mb-4" />}
+                    <LoginForm
+                      fields={[
+                        { name: 'email', label: 'Correo electrónico', type: 'email', placeholder: 'tu@email.com', required: true },
+                      ]}
+                      onSubmit={handleRequestEmailOtp}
+                      loading={loading}
+                      error={error}
+                      submitLabel={
+                        <span className="flex items-center justify-center gap-2">
+                          <Send className="h-5 w-5" /> Enviar Código
+                        </span>
+                      }
+                      headerIcon={Mail}
+                      headerTitle="Iniciar Sesion"
+                      headerSubtitle="Ingresa tu correo electrónico y te enviaremos un código de verificación de 6 dígitos"
+                    />
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-ink-line"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-ink text-stone-light">o inicia sesion con contraseña</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setLoginMethod('password')}
+                      className="w-full text-sm text-[#8B6A22] hover:underline flex items-center justify-center"
+                    >
+                      <Lock className="h-4 w-4 mr-1" /> Ingresar con contraseña
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
 
-            {loginStep === 'otp' && (
+            {loginMethod === 'otp' && (
               <>
                 <LoginForm
                   fields={[
@@ -320,7 +408,65 @@ const ClientPortal = ({ business }) => {
                     </button>
                   )}
                 </div>
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => { setLoginMethod('email'); setError(null); }}
+                    className="text-sm text-[#8B6A22] hover:underline"
+                  >
+                    Volver a ingresar correo
+                  </button>
+                </div>
               </>
+            )}
+
+            {loginMethod === 'password' && (
+              <div className="max-w-md mx-auto">
+                <div className="bg-ink border border-ink-line rounded-2xl shadow-2xl overflow-hidden">
+                  <div className="p-6 sm:p-8 text-center border-b border-ink-line">
+                    <div className="w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center shadow-lg shadow-gold/20 overflow-hidden">
+                      <img src="/assets/img/logo.webp" alt="Logo" className="w-12 h-12 object-contain" />
+                    </div>
+                    <h2 className="font-serif text-2xl text-cream mb-2">Iniciar Sesion</h2>
+                    <p className="text-sm text-stone-light">Ingresa tu correo y contraseña</p>
+                  </div>
+                  <div className="p-6 sm:p-8 space-y-4">
+                    {error && <ErrorBanner message={error} className="mb-4" />}
+                    <LoginForm
+                      fields={[
+                        { name: 'email', label: 'Correo electrónico', type: 'email', placeholder: 'tu@email.com', required: true },
+                        { name: 'password', label: 'Contraseña', type: 'password', placeholder: 'Tu contraseña', required: true },
+                      ]}
+                      onSubmit={handlePasswordLogin}
+                      loading={loading}
+                      error={error}
+                      submitLabel={
+                        <span className="flex items-center justify-center gap-2">
+                          <LogIn className="h-5 w-5" /> Ingresar
+                        </span>
+                      }
+                      headerIcon={Lock}
+                      headerTitle="Iniciar Sesion"
+                      headerSubtitle="Ingresa tu correo y contraseña"
+                    />
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-ink-line"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-ink text-stone-light">o ingresa con codigo</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => { setLoginMethod('email'); setError(null); }}
+                      className="w-full text-sm text-[#8B6A22] hover:underline flex items-center justify-center"
+                    >
+                      <Mail className="h-4 w-4 mr-1" /> Ingresar con código por correo
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         ) : (
@@ -395,7 +541,7 @@ const ClientPortal = ({ business }) => {
                 <div className="text-center py-16 px-4">
                   <Calendar className="h-12 w-12 text-[#D8D3C7] mx-auto mb-4" />
                   <h3 className="font-serif text-lg text-[#1C1A16] mb-2">No tienes citas agendadas</h3>
-                  <p className="text-[#6B6459] max-w-md mx-auto text-sm">Cuando agendes una cita con tu correo, aparecerá aquí.</p>
+                  <p className="text-[#6B6459] max-w-md mx-auto text-sm">Cuando agendes una cita, aparecerá aquí.</p>
                 </div>
               )}
             </div>

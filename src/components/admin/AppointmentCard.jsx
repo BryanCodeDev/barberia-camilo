@@ -112,10 +112,7 @@ const AppointmentCard = ({
                   <Check className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
                 <button
-                  onClick={() => {
-                    const reason = window.prompt('Motivo de cancelacion:');
-                    if (reason !== null && reason.trim().length > 0) onCancel(appointment.id, 'cancelled', reason.trim());
-                  }}
+                  onClick={() => onCancel(appointment.id)}
                   className="action-btn action-btn-cancel"
                   title="Cancelar cita"
                 >
