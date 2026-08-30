@@ -570,7 +570,7 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
             >
               Cancelar
             </button>
-            <button type="button" onClick={confirmDeleteAppointment} className="bg-status-red text-white px-4 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-all">
+            <button type="button" onClick={confirmDeleteAppointment} className="bg-status-red text-black px-4 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-all">
               Eliminar
             </button>
           </div>

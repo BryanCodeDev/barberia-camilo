@@ -95,7 +95,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     { id: 1, name: 'Servicios', icon: Scissors },
     { id: 2, name: 'Fecha y Hora', icon: CalendarDays },
     { id: 3, name: 'Tus Datos', icon: User },
-    { id: 4, name: 'Confirmar', icon: Check },
+    { id: 4, name: 'Resumen', icon: Check },
   ];
 
   const getAvailableDates = () => {
@@ -517,8 +517,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
           {currentStep === 4 && (
             <div className="p-4 sm:p-6">
               <div className="mb-6">
-                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Confirmar Reserva</h2>
-                <p className="text-[#6B6459] text-sm">Un último vistazo antes de asegurar tu cupo</p>
+                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Resumen de la Reserva</h2>
+                <p className="text-[#6B6459] text-sm">Tu cita se confirmara automaticamente al agendar</p>
               </div>
 
               <div className="bg-[#F6F2EA] border border-[#E4DCC9] rounded-sm p-4 sm:p-6 mb-6">
@@ -545,11 +545,11 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
               <div className="bg-white border border-[#E4DCC9] rounded-sm p-4">
                 <h4 className="font-medium text-[#1C1A16] mb-2 flex items-center"><Info className="h-4 w-4 mr-2 text-[#A9812E]" />Información importante</h4>
-                <ul className="text-sm text-[#6B6459] space-y-1 list-disc list-inside">
-                  <li>Por favor llega 5 minutos antes de tu cita</li>
-                  <li>Te contactaremos para confirmar los detalles</li>
-                  <li>En caso de cancelación, avísanos con 24h de anticipación</li>
-                </ul>
+                  <ul className="text-sm text-[#6B6459] space-y-1 list-disc list-inside">
+                    <li>Por favor llega 5 minutos antes de tu cita</li>
+                    <li>Recibiras un correo con la confirmacion automatica</li>
+                    <li>En caso de cancelacion, avisanos con 24h de anticipacion</li>
+                  </ul>
               </div>
             </div>
           )}
@@ -606,7 +606,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                     </>
                   ) : (
                     <>
-                      Confirmar Cita
+                      Reservar Cita
                       <Send className="h-4 w-4" />
                     </>
                   )}
