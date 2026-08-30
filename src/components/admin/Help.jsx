@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, ChevronRight, Search, FileText, Users, BarChart3, Calendar, Scissors, Monitor, User, Globe, Bell, Settings, HelpCircle } from 'lucide-react';
+import { BookOpen, ChevronRight, Search, FileText, Users, BarChart3, Calendar, Scissors, Monitor, User, Globe, Bell, Settings, HelpCircle, QrCode } from 'lucide-react';
 
 const sections = [
   {
@@ -23,22 +23,24 @@ El sistema esta dividido en dos partes principales:
 - Gestiona barberos, estaciones, servicios y clientes
 - Ve estadisticas completas de ingresos y desempeno
 - Cambia el estado de cualquier cita
-- Accede a la configuracion del negocio
-- Accede al manual de ayuda (esta pagina)
+- **Puede eliminar cualquier registro**: citas, clientes, barberos, servicios y estaciones
+- Accede a la configuracion del negocio y al manual de ayuda
 
 ### Barbero
 - Ve sus propias citas y agenda
 - Cambia el estado de sus citas (pendiente, confirmada, completada, cancelada)
 - Ve sus estadisticas de ingresos y desempeno personal
 - Ve la lista de clientes que ha atendido
+- **Puede eliminar solo sus propias citas** (no las de otros barberos)
 - NO puede crear/editar/eliminar barberos, estaciones, servicios ni clientes
 - NO puede acceder a la configuracion del negocio ni al manual de ayuda
 
 ### Cliente
-- Se registra e inicia sesion con codigo OTP por WhatsApp
-- Agenda citas eligiendo servicio, estacion, fecha y hora
+- Se registra e inicia sesion escaneando un **codigo QR** o con Google
+- Agenda citas eligiendo servicio, fecha y hora
 - Ve su historial de citas
-- Edita su perfil (nombre, telefono)`,
+- Edita su perfil (nombre, telefono, email)
+- Puede cancelar sus propias citas mientras esten pendientes o confirmadas`,
   },
   {
     id: 'dashboard',
@@ -65,10 +67,10 @@ Muestra las citas de cada barbero para la fecha seleccionada. Los barberos solo 
     id: 'appointments',
     title: 'Gestion de Citas',
     icon: <Calendar className="h-4 w-4" />,
-    content: `Las citas son el corazon del sistema. Una cita representa una reserva de un servicio para un cliente en una estacion y fecha/hora especifica.
+    content: `Las citas son el corazon del sistema. Una cita representa una reserva de un servicio para un cliente en una fecha/hora especifica.
 
 **Flujo de una cita:**
-1. El cliente agenda desde el portal web
+1. El cliente agenda desde el portal web escaneando QR o con Google
 2. La cita se crea con estado "pendiente"
 3. El barbero/admin la confirma
 4. El dia de la cita, se marca como "completada" o "no-show"
@@ -93,7 +95,8 @@ Muestra las citas de cada barbero para la fecha seleccionada. Los barberos solo 
 **Reglas de negocio:**
 - No se puede agendar en horarios ocupados
 - La cancelacion requiere anticipacion minima (configurable)
-- Los barberos solo pueden modificar SUS propias citas`,
+- Los barberos solo pueden modificar SUS propias citas
+- **Eliminacion**: El administrador puede eliminar cualquier cita. Los barberos solo pueden eliminar sus propias citas.`,
   },
   {
     id: 'barbers',
@@ -169,12 +172,13 @@ Cuando un cliente elige una estacion al agendar, la cita se asigna automaticamen
     id: 'clients',
     title: 'Clientes',
     icon: <User className="h-4 w-4" />,
-    content: `Los clientes son las personas que agendan citas. Cada cliente se identifica por su numero de telefono.
+    content: `Los clientes son las personas que agendan citas. Cada cliente se identifica por su telefono, email o codigo QR unico.
 
 **Campos de un cliente:**
 - Nombre: Nombre completo
 - Telefono: Numero de 10 digitos (identificador unico)
 - Email: Correo electronico (opcional)
+- Codigo QR: Codigo unico para acceso rapido al portal
 - Notas: Observaciones adicionales
 - Total de visitas: Cantidad de citas completadas
 - Ultima visita: Fecha de la ultima cita
@@ -183,6 +187,12 @@ Cuando un cliente elige una estacion al agendar, la cita se asigna automaticamen
 - Admin: Crear, editar, eliminar y ver todos los clientes
 - Barbero: Ver solo clientes que ha atendido
 - Cliente: Ver y editar solo su propio perfil
+
+**Acceso de clientes:**
+Los clientes pueden iniciar sesion de tres formas:
+1. **Codigo QR**: Escaneando su codigo QR personal desde el portal
+2. **Google**: Iniciando sesion con su cuenta de Google
+3. **Telefono**: Ingresando su numero y verificando con codigo OTP por WhatsApp
 
 **Clientes inactivos:**
 El sistema detecta automaticamente clientes que no han agendado en mas de 40 dias. Esto ayuda a crear campanas de re-engagement.`,
@@ -196,44 +206,53 @@ El sistema detecta automaticamente clientes que no han agendado en mas de 40 dia
 **Como agendar una cita:**
 1. El cliente ingresa a la pagina web
 2. Selecciona el servicio deseado
-3. Elige una estacion de trabajo
-4. Selecciona la fecha en el calendario
-5. Elige el horario disponible
-6. Ingresa su nombre y telefono
-7. Confirma la reserva
+3. Elige la fecha en el calendario
+4. Selecciona el horario disponible
+5. Ingresa sus datos (nombre, telefono, email opcional)
+6. Confirma la reserva
+7. Recibe confirmacion por WhatsApp y correo electronico
 
 **Inicio de sesion:**
-- Por telefono: Ingresa su numero, recibe un codigo OTP por WhatsApp, lo ingresa y accede
-- Por Google: Usa "Iniciar sesion con Google" para entrar con su cuenta de Google
+- **Codigo QR**: Escanea tu codigo QR personal con la camara del movil
+- **Google**: Usa "Iniciar sesion con Google" para entrar con tu cuenta de Google
+- **Telefono**: Ingresa tu numero, recibe un codigo OTP por WhatsApp, lo ingresas y accedes
 
 **Perfil del cliente:**
 - Ver historial de citas
 - Ver estado de cada cita
-- Editar nombre y telefono
+- Editar nombre, telefono y email
+- Ver su codigo QR personal
 - Cerrar sesion
 
 **Notificaciones:**
-- Confirmacion de cita por WhatsApp
+- Confirmacion de cita por WhatsApp y correo electronico
 - Recordatorio de cita (opcional)
-- Codigo de verificacion OTP`,
+- Codigo de verificacion OTP por WhatsApp`,
   },
   {
     id: 'notifications',
     title: 'Notificaciones',
     icon: <Bell className="h-4 w-4" />,
-    content: `El sistema registra todas las notificaciones enviadas. Actualmente el registro se guarda en la base de datos.
+    content: `El sistema registra todas las notificaciones enviadas y permite automatizar el envio por correo electronico.
 
 **Tipos de notificacion:**
-- Confirmacion de booking: Se envia cuando se crea una cita
+- Confirmacion de booking: Se envia automaticamente cuando se crea una cita
 - Recordatorio: Se envia el dia anterior a la cita
-- OTP: Codigo de verificacion para acceso de clientes
+- Verificacion: Codigo de acceso para clientes por correo o WhatsApp
+
+**Proveedores soportados:**
+- **Gmail**: SMTP de Gmail (requiere contrasena de aplicacion)
+- **Outlook/Hotmail**: SMTP de Office365
+- **Yahoo**: SMTP de Yahoo Mail
+- Configurable mediante la variable EMAIL_PROVIDER en el archivo .env
 
 **Configuracion:**
-Para enviar notificaciones reales por WhatsApp y correo, es necesario configurar:
+Para enviar notificaciones reales, es necesario configurar:
 - WhatsApp: Meta WhatsApp Cloud API o Twilio
-- Email: Brevo, Gmail SMTP o similar
+- Email: Gmail, Outlook, Yahoo o cualquier SMTP
+- Las variables se configuran en el archivo '.env' del backend
 
-Las variables se configuran en el archivo '.env' del backend.`,
+Las notificaciones se registran en la tabla 'notifications' de la base de datos para auditoria.`,
   },
   {
     id: 'settings',
@@ -250,11 +269,34 @@ Las variables se configuran en el archivo '.env' del backend.`,
 - Email: Correo de contacto
 - Instagram: Usuario de Instagram
 - Facebook: Nombre de pagina de Facebook
+- TikTok: Usuario de TikTok
+- YouTube: Canal de YouTube
 
 **Como acceder:**
 Solo administradores pueden acceder a la configuracion. Se encuentra en el dashboard, boton "Configuracion".
 
 **Importante:** Los cambios se reflejan inmediatamente en el portal del cliente.`,
+  },
+  {
+    id: 'qr-codes',
+    title: 'Codigos QR de Clientes',
+    icon: <QrCode className="h-4 w-4" />,
+    content: `Cada cliente tiene un codigo QR unico que le permite acceder al portal de forma rapida y segura.
+
+**Como funciona:**
+1. El cliente accede a su perfil en el panel administrativo
+2. Se genera un codigo QR unico vinculado a su cuenta
+3. El cliente escanea el codigo con su camara movil
+4. El sistema valida el codigo y le da acceso automatico
+
+**Caracteristicas:**
+- Codigo QR unico por cliente
+- No requiere telefono ni contrasena para iniciar sesion
+- Sesion segura con JWT y control de sesiones activas
+- El codigo QR se puede descargar o compartir
+
+**Uso en el portal:**
+Los clientes tambien pueden escanear su QR directamente desde el portal publico para iniciar sesion sin escribir datos.`,
   },
   {
     id: 'faq',
@@ -278,18 +320,26 @@ R: No. Cada barbero solo ve sus propias citas y su propia agenda.
 **P: Como elimino una cita?**
 R: Los administradores pueden eliminar cualquier cita. Los barberos solo pueden eliminar sus propias citas.
 
+**P: Como elimino un cliente?**
+R: Solo el administrador puede eliminar clientes desde la seccion "Clientes".
+
+**P: Como elimino un servicio?**
+R: Solo el administrador puede eliminar servicios desde la seccion "Servicios".
+
 **P: Que significa "buffer_minutes_between_appointments"?**
 R: Son los minutos de descanso entre citas. Si esta en 0, las citas se pueden agenda una tras otra sin descanso.
 
 **P: Como actualizo la pagina del cliente?**
-R: El sitio web es una SPA (Single Page Application). Los cambios se reflejan al recargar la pagina.`,
+R: El sitio web es una SPA (Single Page Application). Los cambios se reflejan al recargar la pagina.
+
+**P: Como accede un cliente con codigo QR?**
+R: El cliente debe escanear su codigo QR personal desde el portal del cliente. El sistema valida el codigo y le da acceso automatico sin necesidad de telefono o contrasena.`,
   },
 ];
 
 const Help = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const filteredSections = sections.filter(
     (section) =>
