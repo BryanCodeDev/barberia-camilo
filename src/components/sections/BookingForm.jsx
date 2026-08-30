@@ -177,12 +177,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     setAvailableSlots([]);
     const slots = await fetchAvailableSlots(date, selectedService.id);
     setAvailableSlots(slots);
-    if (slots.length > 0) {
-      setSelectedTime(slots[0]);
-      setCurrentStep(5);
-    } else {
-      setCurrentStep(4);
-    }
+    setCurrentStep(4);
   };
 
   const handleTimeSelect = (time) => {
