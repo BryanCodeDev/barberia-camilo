@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, ChevronRight, Search, FileText, Users, BarChart3, Calendar, Scissors, Monitor, User, Globe, Bell, Settings, HelpCircle, QrCode } from 'lucide-react';
+import { BookOpen, ChevronRight, Search, FileText, Users, BarChart3, Calendar, Scissors, Monitor, User, Globe, Bell, Settings, HelpCircle } from 'lucide-react';
 
 const sections = [
   {
@@ -36,7 +36,7 @@ El sistema esta dividido en dos partes principales:
 - NO puede acceder a la configuracion del negocio ni al manual de ayuda
 
 ### Cliente
-- Se registra e inicia sesion escaneando un **codigo QR** o con Google
+- Se registra e inicia sesion con **correo electronico y codigo OTP de 6 digitos**
 - Agenda citas eligiendo servicio, fecha y hora
 - Ve su historial de citas
 - Edita su perfil (nombre, telefono, email)
@@ -172,13 +172,13 @@ Cuando un cliente elige una estacion al agendar, la cita se asigna automaticamen
     id: 'clients',
     title: 'Clientes',
     icon: <User className="h-4 w-4" />,
-    content: `Los clientes son las personas que agendan citas. Cada cliente se identifica por su telefono, email o codigo QR unico.
+    content: `Los clientes son las personas que agendan citas. Cada cliente se identifica por su telefono, email o cuenta de Google.
 
 **Campos de un cliente:**
 - Nombre: Nombre completo
-- Telefono: Numero de 10 digitos (identificador unico)
-- Email: Correo electronico (opcional)
-- Codigo QR: Codigo unico para acceso rapido al portal
+- Telefono: Numero de 10 digitos (opcional)
+- Email: Correo electronico (identificador unico para acceso)
+- Codigo QR: Codigo unico para acceso rapido (opcional)
 - Notas: Observaciones adicionales
 - Total de visitas: Cantidad de citas completadas
 - Ultima visita: Fecha de la ultima cita
@@ -190,7 +190,7 @@ Cuando un cliente elige una estacion al agendar, la cita se asigna automaticamen
 
 **Acceso de clientes:**
 Los clientes pueden iniciar sesion de tres formas:
-1. **Codigo QR**: Escaneando su codigo QR personal desde el portal
+1. **Correo electronico**: Ingresa su email, recibe un codigo OTP de 6 digitos por correo y lo ingresa
 2. **Google**: Iniciando sesion con su cuenta de Google
 3. **Telefono**: Ingresando su numero y verificando con codigo OTP por WhatsApp
 
@@ -213,7 +213,7 @@ El sistema detecta automaticamente clientes que no han agendado en mas de 40 dia
 7. Recibe confirmacion por WhatsApp y correo electronico
 
 **Inicio de sesion:**
-- **Codigo QR**: Escanea tu codigo QR personal con la camara del movil
+- **Correo electronico**: Ingresa tu email, recibe un codigo OTP de 6 digitos por correo, lo ingresas y accedes
 - **Google**: Usa "Iniciar sesion con Google" para entrar con tu cuenta de Google
 - **Telefono**: Ingresa tu numero, recibe un codigo OTP por WhatsApp, lo ingresas y accedes
 
@@ -221,13 +221,12 @@ El sistema detecta automaticamente clientes que no han agendado en mas de 40 dia
 - Ver historial de citas
 - Ver estado de cada cita
 - Editar nombre, telefono y email
-- Ver su codigo QR personal
 - Cerrar sesion
 
 **Notificaciones:**
 - Confirmacion de cita por WhatsApp y correo electronico
 - Recordatorio de cita (opcional)
-- Codigo de verificacion OTP por WhatsApp`,
+- Codigo de verificacion OTP por correo o WhatsApp`,
   },
   {
     id: 'notifications',
@@ -278,35 +277,14 @@ Solo administradores pueden acceder a la configuracion. Se encuentra en el dashb
 **Importante:** Los cambios se reflejan inmediatamente en el portal del cliente.`,
   },
   {
-    id: 'qr-codes',
-    title: 'Codigos QR de Clientes',
-    icon: <QrCode className="h-4 w-4" />,
-    content: `Cada cliente tiene un codigo QR unico que le permite acceder al portal de forma rapida y segura.
-
-**Como funciona:**
-1. El cliente accede a su perfil en el panel administrativo
-2. Se genera un codigo QR unico vinculado a su cuenta
-3. El cliente escanea el codigo con su camara movil
-4. El sistema valida el codigo y le da acceso automatico
-
-**Caracteristicas:**
-- Codigo QR unico por cliente
-- No requiere telefono ni contrasena para iniciar sesion
-- Sesion segura con JWT y control de sesiones activas
-- El codigo QR se puede descargar o compartir
-
-**Uso en el portal:**
-Los clientes tambien pueden escanear su QR directamente desde el portal publico para iniciar sesion sin escribir datos.`,
-  },
-  {
     id: 'faq',
     title: 'Preguntas Frecuentes',
     icon: <HelpCircle className="h-4 w-4" />,
     content: `**P: No puedo iniciar sesion como barbero**
 R: Verifica que el barbero este activo en la base de datos. El usuario y contrasena son sensibles a mayusculas.
 
-**P: Un cliente no recibe el codigo OTP**
-R: Verifica que el servicio de WhatsApp este configurado correctamente. Actualmente las notificaciones se registran en la base de datos.
+**P: Un cliente no recibe el codigo OTP por correo**
+R: Verifica que el servicio de email este configurado correctamente (Gmail, Outlook o Yahoo SMTP). Actualmente las notificaciones se registran en la base de datos.
 
 **P: No aparecen horarios disponibles**
 R: Verifica que haya estaciones activas y que los horarios no esten ocupados por otras citas.
@@ -332,8 +310,8 @@ R: Son los minutos de descanso entre citas. Si esta en 0, las citas se pueden ag
 **P: Como actualizo la pagina del cliente?**
 R: El sitio web es una SPA (Single Page Application). Los cambios se reflejan al recargar la pagina.
 
-**P: Como accede un cliente con codigo QR?**
-R: El cliente debe escanear su codigo QR personal desde el portal del cliente. El sistema valida el codigo y le da acceso automatico sin necesidad de telefono o contrasena.`,
+**P: Como accede un cliente con correo?**
+R: El cliente debe ingresar su correo electronico en el portal, recibir un codigo OTP de 6 digitos por correo y ingresarlo para acceder automaticamente sin necesidad de telefono o contrasena.`,
   },
 ];
 

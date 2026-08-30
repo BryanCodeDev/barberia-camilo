@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw, ArrowLeft, QrCode } from 'lucide-react';
+import { User, Phone, Calendar, Clock, MessageSquare, LogIn, Send, RefreshCw, ArrowLeft, Mail } from 'lucide-react';
 import { api, setClientToken } from '../services/api';
 import useAuth from '../hooks/useAuth';
 import { useSessionManager } from '../hooks/useSessionManager';
 import useWebSocket from '../hooks/useWebSocket';
 import LoginForm from '../components/auth/LoginForm';
-import QRScanner from '../components/auth/QRScanner';
 import Button from '../components/ui/Button';
 import ErrorBanner from '../components/ui/ErrorBanner';
 import Loader from '../components/ui/Loader';
@@ -26,8 +25,8 @@ const ClientPortal = ({ business }) => {
   } = useSessionManager('client');
   const isLoggedIn = clientAuth && sessionOk;
   const effectiveUser = sessionUser || clientUser;
-  const [loginStep, setLoginStep] = useState('qr');
-  const [clientPhone, setClientPhone] = useState('');
+  const [loginStep, setLoginStep] = useState('email');
+  const [clientEmail, setClientEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [clientName, setClientName] = useState('');
   const [clientId, setClientId] = useState(null);
@@ -37,7 +36,6 @@ const ClientPortal = ({ business }) => {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [remainingAttempts, setRemainingAttempts] = useState(null);
   const [showSessionReplacedModal, setShowSessionReplacedModal] = useState(false);
-  const [showQrScanner, setShowQrScanner] = useState(false);
   const cooldownIntervalRef = useRef(null);
   const clientToken = isLoggedIn ? localStorage.getItem('client_token') : null;
   const { subscribe, disconnect: wsDisconnect } = useWebSocket(clientToken);
@@ -65,10 +63,10 @@ const ClientPortal = ({ business }) => {
 
   useEffect(() => {
     const storedId = localStorage.getItem('client_id');
-    const storedPhone = localStorage.getItem('client_phone');
-    if (storedId && storedPhone && !isLoggedIn) {
+    const storedEmail = localStorage.getItem('client_email');
+    if (storedId && storedEmail && !isLoggedIn) {
       setClientId(storedId);
-      setClientPhone(storedPhone);
+      setClientEmail(storedEmail);
     }
   }, []);
 
@@ -105,45 +103,17 @@ const ClientPortal = ({ business }) => {
     }
   };
 
-  const handleQrScan = async (qrCode) => {
+  const handleRequestEmailOtp = async (values) => {
     setError(null);
-    try {
-      setLoading(true);
-      const data = await api.post('/auth/client/qr', { qr_code: qrCode });
-
-      if (data.token) {
-        setClientToken(data.token);
-        sessionLogin(data.token);
-      }
-      localStorage.setItem('client_id', data.id);
-      localStorage.setItem('client_phone', data.phone || '');
-      setClientId(data.id);
-      setClientName(data.name);
-      setLoginStep('logged_in');
-      setShowQrScanner(false);
-      fetchMyAppointments(data.id);
-    } catch (err) {
-      if (err.data?.error) {
-        setError(err.data.error);
-      } else {
-        setError(err.message || 'Error al escanear el codigo QR');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRequestOtp = async (values) => {
-    setError(null);
-    const phone = values.phone.trim();
-    if (!phone || !/^\d{10}$/.test(phone)) {
-      setError('Ingresa un número de teléfono válido de 10 dígitos');
+    const email = values.email.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Ingresa un correo electrónico válido');
       return;
     }
     try {
       setLoading(true);
-      await api.post('/auth/client/request-otp', { phone });
-      setClientPhone(phone);
+      await api.post('/auth/client/request-email-otp', { email });
+      setClientEmail(email);
       setLoginStep('otp');
       setOtpCode('');
       setRemainingAttempts(null);
@@ -163,13 +133,13 @@ const ClientPortal = ({ business }) => {
     setError(null);
     const code = values.code.trim();
     if (!code || !/^\d{6}$/.test(code)) {
-      setError('Ingresa el código de 6 dígitos que recibiste por WhatsApp');
+      setError('Ingresa el código de 6 dígitos que recibiste por correo');
       return;
     }
     try {
       setLoading(true);
-      const data = await api.post('/auth/client/verify-otp', {
-        phone: clientPhone,
+      const data = await api.post('/auth/client/verify-email-otp', {
+        email: clientEmail,
         code: code,
       });
 
@@ -178,7 +148,7 @@ const ClientPortal = ({ business }) => {
         sessionLogin(data.token);
       }
       localStorage.setItem('client_id', data.id);
-      localStorage.setItem('client_phone', clientPhone);
+      localStorage.setItem('client_email', clientEmail);
       setClientId(data.id);
       setClientName(data.name);
       setLoginStep('logged_in');
@@ -203,7 +173,7 @@ const ClientPortal = ({ business }) => {
     setRemainingAttempts(null);
     try {
       setLoading(true);
-      await api.post('/auth/client/request-otp', { phone: clientPhone });
+      await api.post('/auth/client/request-email-otp', { email: clientEmail });
       startCooldown(60);
     } catch (err) {
       if (err.data?.error) {
@@ -229,16 +199,16 @@ const ClientPortal = ({ business }) => {
       sessionLogout();
       clientLogout();
       setClientId(null);
-      setClientPhone('');
+      setClientEmail('');
       setClientName('');
       setAppointments([]);
-      setLoginStep('qr');
+      setLoginStep('email');
       setOtpCode('');
       setRemainingAttempts(null);
       if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
       setResendCooldown(0);
       localStorage.removeItem('client_id');
-      localStorage.removeItem('client_phone');
+      localStorage.removeItem('client_email');
       navigate('/');
     }
   };
@@ -284,11 +254,6 @@ const ClientPortal = ({ business }) => {
         isOpen={showSessionReplacedModal}
         onClose={handleSessionReplacedClose}
       />
-      <QRScanner
-        isOpen={showQrScanner}
-        onClose={() => setShowQrScanner(false)}
-        onScan={handleQrScan}
-      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -302,74 +267,23 @@ const ClientPortal = ({ business }) => {
 
         {!isLoggedIn ? (
           <div>
-            {loginStep === 'qr' && (
-              <div className="max-w-md mx-auto">
-                <div className="bg-ink border border-ink-line rounded-2xl shadow-2xl overflow-hidden">
-                  <div className="p-6 sm:p-8 text-center border-b border-ink-line">
-                    <div className="w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center shadow-lg shadow-gold/20 overflow-hidden">
-                      <img src="/assets/img/logo.webp" alt="Logo" className="w-12 h-12 object-contain" />
-                    </div>
-                    <h2 className="font-serif text-2xl text-cream mb-2">Iniciar Sesion</h2>
-                    <p className="text-sm text-stone-light">Escanea tu codigo QR o ingresa tu telefono</p>
-                  </div>
-                  <div className="p-6 sm:p-8 space-y-4">
-                    {error && <ErrorBanner message={error} className="mb-4" />}
-                    <Button
-                      onClick={() => setShowQrScanner(true)}
-                      className="w-full"
-                      size="lg"
-                    >
-                      <QrCode className="h-5 w-5 mr-2" />
-                      Escanear Codigo QR
-                    </Button>
-
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-ink-line"></div>
-                      </div>
-                      <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-ink text-stone-light">o continua con telefono</span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => setLoginStep('phone')}
-                      className="w-full text-sm text-[#8B6A22] hover:underline"
-                    >
-                      Ingresar con numero de telefono
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {loginStep === 'phone' && (
-              <>
-                <LoginForm
-                  fields={[
-                    { name: 'phone', label: 'Teléfono', type: 'tel', placeholder: '3101234567', required: true, maxLength: 10 },
-                  ]}
-                  onSubmit={handleRequestOtp}
-                  loading={loading}
-                  error={error}
-                  submitLabel={
-                    <span className="flex items-center justify-center gap-2">
-                      <Send className="h-5 w-5" /> Enviar Código
-                    </span>
-                  }
-                  headerIcon={Phone}
-                  headerTitle="Iniciar Sesion"
-                  headerSubtitle="Ingresa tu número de teléfono y te enviaremos un código de verificación por WhatsApp"
-                />
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => { setLoginStep('qr'); setError(null); }}
-                    className="text-sm text-[#8B6A22] hover:underline flex items-center justify-center mx-auto"
-                  >
-                    <QrCode className="h-4 w-4 mr-1" /> Volver a escanear QR
-                  </button>
-                </div>
-              </>
+            {loginStep === 'email' && (
+              <LoginForm
+                fields={[
+                  { name: 'email', label: 'Correo electrónico', type: 'email', placeholder: 'tu@email.com', required: true },
+                ]}
+                onSubmit={handleRequestEmailOtp}
+                loading={loading}
+                error={error}
+                submitLabel={
+                  <span className="flex items-center justify-center gap-2">
+                    <Send className="h-5 w-5" /> Enviar Código
+                  </span>
+                }
+                headerIcon={Mail}
+                headerTitle="Iniciar Sesión"
+                headerSubtitle="Ingresa tu correo electrónico y te enviaremos un código de verificación de 6 dígitos"
+              />
             )}
 
             {loginStep === 'otp' && (
@@ -386,9 +300,9 @@ const ClientPortal = ({ business }) => {
                       <LogIn className="h-5 w-5" /> Verificar Código
                     </span>
                   }
-                  headerIcon={Phone}
+                  headerIcon={Mail}
                   headerTitle="Código de Verificación"
-                  headerSubtitle={`Ingresa el código de 6 dígitos que recibiste por WhatsApp en <strong>${clientPhone}</strong>`}
+                  headerSubtitle={`Ingresa el código de 6 dígitos que recibiste por correo en <strong>${clientEmail}</strong>`}
                 />
                 {remainingAttempts !== null && (
                   <p className="mt-2 text-xs text-[#8B2E2E] text-center">{remainingAttempts} intento(s) restante(s)</p>
@@ -405,14 +319,6 @@ const ClientPortal = ({ business }) => {
                       <RefreshCw className="h-4 w-4 mr-1" /> Reenviar código
                     </button>
                   )}
-                </div>
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={() => { setLoginStep('qr'); setError(null); }}
-                    className="text-sm text-[#8B6A22] hover:underline flex items-center justify-center mx-auto"
-                  >
-                    <QrCode className="h-4 w-4 mr-1" /> Volver a escanear QR
-                  </button>
                 </div>
               </>
             )}
@@ -431,7 +337,7 @@ const ClientPortal = ({ business }) => {
                   </button>
                   <div>
                     <h2 className="font-serif text-xl text-[#1C1A16]">Bienvenido, {clientName || 'Cliente'}</h2>
-                    <p className="text-sm text-[#6B6459] mt-1">Teléfono: {clientPhone}</p>
+                    <p className="text-sm text-[#6B6459] mt-1">Email: {clientEmail}</p>
                   </div>
                 </div>
                 <Button variant="secondary" onClick={handleLogout} size="sm">
@@ -489,7 +395,7 @@ const ClientPortal = ({ business }) => {
                 <div className="text-center py-16 px-4">
                   <Calendar className="h-12 w-12 text-[#D8D3C7] mx-auto mb-4" />
                   <h3 className="font-serif text-lg text-[#1C1A16] mb-2">No tienes citas agendadas</h3>
-                  <p className="text-[#6B6459] max-w-md mx-auto text-sm">Cuando agendes una cita con tu teléfono, aparecerá aquí.</p>
+                  <p className="text-[#6B6459] max-w-md mx-auto text-sm">Cuando agendes una cita con tu correo, aparecerá aquí.</p>
                 </div>
               )}
             </div>
