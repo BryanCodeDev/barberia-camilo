@@ -118,7 +118,23 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       const params = new URLSearchParams({ date: toLocalDateString(date) });
       if (serviceId) params.append('service_id', serviceId);
       const data = await api.get(`/appointments/available-slots?${params.toString()}`);
-      return data.slots || [];
+      let slots = data.slots || [];
+
+      const now = new Date();
+      const selectedDateStr = toLocalDateString(date);
+      const currentDateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const isToday = selectedDateStr === currentDateStr;
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      if (isToday) {
+        slots = slots.filter((time) => {
+          const [hours, minutes] = time.split(':').map(Number);
+          const slotStartMinutes = hours * 60 + minutes;
+          return slotStartMinutes >= currentMinutes;
+        });
+      }
+
+      return slots;
     } catch (err) {
       console.error('Error fetching slots:', err);
       return [];
