@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, X, Check, ChevronRight, User, Phone, Mail, MessageSquare, Clock, CalendarDays, Info, Scissors, Send, QrCode } from 'lucide-react';
+import { ArrowLeft, X, Check, ChevronRight, User, Phone, Mail, MessageSquare, Clock, CalendarDays, Info, Scissors, Send } from 'lucide-react';
 import { fetchServices, formatPrice } from '../../data/services';
 import { api } from '../../services/api';
 import { APP_CONFIG } from '../../utils/constants';
@@ -25,11 +25,11 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     name: "BARBERÍA EL BRONX",
     title: "EL BRONX",
   });
+  const [selectedWorkstation, setSelectedWorkstation] = useState(null);
+  const [workstations, setWorkstations] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
-  const [selectedWorkstation, setSelectedWorkstation] = useState(null);
-  const [workstations, setWorkstations] = useState([]);
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [clientEmail, setClientEmail] = useState('');
@@ -92,17 +92,19 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   }, []);
 
   const steps = [
-    { id: 1, name: 'Servicios', icon: Scissors },
-    { id: 2, name: 'Fecha y Hora', icon: CalendarDays },
-    { id: 3, name: 'Tus Datos', icon: User },
-    { id: 4, name: 'Resumen', icon: Check },
+    { id: 1, name: 'Servicio', icon: Scissors },
+    { id: 2, name: 'Puesto', icon: Users },
+    { id: 3, name: 'Día', icon: CalendarDays },
+    { id: 4, name: 'Hora', icon: Clock },
+    { id: 5, name: 'Datos', icon: User },
+    { id: 6, name: 'Confirmar', icon: Check },
   ];
 
   const getAvailableDates = () => {
     const dates = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    for (let i = 1; i <= APP_CONFIG.maxAdvanceBookingDays; i++) {
+    for (let i = 0; i <= APP_CONFIG.maxAdvanceBookingDays; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
       dates.push(date);
@@ -110,14 +112,13 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     return dates;
   };
 
-  const fetchAvailableSlots = async (date, serviceId, workstationId) => {
+  const fetchAvailableSlots = async (date, serviceId) => {
     try {
       setSlotsLoading(true);
       const params = new URLSearchParams({ date: toLocalDateString(date) });
       if (serviceId) params.append('service_id', serviceId);
-      if (workstationId) params.append('workstation_id', workstationId);
       const data = await api.get(`/appointments/available-slots?${params.toString()}`);
-      return data.slots;
+      return data.slots || [];
     } catch (err) {
       console.error('Error fetching slots:', err);
       return [];
@@ -128,11 +129,14 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
   useEffect(() => {
     if (selectedDate && selectedService) {
-      fetchAvailableSlots(selectedDate, selectedService.id, selectedWorkstation?.id).then((slots) => {
+      fetchAvailableSlots(selectedDate, selectedService.id).then((slots) => {
         setAvailableSlots(slots);
+        if (slots.length > 0) {
+          setSelectedTime(slots[0]);
+        }
       });
     }
-  }, [selectedDate, selectedService, selectedWorkstation]);
+  }, [selectedDate, selectedService]);
 
   const formatDate = (date) => {
     const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
@@ -150,34 +154,40 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     return `${days[date.getDay()]} ${date.getDate()} de ${months[date.getMonth()]}`;
   };
 
-  const formatDateForCalendar = (date) => {
-    const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    return `${months[date.getMonth()]} de ${date.getFullYear()}`;
-  };
-
   const handleServiceSelect = (service) => {
     setSelectedService(service);
+    setSelectedWorkstation(null);
     setSelectedDate(null);
     setSelectedTime(null);
     setAvailableSlots([]);
-    setSelectedWorkstation(null);
     setCurrentStep(2);
   };
 
   const handleWorkstationSelect = (ws) => {
     setSelectedWorkstation(ws);
+    setSelectedDate(null);
     setSelectedTime(null);
     setAvailableSlots([]);
+    setCurrentStep(3);
   };
 
   const handleDateSelect = async (date) => {
     setSelectedDate(date);
     setSelectedTime(null);
     setAvailableSlots([]);
+    const slots = await fetchAvailableSlots(date, selectedService.id);
+    setAvailableSlots(slots);
+    if (slots.length > 0) {
+      setSelectedTime(slots[0]);
+      setCurrentStep(5);
+    } else {
+      setCurrentStep(4);
+    }
   };
 
   const handleTimeSelect = (time) => {
     setSelectedTime(time);
+    setCurrentStep(5);
   };
 
   const validateClientForm = () => {
@@ -195,15 +205,15 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleContinueStep3 = () => {
+  const handleContinueStep5 = () => {
     if (validateClientForm()) {
-      setCurrentStep(4);
+      setCurrentStep(6);
     }
   };
 
   const confirmBooking = async () => {
     if (!validateClientForm()) {
-      setCurrentStep(3);
+      setCurrentStep(5);
       return;
     }
     setSubmitLoading(true);
@@ -274,14 +284,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     }
   };
 
-  const goToStep = (stepId) => {
-    const targetStep = steps.find((s) => s.id === stepId);
-    if (targetStep && (targetStep.completed || targetStep.active)) {
-      setCurrentStep(stepId);
-    }
-  };
-
-  const canContinueStep2 = selectedDate && selectedTime;
+  const canContinueStep4 = selectedTime;
 
   return (
     <div
@@ -310,7 +313,14 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                     <React.Fragment key={step.id}>
                       <button
                         type="button"
-                        onClick={() => goToStep(step.id)}
+                        onClick={() => {
+                          if (step.id === 1) setCurrentStep(1);
+                          else if (step.id === 2 && selectedService) setCurrentStep(2);
+                          else if (step.id === 3 && selectedWorkstation) setCurrentStep(3);
+                          else if (step.id === 4 && selectedDate) setCurrentStep(4);
+                          else if (step.id === 5 && selectedTime) setCurrentStep(5);
+                          else if (step.id === 6 && clientName) setCurrentStep(6);
+                        }}
                         disabled={!isClickable}
                         className={`flex items-center gap-1.5 px-2 py-1.5 rounded-sm transition-colors ${
                           currentStep === step.id ? 'text-[#8B6A22] bg-[#F6F2EA] font-semibold' :
@@ -398,8 +408,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
           {currentStep === 2 && (
             <div className="p-4 sm:p-6">
               <div className="mb-6">
-                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Escoge Fecha y Hora</h2>
-                <div className="text-[#6B6459] text-base font-medium">{formatDateForCalendar(new Date())}</div>
+                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Selecciona el Puesto</h2>
+                <p className="text-[#6B6459] text-sm">Elige el puesto y el barbero para tu servicio</p>
               </div>
 
               {selectedService && (
@@ -414,63 +424,150 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                 </div>
               )}
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {workstationsLoading ? (
+                  <div className="col-span-full text-center py-8">
+                    <Loader size="lg" className="mx-auto" />
+                    <p className="text-[#6B6459] mt-2 text-sm">Cargando puestos...</p>
+                  </div>
+                ) : workstations.length === 0 ? (
+                  <p className="text-[#6B6459] text-center py-4 text-sm col-span-full">No hay puestos disponibles en este momento.</p>
+                ) : (
+                  workstations.map((ws) => (
+                    <button
+                      key={ws.id}
+                      onClick={() => handleWorkstationSelect(ws)}
+                      className={`text-left border rounded-sm p-4 transition-all duration-200 ${
+                        selectedWorkstation?.id === ws.id
+                          ? 'border-[#A9812E] bg-[#F6F2EA] shadow-sm'
+                          : 'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60'
+                      }`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-[#1C1A16] text-sm sm:text-base">{ws.name}</h4>
+                          <div className="flex items-center text-xs sm:text-sm text-[#6B6459] mt-1">
+                            <Users className="h-3 w-3 mr-1" />
+                            {ws.barber_name || 'Sin barbero asignado'}
+                          </div>
+                        </div>
+                        {selectedWorkstation?.id === ws.id && (
+                          <div className="text-[#A9812E]">
+                            <Check className="h-5 w-5" />
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div className="p-4 sm:p-6">
               <div className="mb-6">
-                <h3 className="text-base font-medium mb-4 text-[#1C1A16]">Selecciona una fecha</h3>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-3">
-                  {getAvailableDates().slice(0, 14).map((date, index) => {
-                    const formatted = formatDate(date);
-                    const isSelected = selectedDate && selectedDate.toDateString() === date.toDateString();
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => handleDateSelect(date)}
-                        className={`p-2 sm:p-3 rounded-sm text-center transition-all duration-200 ${
-                          isSelected ? 'bg-[#A9812E] text-[#121113] shadow-sm' :
-                          'hover:bg-[#F6F2EA] text-[#1C1A16] border border-[#E4DCC9] hover:border-[#A9812E]/60'
-                        }`}
-                      >
-                        <div className={`text-xs ${isSelected ? 'text-[#121113]/70' : 'text-[#B7B1A3]'}`}>{formatted.dayName}</div>
-                        <div className="text-base sm:text-lg font-semibold">{formatted.day}</div>
-                        <div className="text-xs">{formatted.month}</div>
-                      </button>
-                    );
-                  })}
-                </div>
+                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Selecciona el Día</h2>
+                <p className="text-[#6B6459] text-sm">Elige el día para tu cita</p>
               </div>
 
-              {selectedDate && (
-                <div>
-                  <h4 className="text-base font-medium mb-4 text-[#1C1A16]">Horarios disponibles</h4>
-                  {slotsLoading ? (
-                    <div className="flex items-center justify-center py-8"><Loader size="lg" /></div>
-                  ) : (
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3">
-                      {availableSlots.map((time, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleTimeSelect(time)}
-                          className={`p-3 border rounded-sm text-center transition-all duration-200 ${
-                            selectedTime === time ? 'border-[#A9812E] bg-[#F6F2EA] text-[#8B6A22] shadow-sm' :
-                            'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60'
-                          }`}
-                        >
-                          <div className="font-medium text-sm sm:text-base">{time}</div>
-                        </button>
-                      ))}
+              {selectedService && (
+                <div className="mb-6 p-3 sm:p-4 bg-[#F6F2EA] rounded-sm border border-[#E4DCC9]">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+                    <div>
+                      <div className="text-sm sm:text-base font-semibold text-[#1C1A16]">{selectedService.name}</div>
+                      <div className="text-xs sm:text-sm text-[#6B6459] flex items-center"><Clock className="h-3 w-3 mr-1" />{selectedService.duration}</div>
+                    </div>
+                    <div className="text-base sm:text-lg font-semibold text-[#8B6A22]">{formatPrice(selectedService.price)}</div>
+                  </div>
+                  {selectedWorkstation && (
+                    <div className="text-xs sm:text-sm text-[#6B6459] mt-1 flex items-center">
+                      <Users className="h-3 w-3 mr-1" />
+                      {selectedWorkstation.name} · {selectedWorkstation.barber_name || 'Sin barbero'}
                     </div>
                   )}
-                  {availableSlots.length === 0 && !slotsLoading && (
-                    <div className="text-center py-8">
-                      <p className="text-[#6B6459] mb-2 text-sm">No hay horarios disponibles para esta fecha</p>
-                      <button onClick={() => { setSelectedDate(null); setAvailableSlots([]); }} className="text-[#8B6A22] text-sm hover:underline">Selecciona otra fecha</button>
+                </div>
+              )}
+
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 sm:gap-3">
+                {getAvailableDates().slice(0, 14).map((date, index) => {
+                  const formatted = formatDate(date);
+                  const isSelected = selectedDate && selectedDate.toDateString() === date.toDateString();
+                  const isToday = date.toDateString() === new Date().toDateString();
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handleDateSelect(date)}
+                      className={`p-2 sm:p-3 rounded-sm text-center transition-all duration-200 ${
+                        isSelected ? 'bg-[#A9812E] text-[#121113] shadow-sm' :
+                        'hover:bg-[#F6F2EA] text-[#1C1A16] border border-[#E4DCC9] hover:border-[#A9812E]/60'
+                      }`}
+                    >
+                      <div className={`text-[10px] sm:text-xs font-medium ${isSelected ? 'text-[#121113]/70' : 'text-[#B7B1A3]'}`}>{formatted.dayName}</div>
+                      <div className="text-base sm:text-lg font-semibold">{formatted.day}</div>
+                      <div className="text-[10px] sm:text-xs">{formatted.month}</div>
+                      {isToday && !isSelected && (
+                        <div className="text-[10px] text-[#A9812E] font-medium mt-0.5">Hoy</div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {currentStep === 4 && (
+            <div className="p-4 sm:p-6">
+              <div className="mb-6">
+                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Selecciona la Hora</h2>
+                <p className="text-[#6B6459] text-sm">Elige el horario disponible para {selectedDate && formatDateFull(selectedDate)}</p>
+              </div>
+
+              {selectedService && (
+                <div className="mb-6 p-3 sm:p-4 bg-[#F6F2EA] rounded-sm border border-[#E4DCC9]">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+                    <div>
+                      <div className="text-sm sm:text-base font-semibold text-[#1C1A16]">{selectedService.name}</div>
+                      <div className="text-xs sm:text-sm text-[#6B6459] flex items-center"><Clock className="h-3 w-3 mr-1" />{selectedService.duration}</div>
+                    </div>
+                    <div className="text-base sm:text-lg font-semibold text-[#8B6A22]">{formatPrice(selectedService.price)}</div>
+                  </div>
+                  {selectedWorkstation && (
+                    <div className="text-xs sm:text-sm text-[#6B6459] mt-1 flex items-center">
+                      <Users className="h-3 w-3 mr-1" />
+                      {selectedWorkstation.name} · {selectedWorkstation.barber_name || 'Sin barbero'}
                     </div>
                   )}
+                </div>
+              )}
+
+              {slotsLoading ? (
+                <div className="flex items-center justify-center py-8"><Loader size="lg" /></div>
+              ) : availableSlots.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-[#6B6459] mb-2 text-sm">No hay horarios disponibles para esta fecha</p>
+                  <button onClick={() => { setSelectedDate(null); setCurrentStep(3); }} className="text-[#8B6A22] text-sm hover:underline">Selecciona otra fecha</button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3">
+                  {availableSlots.map((time, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleTimeSelect(time)}
+                      className={`p-3 border rounded-sm text-center transition-all duration-200 ${
+                        selectedTime === time ? 'border-[#A9812E] bg-[#F6F2EA] text-[#8B6A22] shadow-sm' :
+                        'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60'
+                      }`}
+                    >
+                      <div className="font-medium text-sm sm:text-base">{time}</div>
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
           )}
 
-          {currentStep === 3 && (
+          {currentStep === 5 && (
             <div className="p-4 sm:p-6">
               <div className="mb-6">
                 <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Tus Datos</h2>
@@ -514,11 +611,11 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
             </div>
           )}
 
-          {currentStep === 4 && (
+          {currentStep === 6 && (
             <div className="p-4 sm:p-6">
               <div className="mb-6">
-                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Resumen de la Reserva</h2>
-                <p className="text-[#6B6459] text-sm">Tu cita se confirmara automaticamente al agendar</p>
+                <h2 className="font-serif text-xl sm:text-2xl text-[#1C1A16] mb-2">Confirma tu Reserva</h2>
+                <p className="text-[#6B6459] text-sm">Tu cita se confirmara automaticamente al reservar</p>
               </div>
 
               <div className="bg-[#F6F2EA] border border-[#E4DCC9] rounded-sm p-4 sm:p-6 mb-6">
@@ -526,6 +623,9 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                   <div>
                     <h3 className="font-semibold text-[#1C1A16] text-base sm:text-lg">{selectedService?.name}</h3>
                     <p className="text-sm text-[#6B6459] mt-1 flex items-center"><Clock className="h-3.5 w-3.5 mr-1.5" />{selectedService?.duration}</p>
+                    {selectedWorkstation && (
+                      <p className="text-sm text-[#6B6459] mt-1 flex items-center"><Users className="h-3.5 w-3.5 mr-1.5" />{selectedWorkstation.name} · {selectedWorkstation.barber_name || 'Sin barbero'}</p>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2 text-sm text-[#1C1A16]">
@@ -566,15 +666,25 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
             </button>
 
             <div className="flex flex-col items-end gap-1.5">
-              {currentStep === 2 && !canContinueStep2 && (
+              {currentStep === 2 && (
                 <span className="text-xs text-[#B7B1A3] hidden sm:block">
-                  Elige fecha y hora para continuar
+                  Elige un puesto para continuar
                 </span>
               )}
-              {currentStep === 2 && (
+              {currentStep === 3 && (
+                <span className="text-xs text-[#B7B1A3] hidden sm:block">
+                  Elige un día para continuar
+                </span>
+              )}
+              {currentStep === 4 && !canContinueStep4 && (
+                <span className="text-xs text-[#B7B1A3] hidden sm:block">
+                  Elige un horario para continuar
+                </span>
+              )}
+              {currentStep === 4 && (
                 <Button
-                  onClick={() => setCurrentStep(3)}
-                  disabled={!canContinueStep2}
+                  onClick={() => setCurrentStep(5)}
+                  disabled={!canContinueStep4}
                   size="lg"
                   className="flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
@@ -582,9 +692,9 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               )}
-              {currentStep === 3 && (
+              {currentStep === 5 && (
                 <Button
-                  onClick={handleContinueStep3}
+                  onClick={handleContinueStep5}
                   size="lg"
                   className="flex items-center gap-2"
                 >
@@ -592,7 +702,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               )}
-              {currentStep === 4 && (
+              {currentStep === 6 && (
                 <Button
                   onClick={confirmBooking}
                   disabled={submitLoading}

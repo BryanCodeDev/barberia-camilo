@@ -192,7 +192,7 @@ Cuando un cliente elige una estacion al agendar, la cita se asigna automaticamen
 Los clientes pueden iniciar sesion de tres formas:
 1. **Correo electronico**: Ingresa su email, recibe un codigo OTP de 6 digitos por correo y lo ingresa
 2. **Google**: Iniciando sesion con su cuenta de Google
-3. **Telefono**: Ingresando su numero y verificando con codigo OTP por WhatsApp
+3. **Telefono**: Ingresando su numero y verificando con codigo OTP por correo electronico
 
 **Clientes inactivos:**
 El sistema detecta automaticamente clientes que no han agendado en mas de 40 dias. Esto ayuda a crear campanas de re-engagement.`,
@@ -210,12 +210,12 @@ El sistema detecta automaticamente clientes que no han agendado en mas de 40 dia
 4. Selecciona el horario disponible
 5. Ingresa sus datos (nombre, telefono, email opcional)
 6. Confirma la reserva
-7. Recibe confirmacion por WhatsApp y correo electronico
+7. Recibe confirmacion por correo electronico
 
 **Inicio de sesion:**
 - **Correo electronico**: Ingresa tu email, recibe un codigo OTP de 6 digitos por correo, lo ingresas y accedes
 - **Google**: Usa "Iniciar sesion con Google" para entrar con tu cuenta de Google
-- **Telefono**: Ingresa tu numero, recibe un codigo OTP por WhatsApp, lo ingresas y accedes
+- **Telefono**: Ingresa tu numero, recibe un codigo OTP por correo electronico, lo ingresas y accedes
 
 **Perfil del cliente:**
 - Ver historial de citas
@@ -224,9 +224,9 @@ El sistema detecta automaticamente clientes que no han agendado en mas de 40 dia
 - Cerrar sesion
 
 **Notificaciones:**
-- Confirmacion de cita por WhatsApp y correo electronico
+- Confirmacion de cita por correo electronico
 - Recordatorio de cita (opcional)
-- Codigo de verificacion OTP por correo o WhatsApp`,
+- Codigo de verificacion OTP por correo electronico`,
   },
   {
     id: 'notifications',
@@ -237,7 +237,7 @@ El sistema detecta automaticamente clientes que no han agendado en mas de 40 dia
 **Tipos de notificacion:**
 - Confirmacion de booking: Se envia automaticamente cuando se crea una cita
 - Recordatorio: Se envia el dia anterior a la cita
-- Verificacion: Codigo de acceso para clientes por correo o WhatsApp
+- Verificacion: Codigo de acceso para clientes por correo electronico
 
 **Proveedores soportados:**
 - **Gmail**: SMTP de Gmail (requiere contrasena de aplicacion)
@@ -264,7 +264,7 @@ Las notificaciones se registran en la tabla 'notifications' de la base de datos 
 - Nombre del barbero: Titulo secundario
 - Direccion: Direccion fisica del local
 - Telefono: Numero de contacto publico
-- WhatsApp: Numero para agendamiento
+- WhatsApp: Numero de contacto del negocio
 - Email: Correo de contacto
 - Instagram: Usuario de Instagram
 - Facebook: Nombre de pagina de Facebook

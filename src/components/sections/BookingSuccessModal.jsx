@@ -65,7 +65,7 @@ const BookingSuccessModal = ({ isOpen, onClose, appointment, recommendations = [
           </div>
           <h3 className="font-serif text-2xl text-[#1C1A16] mb-2">Cita Confirmada</h3>
           <p className="text-sm text-[#6B6459]">
-            Te enviamos un correo y un mensaje de WhatsApp con la confirmacion.
+            Te enviamos un correo con la confirmacion.
           </p>
         </div>
 

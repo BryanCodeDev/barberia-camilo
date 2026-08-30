@@ -93,7 +93,7 @@ const NotificationsCenter = () => {
           </div>
           <p className="text-stone text-sm mb-1">No hay notificaciones registradas.</p>
           <p className="text-stone-faint text-xs max-w-md mx-auto">
-            Las notificaciones de WhatsApp y email se mostraran aqui una vez que el backend las registre.
+            Las notificaciones de correo electronico se mostraran aqui una vez que el backend las registre.
           </p>
         </div>
       ) : (
