@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, X, Check, ChevronRight, User, Phone, Mail, MessageSquare, Clock, CalendarDays, Info, Scissors, Send } from 'lucide-react';
+import { ArrowLeft, X, Check, ChevronRight, User, Users, Phone, Mail, MessageSquare, Clock, CalendarDays, Info, Scissors, Send } from 'lucide-react';
 import { fetchServices, formatPrice } from '../../data/services';
 import { api } from '../../services/api';
 import { APP_CONFIG } from '../../utils/constants';
