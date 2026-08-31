@@ -240,6 +240,7 @@ El sistema detecta automaticamente clientes que no han agendado en mas de 40 dia
 - Verificacion: Codigo de acceso para clientes por correo electronico
 
 **Proveedores soportados:**
+- **Resend**: API de Resend (recomendado, plan gratuito disponible)
 - **Gmail**: SMTP de Gmail (requiere contrasena de aplicacion)
 - **Outlook/Hotmail**: SMTP de Office365
 - **Yahoo**: SMTP de Yahoo Mail
@@ -248,7 +249,7 @@ El sistema detecta automaticamente clientes que no han agendado en mas de 40 dia
 **Configuracion:**
 Para enviar notificaciones reales, es necesario configurar:
 - WhatsApp: Meta WhatsApp Cloud API o Twilio
-- Email: Gmail, Outlook, Yahoo o cualquier SMTP
+- Email: Resend, Gmail, Outlook, Yahoo o cualquier SMTP
 - Las variables se configuran en el archivo '.env' del backend
 
 Las notificaciones se registran en la tabla 'notifications' de la base de datos para auditoria.`,
