@@ -124,23 +124,16 @@ const Footer = ({ business }) => {
               <div className="flex items-center justify-between border-b border-[#221F1B] pb-2.5">
                 <div className="flex items-center text-[#D8D3C7]">
                   <Clock className="h-3.5 w-3.5 text-[#6E6A61] mr-2.5 flex-shrink-0" />
-                  Lunes – Viernes
+                  Lunes – Sábado
                 </div>
-                <span className="text-[#9A9488]">8:00 AM – 7:00 PM</span>
-              </div>
-              <div className="flex items-center justify-between border-b border-[#221F1B] pb-2.5">
-                <div className="flex items-center text-[#D8D3C7]">
-                  <Clock className="h-3.5 w-3.5 text-[#6E6A61] mr-2.5 flex-shrink-0" />
-                  Sábados
-                </div>
-                <span className="text-[#9A9488]">8:00 AM – 6:00 PM</span>
+                <span className="text-[#9A9488]">9:00 AM – 9:00 PM</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center text-[#D8D3C7]">
                   <Clock className="h-3.5 w-3.5 text-[#6E6A61] mr-2.5 flex-shrink-0" />
                   Domingos
                 </div>
-                <span className="text-[#9A9488]">9:00 AM – 4:00 PM</span>
+                <span className="text-[#9A9488]">9:00 AM – 8:00 PM</span>
               </div>
             </div>
           </div>
