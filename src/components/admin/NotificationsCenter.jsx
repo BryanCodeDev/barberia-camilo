@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, MessageSquare, Check, X, Clock, Mail, Bell } from 'lucide-react';
+import { Loader2, MessageSquare, Check, X, Clock, Mail, Bell, RefreshCcw } from 'lucide-react';
 import { api } from '../../services/api';
 import useWebSocket from '../../hooks/useWebSocket';
 
@@ -30,6 +30,7 @@ const NotificationsCenter = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [resendingId, setResendingId] = useState(null);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -55,6 +56,20 @@ const NotificationsCenter = () => {
     });
     return unsub;
   }, [subscribe, fetchNotifications]);
+
+  const handleResend = async (notification) => {
+    if (!notification?.id) return;
+    try {
+      setResendingId(notification.id);
+      setError(null);
+      await api.post(`/admin/notifications/${notification.id}/resend`);
+      await fetchNotifications();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setResendingId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -133,11 +148,22 @@ const NotificationsCenter = () => {
                             </span>
                             <span>{notification.sent_at ? new Date(notification.sent_at).toLocaleString('es-CO') : 'Pendiente'}</span>
                           </div>
-                          {notification.error_message && (
-                            <p className="text-xs text-status-red.deep mt-2 bg-status-red/5 px-3 py-2 rounded-lg border border-status-red/10">
-                              Error: {notification.error_message}
-                            </p>
-                          )}
+                           {notification.error_message && (
+                             <p className="text-xs text-status-red.deep mt-2 bg-status-red/5 px-3 py-2 rounded-lg border border-status-red/10">
+                               Error: {notification.error_message}
+                             </p>
+                           )}
+                           {notification.status === 'failed' && (
+                             <button
+                               type="button"
+                               onClick={() => handleResend(notification)}
+                               disabled={resendingId === notification.id}
+                               className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[#8B6A22] bg-[#F6F2EA] border border-[#E4DCC9] px-3 py-1.5 rounded-lg hover:bg-[#A9812E] hover:text-[#121113] transition-colors disabled:opacity-60"
+                             >
+                               <RefreshCcw className={`h-3.5 w-3.5 ${resendingId === notification.id ? 'animate-spin' : ''}`} />
+                               Reenviar
+                             </button>
+                           )}
                         </div>
                       </div>
                     </div>
