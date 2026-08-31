@@ -9,6 +9,7 @@ import AppointmentList from './AppointmentList';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Modal from '../ui/Modal';
+import useWebSocket from '../../hooks/useWebSocket';
 
 const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
   const [statusFilter, setStatusFilter] = useState('all');
@@ -67,6 +68,29 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
   }, []);
+
+  const { subscribe } = useWebSocket(null);
+
+  useEffect(() => {
+    const events = [
+      'appointment:created',
+      'appointment:updated',
+      'appointment:status-changed',
+      'appointment:cancelled',
+      'appointment:deleted',
+    ];
+    const unsubscribers = events.map((event) =>
+      subscribe(event, () => {
+        fetchAppointments();
+        if (typeof fetchStats === 'function') {
+          fetchStats();
+        }
+      })
+    );
+    return () => {
+      unsubscribers.forEach((unsub) => unsub && unsub());
+    };
+  }, [subscribe, fetchAppointments, fetchStats]);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -145,8 +169,14 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
 
   const handleEditAppointment = (appointment) => {
     setEditingAppointment(appointment);
+    const normalizeDate = (value) => {
+      if (!value) return '';
+      const str = String(value);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+      return str.split('T')[0] || '';
+    };
     setAppointmentForm({
-      appointment_date: appointment.appointment_date || '',
+      appointment_date: normalizeDate(appointment.appointment_date),
       appointment_time: appointment.appointment_time || '',
       duration_minutes: appointment.duration_minutes || 30,
       client_message: appointment.client_message || '',
