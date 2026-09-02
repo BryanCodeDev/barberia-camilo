@@ -54,6 +54,7 @@ const DashboardView = ({
             onChange={(e) => setRevenuePeriod(e.target.value)}
             className="px-3 py-2 border border-cream-line rounded-xl text-sm bg-white focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none transition-all duration-200 text-ink-soft"
           >
+            <option value="total">Total</option>
             <option value="today">Hoy</option>
             <option value="week">Esta semana</option>
             <option value="month">Este mes</option>

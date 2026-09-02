@@ -8,7 +8,7 @@ const PerformanceView = ({ userRole }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [period, setPeriod] = useState('week');
+  const [period, setPeriod] = useState('total');
 
   const fetchPerformance = useCallback(async () => {
     try {
@@ -86,7 +86,7 @@ const PerformanceView = ({ userRole }) => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="section-title">Desempeno</h2>
+          <h2 className="section-title">Desempeño</h2>
           <p className="text-sm text-stone mt-1">Analisis de rendimiento y tendencias</p>
         </div>
         <select
@@ -94,6 +94,7 @@ const PerformanceView = ({ userRole }) => {
           onChange={(e) => setPeriod(e.target.value)}
           className="px-4 py-2.5 border border-cream-line rounded-xl text-sm bg-white focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none transition-all duration-200 text-ink-soft"
         >
+          <option value="total">Total</option>
           <option value="today">Hoy</option>
           <option value="week">Esta semana</option>
           <option value="month">Este mes</option>
