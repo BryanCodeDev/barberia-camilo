@@ -272,7 +272,12 @@ const ClientPortal = ({ business }) => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    if (!dateString) return '';
+    const str = String(dateString);
+    const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return dateString;
+    const [, year, month, day] = match;
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
     return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 

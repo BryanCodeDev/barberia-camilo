@@ -20,6 +20,12 @@ const STAT_STYLES = {
     value: 'text-ink-soft',
     icon: 'bg-status-green text-white',
   },
+  completed: {
+    card: 'bg-gradient-to-br from-status-blue/10 to-status-blue/5 border-status-blue/20',
+    label: 'text-status-blue.deep',
+    value: 'text-ink-soft',
+    icon: 'bg-status-blue text-white',
+  },
   cancelled: {
     card: 'bg-gradient-to-br from-status-red/10 to-status-red/5 border-status-red/20',
     label: 'text-status-red.deep',
@@ -39,12 +45,13 @@ const StatsCards = ({ stats, loading }) => {
     { label: 'Total Citas', value: stats.total, styleKey: 'total', icon: Calendar },
     { label: 'Pendientes', value: stats.pending, styleKey: 'pending', icon: Clock },
     { label: 'Confirmadas', value: stats.confirmed, styleKey: 'confirmed', icon: Check },
+    { label: 'Completadas', value: stats.completed, styleKey: 'completed', icon: Check },
     { label: 'Canceladas', value: stats.cancelled, styleKey: 'cancelled', icon: AlertTriangle },
     { label: 'Citas Hoy', value: stats.today, styleKey: 'today', icon: User },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
       {items.map((stat, index) => {
         const style = STAT_STYLES[stat.styleKey];
         return (

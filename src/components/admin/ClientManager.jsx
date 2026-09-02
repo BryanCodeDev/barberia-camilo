@@ -167,7 +167,14 @@ const ClientManager = ({ userRole }) => {
                 <p className="text-sm text-stone-faint">Sin informacion de contacto</p>
               )}
               {client.last_visit && (
-                <p className="text-xs text-stone-faint">Ultima visita: {new Date(client.last_visit).toLocaleDateString('es-CO')}</p>
+                <p className="text-xs text-stone-faint">Ultima visita: {(() => {
+                  const str = String(client.last_visit);
+                  const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
+                  if (!match) return str;
+                  const [, year, month, day] = match;
+                  const date = new Date(Number(year), Number(month) - 1, Number(day));
+                  return date.toLocaleDateString('es-CO');
+                })()}</p>
               )}
             </div>
           </div>

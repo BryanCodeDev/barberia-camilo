@@ -69,7 +69,7 @@ const AdminPanel = ({ onClose, business }) => {
     authLogout();
     navigate('/');
     setLoginError(null);
-    setStats({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0, confirmed_revenue_cents: 0, completed_revenue_cents: 0, today_revenue_cents: 0 });
+    setStats({ total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0, no_show: 0, today: 0, confirmed_revenue_cents: 0, completed_revenue_cents: 0, today_revenue_cents: 0 });
   }, [wsDisconnect, authLogout, navigate]);
 
   const onSettingsClick = useCallback(() => {
@@ -102,7 +102,7 @@ const AdminPanel = ({ onClose, business }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeTab]);
 
-  const [stats, setStats] = useState({ total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0, confirmed_revenue_cents: 0, completed_revenue_cents: 0, today_revenue_cents: 0 });
+  const [stats, setStats] = useState({ total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0, no_show: 0, today: 0, confirmed_revenue_cents: 0, completed_revenue_cents: 0, today_revenue_cents: 0 });
   const [statsLoading, setStatsLoading] = useState(false);
   const [revenuePeriod, setRevenuePeriod] = useState('today');
   const [revenueData, setRevenueData] = useState(null);

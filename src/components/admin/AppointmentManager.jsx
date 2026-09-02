@@ -173,7 +173,8 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
       if (!value) return '';
       const str = String(value);
       if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-      return str.split('T')[0] || '';
+      const match = str.match(/(\d{4}-\d{2}-\d{2})/);
+      return match ? match[1] : '';
     };
     setAppointmentForm({
       appointment_date: normalizeDate(appointment.appointment_date),
@@ -258,7 +259,12 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
     : (appointments || []).filter((apt) => apt.status === statusFilter);
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
+    if (!dateString) return '';
+    const str = String(dateString);
+    const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return dateString;
+    const [, year, month, day] = match;
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
     return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
@@ -447,7 +453,10 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
             <div className="grid grid-cols-7 divide-x divide-cream-line">
               {getWeekDates(calendarWeekStart).map((date, idx) => {
                 const dayAppointments = appointments.filter((apt) => {
-                  const aptDate = new Date(apt.appointment_date + 'T00:00:00');
+                  const match = String(apt.appointment_date).match(/(\d{4})-(\d{2})-(\d{2})/);
+                  if (!match) return false;
+                  const [, year, month, day] = match;
+                  const aptDate = new Date(Number(year), Number(month) - 1, Number(day));
                   return isSameDay(aptDate, date);
                 });
                 const isToday = isSameDay(date, new Date());
