@@ -43,7 +43,11 @@ const BookingSuccessModal = ({ isOpen, onClose, appointment, recommendations = [
 
   const formatDate = (date) => {
     if (!date) return '';
-    const d = new Date(date + 'T00:00:00');
+    const str = String(date);
+    const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return date;
+    const [, year, month, day] = match;
+    const d = new Date(Number(year), Number(month) - 1, Number(day));
     return d.toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   };
 

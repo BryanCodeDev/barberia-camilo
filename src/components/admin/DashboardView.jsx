@@ -113,7 +113,7 @@ const DashboardView = ({
               <div className={`p-2.5 rounded-xl ${kpi.iconBg} shadow-sm`}>
                 <kpi.icon className="h-5 w-5" />
               </div>
-              {index === 0 && revenueData && (
+              {index === 0 && revenueData && revenueData.change_percent !== null && (
                 <div className={[
                   'flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg',
                   revenueData.change_percent >= 0

@@ -170,7 +170,11 @@ const Profile = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString + 'T00:00:00');
+    const str = String(dateString);
+    const match = str.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (!match) return dateString;
+    const [, year, month, day] = match;
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
     return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
