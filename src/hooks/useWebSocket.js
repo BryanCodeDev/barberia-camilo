@@ -15,11 +15,14 @@ const RECONNECT_BASE_DELAY = 1000;
 const RECONNECT_MAX_DELAY = 30000;
 const PING_INTERVAL = 30000;
 const WS_CONNECTION_TIMEOUT = 10000;
+const MAX_RECONNECT_ATTEMPTS = 8;
 
 let sharedWs = null;
 let sharedReconnectTimeout = null;
+let reconnectAttempts = 0;
 const sharedListeners = new Map();
 const sharedConnectionStateListeners = new Set();
+const connectionTimeouts = new WeakMap();
 
 function getConnectionState() {
   if (!sharedWs) return 'disconnected';
@@ -59,17 +62,20 @@ function connect(token) {
   sharedWs = ws;
 
   let pingTimer = null;
-  let connectionTimeout = null;
 
-  connectionTimeout = setTimeout(() => {
+  const connectionTimeout = setTimeout(() => {
     if (ws.readyState === WebSocket.CONNECTING) {
       ws.close();
       setConnectionState('disconnected');
     }
+    connectionTimeouts.delete(ws);
   }, WS_CONNECTION_TIMEOUT);
+  connectionTimeouts.set(ws, connectionTimeout);
 
   ws.onopen = () => {
     clearTimeout(connectionTimeout);
+    connectionTimeouts.delete(ws);
+    reconnectAttempts = 0;
     setConnectionState('connected');
     pingTimer = setInterval(() => {
       if (ws.readyState === WebSocket.OPEN) {
@@ -94,11 +100,13 @@ function connect(token) {
 
   ws.onclose = (event) => {
     clearTimeout(connectionTimeout);
+    connectionTimeouts.delete(ws);
     if (pingTimer) clearInterval(pingTimer);
     sharedWs = null;
     setConnectionState('disconnected');
 
-    if (!event.wasClean && token) {
+    if (!event.wasClean && token && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+      reconnectAttempts += 1;
       const delay = Math.min(RECONNECT_BASE_DELAY * Math.pow(2, Math.floor(Math.random() * 3)), RECONNECT_MAX_DELAY);
       sharedReconnectTimeout = setTimeout(() => {
         sharedReconnectTimeout = null;
@@ -118,10 +126,16 @@ function disconnect() {
     sharedReconnectTimeout = null;
   }
   if (sharedWs) {
+    const pendingTimeout = connectionTimeouts.get(sharedWs);
+    if (pendingTimeout) {
+      clearTimeout(pendingTimeout);
+      connectionTimeouts.delete(sharedWs);
+    }
     sharedWs.onclose = null;
     sharedWs.close(1000, 'Client disconnect');
     sharedWs = null;
   }
+  reconnectAttempts = 0;
   setConnectionState('disconnected');
 }
 
@@ -144,6 +158,19 @@ export function useWebSocket(token) {
     if (!token) return;
     connect(token);
     return () => {
+      if (sharedReconnectTimeout) {
+        clearTimeout(sharedReconnectTimeout);
+        sharedReconnectTimeout = null;
+      }
+      if (sharedWs && sharedWs.readyState === WebSocket.CONNECTING) {
+        const pendingTimeout = connectionTimeouts.get(sharedWs);
+        if (pendingTimeout) {
+          clearTimeout(pendingTimeout);
+          connectionTimeouts.delete(sharedWs);
+        }
+        sharedWs.close();
+        sharedWs = null;
+      }
       const currentListeners = listenersRef.current;
       for (const [event, callbacks] of currentListeners.entries()) {
         const globalSet = sharedListeners.get(event);
