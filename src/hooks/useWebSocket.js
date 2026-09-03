@@ -14,6 +14,7 @@ const WS_BASE_URL = (() => {
 const RECONNECT_BASE_DELAY = 1000;
 const RECONNECT_MAX_DELAY = 30000;
 const PING_INTERVAL = 30000;
+const WS_CONNECTION_TIMEOUT = 10000;
 
 let sharedWs = null;
 let sharedReconnectTimeout = null;
@@ -58,8 +59,17 @@ function connect(token) {
   sharedWs = ws;
 
   let pingTimer = null;
+  let connectionTimeout = null;
+
+  connectionTimeout = setTimeout(() => {
+    if (ws.readyState === WebSocket.CONNECTING) {
+      ws.close();
+      setConnectionState('disconnected');
+    }
+  }, WS_CONNECTION_TIMEOUT);
 
   ws.onopen = () => {
+    clearTimeout(connectionTimeout);
     setConnectionState('connected');
     pingTimer = setInterval(() => {
       if (ws.readyState === WebSocket.OPEN) {
@@ -83,6 +93,7 @@ function connect(token) {
   };
 
   ws.onclose = (event) => {
+    clearTimeout(connectionTimeout);
     if (pingTimer) clearInterval(pingTimer);
     sharedWs = null;
     setConnectionState('disconnected');
