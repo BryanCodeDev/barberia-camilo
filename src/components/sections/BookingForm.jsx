@@ -149,10 +149,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
       return slots;
     } catch (err) {
-      if (err.name === 'AbortError') {
-        return [];
-      }
-      console.error('Error fetching slots:', err);
+      // handled by UI state
       return [];
     } finally {
       setSlotsLoading(false);
@@ -263,10 +260,10 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       } catch (clientErr) {
         if (clientErr.data?.clientId) {
           clientId = clientErr.data.clientId;
-        } else {
-          console.error('Error registering client:', clientErr);
-          throw new Error(clientErr.message || 'Error al registrar el cliente');
-        }
+      } else {
+        // handled by caller
+        throw new Error(clientErr.message || 'Error al registrar el cliente');
+      }
       }
 
       const payload = {
@@ -285,7 +282,6 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       }
 
       const appointmentData = await api.post('/appointments', payload, false, controller.signal);
-      console.log('Appointment created:', appointmentData);
 
       if (appointmentData.appointment?.recommendations && appointmentData.appointment.recommendations.length > 0) {
         setRecommendations(appointmentData.appointment.recommendations);
@@ -296,7 +292,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       setCreatedAppointment(appointmentData.appointment);
       setShowSuccess(true);
     } catch (err) {
-      console.error('Error confirming booking:', err);
+      // handled by UI state
       setError(err.message || 'Error al agendar la cita');
     } finally {
       setSubmitLoading(false);

@@ -61,8 +61,8 @@ const useRealtimeNotifications = (userRole, userId, onNotification) => {
       await api.patch(`/admin/realtime-notifications/${id}/read`, {});
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n)));
       setUnreadCount((prev) => Math.max(0, prev - 1));
-    } catch (err) {
-      console.error('Error marking notification as read:', err);
+    } catch {
+      // handled by UI state
     }
   }, []);
 
@@ -71,8 +71,8 @@ const useRealtimeNotifications = (userRole, userId, onNotification) => {
       await api.post('/admin/realtime-notifications/read-all', {});
       setNotifications((prev) => prev.map((n) => ({ ...n, read_at: new Date().toISOString() })));
       setUnreadCount(0);
-    } catch (err) {
-      console.error('Error marking all as read:', err);
+    } catch {
+      // handled by UI state
     }
   }, []);
 

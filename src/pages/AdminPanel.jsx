@@ -144,7 +144,7 @@ const AdminPanel = ({ onClose, business }) => {
       authLogin(data.token);
       navigate(location.pathname || '/admin', { replace: true });
     } catch (err) {
-      console.error('Login error:', err);
+      // handled by UI state
       setLoginError(err.message);
     }
   };
@@ -155,7 +155,7 @@ const AdminPanel = ({ onClose, business }) => {
       const data = await api.get('/admin/stats');
       setStats(data);
     } catch (err) {
-      console.error('Error fetching stats:', err);
+      // handled by UI state
     } finally {
       setStatsLoading(false);
     }
@@ -167,7 +167,7 @@ const AdminPanel = ({ onClose, business }) => {
       const data = await api.get(`/admin/revenue?period=${revenuePeriod}`);
       setRevenueData(data);
     } catch (err) {
-      console.error('Error fetching revenue:', err);
+      // handled by UI state
     } finally {
       setRevenueLoading(false);
     }

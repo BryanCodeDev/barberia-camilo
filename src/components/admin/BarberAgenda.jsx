@@ -127,8 +127,6 @@ const formatCOP = (cents) => {
     myName = null;
   }
 
-  console.log('[BarberAgenda] userRole=', userRole, 'isBarberView=', isBarberView, 'username=', username, 'agenda=', agenda, 'myAgenda=', myAgenda);
-
   if (loading) {
     return (
       <div className="card-premium p-6">

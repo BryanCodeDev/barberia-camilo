@@ -57,35 +57,32 @@ export const useAppointments = () => {
     }
   }, [fetchAppointments]);
 
-  const getOccupiedTimeSlots = useCallback(async (date) => {
-    try {
-      const data = await api.get(`/appointments/occupied-slots?date=${date}`);
-      return data.occupied_slots || data.slots || [];
-    } catch (err) {
-      console.error('Error fetching occupied slots:', err);
-      return [];
-    }
-  }, []);
+   const getOccupiedTimeSlots = useCallback(async (date) => {
+     try {
+       const data = await api.get(`/appointments/occupied-slots?date=${date}`);
+       return data.occupied_slots || data.slots || [];
+     } catch {
+       return [];
+     }
+   }, []);
 
-  const getAppointmentsByDate = useCallback(async (date) => {
-    try {
-      const data = await api.get(`/admin/appointments?date=${date}`);
-      return data;
-    } catch (err) {
-      console.error('Error fetching by date:', err);
-      return [];
-    }
-  }, []);
+   const getAppointmentsByDate = useCallback(async (date) => {
+     try {
+       const data = await api.get(`/admin/appointments?date=${date}`);
+       return data;
+     } catch {
+       return [];
+     }
+   }, []);
 
-  const getStats = useCallback(async () => {
-    try {
-      const data = await api.get('/admin/stats');
-      return data;
-    } catch (err) {
-      console.error('Error fetching stats:', err);
-      return { total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 };
-    }
-  }, []);
+   const getStats = useCallback(async () => {
+     try {
+       const data = await api.get('/admin/stats');
+       return data;
+     } catch {
+       return { total: 0, pending: 0, confirmed: 0, cancelled: 0, today: 0 };
+     }
+   }, []);
 
   useEffect(() => {
     fetchAppointments();

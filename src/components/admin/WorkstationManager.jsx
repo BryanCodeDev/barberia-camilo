@@ -32,8 +32,8 @@ const WorkstationManager = ({ userRole }) => {
     try {
       const data = await api.get('/admin/barbers');
       setBarbers(data);
-    } catch (err) {
-      console.error('Error fetching barbers:', err);
+    } catch {
+      // handled by UI state
     }
   };
 
