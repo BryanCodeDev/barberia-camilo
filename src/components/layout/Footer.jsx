@@ -1,6 +1,6 @@
 // src/components/layout/Footer.jsx
 import React from 'react';
-import { Scissors, Phone, MapPin, Instagram, Facebook, Clock, MessageCircle, Youtube, Music } from 'lucide-react';
+import { Phone, MapPin, Instagram, Facebook, Clock, MessageCircle, Youtube, Music, ArrowUpRight } from 'lucide-react';
 
 const Footer = ({ business }) => {
   const businessInfo = {
@@ -26,8 +26,34 @@ const Footer = ({ business }) => {
   const currentYear = new Date().getFullYear();
   const whatsappLink = `https://wa.me/${businessInfo.whatsapp.replace(/[^0-9]/g, '')}`;
 
+  const socialLinks = [
+    businessInfo.socialMedia.instagram && {
+      href: `https://www.instagram.com/${businessInfo.socialMedia.instagram.replace('@', '')}`,
+      label: 'Instagram',
+      Icon: Instagram,
+    },
+    businessInfo.socialMedia.facebook && {
+      href: `https://www.facebook.com/${businessInfo.socialMedia.facebook.replace(/\s+/g, '')}`,
+      label: 'Facebook',
+      Icon: Facebook,
+    },
+    businessInfo.socialMedia.tiktok && {
+      href: `https://www.tiktok.com/${businessInfo.socialMedia.tiktok.replace('@', '')}`,
+      label: 'TikTok',
+      Icon: Music,
+    },
+    businessInfo.socialMedia.youtube && {
+      href: `https://www.youtube.com/${businessInfo.socialMedia.youtube.replace('@', '')}`,
+      label: 'YouTube',
+      Icon: Youtube,
+    },
+    { href: whatsappLink, label: 'WhatsApp', Icon: MessageCircle },
+  ].filter(Boolean);
+
   return (
-    <footer className="bg-[#121113] text-[#F6F2EA]">
+    <footer className="relative bg-[#121113] text-[#F6F2EA]">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#A9812E]/50 to-transparent" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
           <div>
@@ -37,74 +63,34 @@ const Footer = ({ business }) => {
               </span>
               <span className="font-serif text-lg md:text-xl tracking-wide">{businessInfo.name}</span>
             </div>
-            <p className="text-[#9A9488] mb-5 text-sm leading-relaxed">
-              Barbería clásica, masculina, elegante, urbana y profesional. Cortes de cabello, arreglo de barba y servicios de grooming masculino en Mosquera, Cundinamarca.
+            <p className="text-[#9A9488] mb-5 text-sm leading-relaxed max-w-xs">
+              Barbería clásica, masculina y urbana. Cortes de precisión, arreglo de barba
+              y grooming en Mosquera, Cundinamarca.
             </p>
-             <div className="flex space-x-4">
-               {businessInfo.socialMedia.instagram && (
-                 <a
-                   href={`https://www.instagram.com/${businessInfo.socialMedia.instagram.replace('@', '')}`}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                   aria-label="Instagram"
-                 >
-                   <Instagram className="h-4 w-4" />
-                 </a>
-               )}
-               {businessInfo.socialMedia.facebook && (
-                 <a
-                   href={`https://www.facebook.com/${businessInfo.socialMedia.facebook.replace(/\s+/g, '')}`}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                   aria-label="Facebook"
-                 >
-                   <Facebook className="h-4 w-4" />
-                 </a>
-               )}
-               {businessInfo.socialMedia.tiktok && (
-                 <a
-                   href={`https://www.tiktok.com/${businessInfo.socialMedia.tiktok.replace('@', '')}`}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                   aria-label="TikTok"
-                 >
-                   <Music className="h-4 w-4" />
-                 </a>
-               )}
-               {businessInfo.socialMedia.youtube && (
-                 <a
-                   href={`https://www.youtube.com/${businessInfo.socialMedia.youtube.replace('@', '')}`}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                   aria-label="YouTube"
-                 >
-                   <Youtube className="h-4 w-4" />
-                 </a>
-               )}
-               <a
-                 href={whatsappLink}
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#C9A860] hover:border-[#A9812E]/60 transition-colors"
-                 aria-label="WhatsApp"
-               >
-                 <MessageCircle className="h-4 w-4" />
-               </a>
-             </div>
+            <div className="flex space-x-3">
+              {socialLinks.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 flex items-center justify-center rounded-full border border-[#2A2723] text-[#9A9488] hover:text-[#121113] hover:bg-[#C9A860] hover:border-[#C9A860] hover:-translate-y-0.5 transition-all duration-200"
+                  aria-label={label}
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-[#C9A860] mb-5">Contacto</h3>
             <div className="space-y-3.5">
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center text-[#D8D3C7] hover:text-[#C9A860] transition-colors text-sm">
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center text-[#D8D3C7] hover:text-[#C9A860] transition-colors text-sm w-fit">
                 <Phone className="h-4 w-4 text-[#6E6A61] mr-3 flex-shrink-0" />
                 {businessInfo.phone}
               </a>
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center text-[#D8D3C7] hover:text-[#C9A860] transition-colors text-sm">
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center text-[#D8D3C7] hover:text-[#C9A860] transition-colors text-sm w-fit">
                 <MessageCircle className="h-4 w-4 text-[#6E6A61] mr-3 flex-shrink-0" />
                 WhatsApp
               </a>
@@ -144,9 +130,15 @@ const Footer = ({ business }) => {
             <p className="text-[#6E6A61] text-xs text-center md:text-left">
               © {currentYear} {businessInfo.name}. Todos los derechos reservados.
             </p>
-            <p className="text-[#6E6A61] text-xs text-center md:text-right">
-              <a href="https://mastercodecompany.com/" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A860] transition-colors">Barbería de autor por Mastercode Company</a>
-            </p>
+            <a
+              href="https://mastercodecompany.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-1 text-[#6E6A61] text-xs hover:text-[#C9A860] transition-colors"
+            >
+              Barbería de autor por Mastercode Company
+              <ArrowUpRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
           </div>
         </div>
       </div>

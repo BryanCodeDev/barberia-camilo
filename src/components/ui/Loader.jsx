@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Scissors } from 'lucide-react';
 
 const sizeClasses = {
   sm: 'h-4 w-4',
@@ -10,12 +10,13 @@ const sizeClasses = {
 
 const Loader = ({ size = 'md', className }) => {
   return (
-    <Loader2
+    <Scissors
       className={[
-        'animate-spin text-[#A9812E]',
+        'text-[#A9812E] animate-[spin_1.1s_ease-in-out_infinite]',
         sizeClasses[size] || sizeClasses.md,
         className || '',
       ].join(' ')}
+      aria-label="Cargando"
     />
   );
 };

@@ -317,7 +317,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
   return (
     <div
-      className={`fixed inset-0 bg-[#121113]/70 flex items-center justify-center p-2 sm:p-4 z-50 transition-opacity duration-300 ${
+      className={`fixed inset-0 bg-[#121113]/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50 transition-opacity duration-300 ${
         modalMounted ? 'opacity-100' : 'opacity-0'
       }`}
     >
@@ -326,6 +326,12 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
           modalMounted ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-[0.98]'
         }`}
       >
+        <style>{`
+          @keyframes bronx-step-in {
+            from { opacity: 0; transform: translateX(12px); }
+            to { opacity: 1; transform: translateX(0); }
+          }
+        `}</style>
         <div className="bg-white px-4 sm:px-6 py-4 border-b border-[#E4DCC9] flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -357,9 +363,9 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                           'text-[#B7B1A3] cursor-default'
                         }`}
                       >
-                        <span className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-semibold flex-shrink-0 ${
+                        <span className={`hidden sm:flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-semibold flex-shrink-0 transition-all duration-200 ${
                           currentStep > step.id ? 'bg-[#A9812E] text-[#121113]' :
-                          currentStep === step.id ? 'border border-[#A9812E] text-[#8B6A22]' :
+                          currentStep === step.id ? 'bg-gradient-to-b from-[#C9A860] to-[#A9812E] text-[#121113] ring-2 ring-[#A9812E]/25' :
                           'border border-[#D8D3C7] text-[#B7B1A3]'
                         }`}>
                           {currentStep > step.id ? <Check className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
@@ -378,9 +384,15 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
               <X className="h-4 w-4 sm:h-5 sm:w-5 text-[#1C1A16]" />
             </button>
           </div>
+          <div className="mt-3 h-1 rounded-full bg-[#F0E9D8] overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-[#C9A860] to-[#A9812E] rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${(currentStep / steps.length) * 100}%` }}
+            />
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div key={currentStep} className="flex-1 overflow-y-auto animate-[bronx-step-in_0.35s_ease-out]">
           {error && (
             <div className="bg-[#FBEAEA] border border-[#E3B8B8] rounded-sm m-4 sm:m-6 p-4">
               <p className="text-[#8B2E2E] text-sm">{error}</p>
@@ -468,8 +480,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                       onClick={() => handleWorkstationSelect(ws)}
                       className={`text-left border rounded-sm p-4 transition-all duration-200 ${
                         selectedWorkstation?.id === ws.id
-                          ? 'border-[#A9812E] bg-[#F6F2EA] shadow-sm'
-                          : 'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60'
+                          ? 'border-[#A9812E] bg-[#F6F2EA] shadow-[0_8px_20px_-10px_rgba(169,129,46,0.4)] -translate-y-0.5'
+                          : 'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60 hover:-translate-y-0.5'
                       }`}
                     >
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-2 sm:space-y-0">
@@ -528,8 +540,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                       key={index}
                       onClick={() => handleDateSelect(date)}
                       className={`p-2 sm:p-3 rounded-sm text-center transition-all duration-200 ${
-                        isSelected ? 'bg-[#A9812E] text-[#121113] shadow-sm' :
-                        'hover:bg-[#F6F2EA] text-[#1C1A16] border border-[#E4DCC9] hover:border-[#A9812E]/60'
+                        isSelected ? 'bg-gradient-to-b from-[#C9A860] to-[#A9812E] text-[#121113] shadow-[0_4px_12px_-4px_rgba(169,129,46,0.5)] -translate-y-0.5' :
+                        'hover:bg-[#F6F2EA] text-[#1C1A16] border border-[#E4DCC9] hover:border-[#A9812E]/60 hover:-translate-y-0.5'
                       }`}
                     >
                       <div className={`text-[10px] sm:text-xs font-medium ${isSelected ? 'text-[#121113]/70' : 'text-[#B7B1A3]'}`}>{formatted.dayName}</div>
@@ -584,8 +596,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
                       key={index}
                       onClick={() => handleTimeSelect(time)}
                       className={`p-3 border rounded-sm text-center transition-all duration-200 ${
-                        selectedTime === time ? 'border-[#A9812E] bg-[#F6F2EA] text-[#8B6A22] shadow-sm' :
-                        'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60'
+                        selectedTime === time ? 'border-[#A9812E] bg-[#F6F2EA] text-[#8B6A22] shadow-[0_4px_12px_-6px_rgba(169,129,46,0.5)] -translate-y-0.5' :
+                        'border-[#E4DCC9] hover:border-[#A9812E]/60 hover:bg-[#F6F2EA]/60 hover:-translate-y-0.5'
                       }`}
                     >
                       <div className="font-medium text-sm sm:text-base">{time}</div>

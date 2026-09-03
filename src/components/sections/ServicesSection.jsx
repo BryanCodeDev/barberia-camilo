@@ -10,6 +10,19 @@ const trustPoints = [
   { icon: CalendarCheck, text: 'Reserva 100% online' },
 ];
 
+const SkeletonCard = () => (
+  <div className="bg-[#FBF6EA] rounded-sm p-6 border border-[#EADFC6] animate-pulse">
+    <div className="flex items-center mb-4">
+      <div className="h-9 w-9 rounded-sm bg-[#EADFC6] mr-3" />
+      <div className="h-4 w-2/3 rounded bg-[#EADFC6]" />
+    </div>
+    <div className="h-px w-full bg-[#EADFC6] mb-4" />
+    <div className="h-3 w-full rounded bg-[#EADFC6] mb-2" />
+    <div className="h-3 w-4/5 rounded bg-[#EADFC6] mb-5" />
+    <div className="h-10 w-full rounded-sm bg-[#EADFC6]" />
+  </div>
+);
+
 const ServicesSection = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,21 +69,6 @@ const ServicesSection = () => {
     openBooking();
   };
 
-  if (loading) {
-    return (
-      <section id="servicios" className="py-16 md:py-24 bg-[#F3E9D6]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="animate-pulse flex space-x-4 justify-center">
-              <div className="h-4 bg-white rounded w-48"></div>
-            </div>
-            <p className="mt-4 text-black/50 text-sm">Cargando servicios...</p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section id="servicios" className="py-16 md:py-24 bg-[#F3E9D6] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -107,19 +105,27 @@ const ServicesSection = () => {
           ))}
         </div>
 
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
-          {services.map((service, idx) => (
-            <div
-              key={service.id}
-              className={`transition-all duration-700 ease-out hover:-translate-y-1.5 ${
-                gridInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-              style={{ transitionDelay: gridInView ? `${idx * 90}ms` : '0ms' }}
-            >
-              <ServiceCard service={service} index={idx} />
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <SkeletonCard key={idx} />
+            ))}
+          </div>
+        ) : (
+          <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
+            {services.map((service, idx) => (
+              <div
+                key={service.id}
+                className={`transition-all duration-700 ease-out ${
+                  gridInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                }`}
+                style={{ transitionDelay: gridInView ? `${idx * 90}ms` : '0ms' }}
+              >
+                <ServiceCard service={service} index={idx} />
+              </div>
+            ))}
+          </div>
+        )}
 
         <div
           className={`mt-16 text-center transition-all duration-700 ease-out ${
@@ -129,7 +135,7 @@ const ServicesSection = () => {
         >
           <button
             onClick={handleGeneralBooking}
-            className="group inline-flex items-center gap-2 bg-[#C9A860] text-[#0A0A0A] px-8 py-3.5 rounded-sm font-semibold text-sm uppercase tracking-wide hover:bg-[#E0C47A] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(201,168,96,0.4)] transition-all duration-300"
+            className="group inline-flex items-center gap-2 bg-gradient-to-b from-[#C9A860] to-[#A9812E] text-[#0A0A0A] px-8 py-3.5 rounded-sm font-semibold text-sm uppercase tracking-wide shadow-[0_2px_0_rgba(0,0,0,0.15)] hover:from-[#D8BA76] hover:to-[#BC9440] hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-12px_rgba(201,168,96,0.5)] active:translate-y-0 transition-all duration-300"
           >
             Agendar Cita
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />

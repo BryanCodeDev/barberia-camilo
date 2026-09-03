@@ -1,6 +1,6 @@
 // src/components/sections/HeroSection.jsx
 import React, { useState, useEffect } from 'react';
-import { MapPin, Phone, MessageCircle, Star, Award, Users, ChevronDown, Scissors } from 'lucide-react';
+import { MapPin, Phone, Star, Award, Users, ChevronDown, Scissors } from 'lucide-react';
 import { openBooking } from '../../utils/booking';
 
 const defaultBusiness = {
@@ -43,7 +43,7 @@ const HeroSection = ({ business }) => {
     }
   };
 
-  // Ayudante de animación de entrada escalonada
+  // Ayudante de animación de entrada escalonada — una única secuencia orquestada
   const reveal = () =>
     `transition-all duration-700 ease-out ${
       mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
@@ -62,18 +62,18 @@ const HeroSection = ({ business }) => {
         }}
       />
       <div className="absolute inset-0 bg-[#121113]/85 z-[1]" />
+      <div
+        className="absolute inset-0 z-[1] pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,96,0.14) 0%, transparent 60%)' }}
+      />
       <style>{`
-        @keyframes bronx-float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-14px); }
+        @keyframes bronx-bounce {
+          0%, 100% { transform: translateY(0); opacity: 0.5; }
+          50% { transform: translateY(6px); opacity: 1; }
         }
         @keyframes bronx-shimmer {
           0% { transform: translateX(-120%); }
           100% { transform: translateX(220%); }
-        }
-        @keyframes bronx-bounce {
-          0%, 100% { transform: translateY(0); opacity: 0.5; }
-          50% { transform: translateY(6px); opacity: 1; }
         }
         .bronx-shine::after {
           content: '';
@@ -88,30 +88,19 @@ const HeroSection = ({ business }) => {
         }
       `}</style>
 
-      {/* Texturas laterales */}
+      {/* Texturas laterales — estáticas, sutiles, sin movimiento en bucle */}
       <div
-        className="absolute inset-y-0 right-0 w-24 md:w-40 opacity-[0.07] pointer-events-none"
+        className="absolute inset-y-0 right-0 w-24 md:w-40 opacity-[0.06] pointer-events-none"
         style={{
           backgroundImage:
             'repeating-linear-gradient(45deg, #C9A860 0px, #C9A860 2px, transparent 2px, transparent 18px)',
-          animation: 'bronx-float 9s ease-in-out infinite',
         }}
       />
       <div
-        className="absolute inset-y-0 left-0 w-24 md:w-40 opacity-[0.05] pointer-events-none"
+        className="absolute inset-y-0 left-0 w-24 md:w-40 opacity-[0.045] pointer-events-none"
         style={{
           backgroundImage:
             'repeating-linear-gradient(45deg, #8B2E2E 0px, #8B2E2E 2px, transparent 2px, transparent 18px)',
-          animation: 'bronx-float 11s ease-in-out infinite reverse',
-        }}
-      />
-
-      {/* Halo dorado ambiental */}
-      <div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[36rem] h-[36rem] rounded-full pointer-events-none opacity-[0.08]"
-        style={{
-          background: 'radial-gradient(circle, #C9A860 0%, transparent 70%)',
-          animation: 'bronx-float 8s ease-in-out infinite',
         }}
       />
 
@@ -130,8 +119,8 @@ const HeroSection = ({ business }) => {
           </div>
 
           <h1
-            className={`font-serif text-5xl md:text-7xl font-medium mb-4 tracking-tight ${reveal()}`}
-            style={revealStyle(120)}
+            className={`font-serif font-medium mb-4 tracking-tight leading-[1.05] ${reveal()}`}
+            style={{ ...revealStyle(120), fontSize: 'clamp(2.75rem, 6vw, 4.75rem)' }}
           >
             {localBusiness.name}
           </h1>
@@ -152,23 +141,31 @@ const HeroSection = ({ business }) => {
           </p>
 
           <div
-            className={`flex flex-col sm:flex-row gap-3 justify-center mb-14 px-4 ${reveal()}`}
+            className={`flex flex-col items-center gap-5 mb-14 px-4 ${reveal()}`}
             style={revealStyle(360)}
           >
-            <button
-              onClick={() => openBooking()}
-              className="bronx-shine relative overflow-hidden flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:bg-[#C9A860] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(169,129,46,0.6)] transition-all duration-300 shadow-[0_8px_24px_-8px_rgba(169,129,46,0.5)]"
-            >
-              <Scissors className="h-4 w-4" />
-              Reservar
-            </button>
-            <button
-              onClick={scrollToServices}
-              className="group flex items-center justify-center gap-2 border border-[#3A362F] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:border-[#A9812E] hover:text-[#C9A860] hover:-translate-y-0.5 transition-all duration-300"
-            >
-              Ver Servicios
-              <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={() => openBooking()}
+                className="bronx-shine relative overflow-hidden flex items-center justify-center gap-2 bg-gradient-to-b from-[#C9A860] to-[#A9812E] text-[#121113] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(169,129,46,0.6)] transition-all duration-300 shadow-[0_2px_0_rgba(0,0,0,0.25),0_10px_24px_-10px_rgba(169,129,46,0.5)]"
+              >
+                <Scissors className="h-4 w-4" />
+                Reservar Cita
+              </button>
+              <button
+                onClick={scrollToServices}
+                className="group flex items-center justify-center gap-2 border border-[#3A362F] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:border-[#A9812E] hover:text-[#C9A860] hover:-translate-y-0.5 transition-all duration-300"
+              >
+                Ver Servicios
+                <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
+              </button>
+            </div>
+
+            {/* Ticket de confianza — refuerza la idea de reserva sin fricción */}
+            <div className="inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] text-[#8A8579] border border-dashed border-[#3A362F] rounded-sm px-4 py-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#5FAE68]" />
+              Confirmación inmediata al reservar en línea
+            </div>
           </div>
 
           {/* Indicadores de confianza */}

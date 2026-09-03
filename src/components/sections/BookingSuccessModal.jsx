@@ -53,25 +53,55 @@ const BookingSuccessModal = ({ isOpen, onClose, appointment, recommendations = [
     return d.toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   };
 
+  const progress = autoClose ? ((autoCloseDelay / 1000 - timeLeft) / (autoCloseDelay / 1000)) * 100 : 0;
+
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <style>{`
+        @keyframes bronx-check-circle {
+          from { stroke-dashoffset: 76; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes bronx-check-mark {
+          from { stroke-dashoffset: 24; }
+          to { stroke-dashoffset: 0; }
+        }
+        .bronx-check-circle {
+          stroke-dasharray: 76;
+          animation: bronx-check-circle 0.5s ease-out forwards;
+        }
+        .bronx-check-mark {
+          stroke-dasharray: 24;
+          animation: bronx-check-mark 0.35s 0.45s ease-out forwards;
+          stroke-dashoffset: 24;
+        }
+      `}</style>
+      <div className="absolute inset-0 bg-[#121113]/70 backdrop-blur-sm animate-fade-in" onClick={onClose} />
       <div className="relative bg-white rounded-sm shadow-2xl w-full max-w-lg p-6 sm:p-8 animate-slide-up">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 text-[#9A9488] hover:text-[#1C1A16] hover:bg-[#F6F2EA] rounded-md transition-colors"
+          className="absolute top-4 right-4 p-1.5 text-[#9A9488] hover:text-[#1C1A16] hover:bg-[#F6F2EA] rounded-sm transition-colors"
           aria-label="Cerrar"
         >
           <X className="h-5 w-5" />
         </button>
 
         <div className="text-center mb-6">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-50 flex items-center justify-center">
-            <Check className="h-8 w-8 text-green-600" />
-          </div>
+          <svg className="w-16 h-16 mx-auto mb-4" viewBox="0 0 52 52">
+            <circle
+              className="bronx-check-circle"
+              cx="26" cy="26" r="24"
+              fill="none" stroke="#5FAE68" strokeWidth="2.5"
+            />
+            <path
+              className="bronx-check-mark"
+              fill="none" stroke="#5FAE68" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+              d="M15 27 L23 34 L38 18"
+            />
+          </svg>
           <h3 className="font-serif text-2xl text-[#1C1A16] mb-2">Cita Confirmada</h3>
           <p className="text-sm text-[#6B6459]">
-            Te enviamos un correo con la confirmacion.
+            Te enviamos un correo con la confirmación.
           </p>
         </div>
 
@@ -81,7 +111,10 @@ const BookingSuccessModal = ({ isOpen, onClose, appointment, recommendations = [
               <span className="text-[#6B6459]">Servicio:</span>
               <span className="font-medium text-[#1C1A16]">{appointment.service_name}</span>
             </div>
-            <div className="flex justify-between">
+            <div
+              className="flex justify-between pt-2"
+              style={{ borderTop: '1.5px dashed #E4DCC9' }}
+            >
               <span className="text-[#6B6459]">Fecha:</span>
               <span className="font-medium text-[#1C1A16]">{formatDate(appointment.appointment_date)}</span>
             </div>
@@ -91,7 +124,7 @@ const BookingSuccessModal = ({ isOpen, onClose, appointment, recommendations = [
             </div>
             {appointment.workstation_name && (
               <div className="flex justify-between">
-                <span className="text-[#6B6459]">Estacion:</span>
+                <span className="text-[#6B6459]">Estación:</span>
                 <span className="font-medium text-[#1C1A16]">{appointment.workstation_name}</span>
               </div>
             )}
@@ -119,9 +152,21 @@ const BookingSuccessModal = ({ isOpen, onClose, appointment, recommendations = [
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-xs text-[#B7B1A3]">
-            Se cerrara automaticamente en {timeLeft}s
-          </span>
+          {autoClose ? (
+            <div className="flex items-center gap-2 text-xs text-[#B7B1A3]">
+              <svg className="w-4 h-4 -rotate-90" viewBox="0 0 16 16">
+                <circle cx="8" cy="8" r="6.5" fill="none" stroke="#E4DCC9" strokeWidth="2" />
+                <circle
+                  cx="8" cy="8" r="6.5" fill="none" stroke="#A9812E" strokeWidth="2"
+                  strokeDasharray={2 * Math.PI * 6.5}
+                  strokeDashoffset={2 * Math.PI * 6.5 * (1 - progress / 100)}
+                  style={{ transition: 'stroke-dashoffset 1s linear' }}
+                  strokeLinecap="round"
+                />
+              </svg>
+              Se cierra en {timeLeft}s
+            </div>
+          ) : <span />}
           <Button onClick={onClose} size="sm">
             Cerrar
           </Button>
