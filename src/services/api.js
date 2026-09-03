@@ -53,13 +53,13 @@ const handleResponse = async (response) => {
 };
 
 export const api = {
-  get: async (url, useClientToken = false) => {
+  get: async (url, useClientToken = false, signal) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
     try {
       const response = await fetch(`${API_BASE_URL}${url}`, {
         headers: getHeaders(useClientToken),
-        signal: controller.signal,
+        signal: signal || controller.signal,
       });
       return handleResponse(response);
     } catch (err) {
@@ -72,7 +72,7 @@ export const api = {
     }
   },
 
-  post: async (url, body, useClientToken = false) => {
+  post: async (url, body, useClientToken = false, signal) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
     try {
@@ -80,7 +80,7 @@ export const api = {
         method: 'POST',
         headers: getHeaders(useClientToken),
         body: JSON.stringify(body),
-        signal: controller.signal,
+        signal: signal || controller.signal,
       });
       return handleResponse(response);
     } catch (err) {
@@ -93,7 +93,7 @@ export const api = {
     }
   },
 
-  patch: async (url, body, useClientToken = false) => {
+  patch: async (url, body, useClientToken = false, signal) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
     try {
@@ -101,7 +101,7 @@ export const api = {
         method: 'PATCH',
         headers: getHeaders(useClientToken),
         body: JSON.stringify(body),
-        signal: controller.signal,
+        signal: signal || controller.signal,
       });
       return handleResponse(response);
     } catch (err) {
@@ -114,14 +114,14 @@ export const api = {
     }
   },
 
-  delete: async (url, useClientToken = false) => {
+  delete: async (url, useClientToken = false, signal) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
     try {
       const response = await fetch(`${API_BASE_URL}${url}`, {
         method: 'DELETE',
         headers: getHeaders(useClientToken),
-        signal: controller.signal,
+        signal: signal || controller.signal,
       });
       return handleResponse(response);
     } catch (err) {

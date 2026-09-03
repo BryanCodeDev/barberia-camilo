@@ -24,13 +24,13 @@ const NAV_SECTIONS = [
       { id: 'clients', label: 'Clientes', icon: Users },
     ],
   },
-  {
-    id: 'analisis',
-    label: 'Analisis',
-    items: [
-      { id: 'performance', label: 'Desempeno', icon: BarChart3 },
-    ],
-  },
+    {
+      id: 'analisis',
+      label: 'Analisis',
+      items: [
+        { id: 'performance', label: 'Desempeño', icon: BarChart3 },
+      ],
+    },
   {
     id: 'sistema',
     label: 'Sistema',

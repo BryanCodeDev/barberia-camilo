@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Check, Info } from 'lucide-react';
 import Button from '../ui/Button';
 
-const BookingSuccessModal = ({ isOpen, onClose, appointment, recommendations = [] }) => {
+const BookingSuccessModal = ({ isOpen, onClose, appointment, recommendations = [], autoClose = false, autoCloseDelay = 3000 }) => {
   const [timeLeft, setTimeLeft] = useState(3);
   const autoCloseRef = useRef(null);
   const countdownRef = useRef(null);
@@ -11,33 +11,35 @@ const BookingSuccessModal = ({ isOpen, onClose, appointment, recommendations = [
     if (!isOpen) return;
 
     setTimeLeft(3);
-    countdownRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownRef.current);
-          onClose();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    if (autoClose) {
+      countdownRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownRef.current);
+            onClose();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
 
     return () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
       if (autoCloseRef.current) clearTimeout(autoCloseRef.current);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, autoClose]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && autoClose) {
       autoCloseRef.current = setTimeout(() => {
         onClose();
-      }, 3000);
+      }, autoCloseDelay);
     }
     return () => {
       if (autoCloseRef.current) clearTimeout(autoCloseRef.current);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, autoClose, autoCloseDelay]);
 
   if (!isOpen || !appointment) return null;
 

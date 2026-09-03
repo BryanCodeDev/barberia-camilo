@@ -117,6 +117,11 @@ function disconnect() {
 export function useWebSocket(token) {
   const [connectionState, setLocalConnectionState] = useState(getConnectionState());
   const listenersRef = useRef(new Map());
+  const tokenRef = useRef(token);
+
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
 
   useEffect(() => {
     const handler = (state) => setLocalConnectionState(state);
@@ -128,8 +133,19 @@ export function useWebSocket(token) {
     if (!token) return;
     connect(token);
     return () => {
-      // We don't disconnect here because other components may still need it.
-      // Disconnect is handled explicitly.
+      const currentListeners = listenersRef.current;
+      for (const [event, callbacks] of currentListeners.entries()) {
+        const globalSet = sharedListeners.get(event);
+        if (globalSet) {
+          for (const cb of callbacks) {
+            globalSet.delete(cb);
+          }
+          if (globalSet.size === 0) {
+            sharedListeners.delete(event);
+          }
+        }
+      }
+      listenersRef.current.clear();
     };
   }, [token]);
 
@@ -139,11 +155,21 @@ export function useWebSocket(token) {
     }
     sharedListeners.get(event).add(callback);
 
+    if (!listenersRef.current.has(event)) {
+      listenersRef.current.set(event, new Set());
+    }
+    listenersRef.current.get(event).add(callback);
+
     return () => {
-      const set = sharedListeners.get(event);
-      if (set) {
-        set.delete(callback);
-        if (set.size === 0) sharedListeners.delete(event);
+      const globalSet = sharedListeners.get(event);
+      if (globalSet) {
+        globalSet.delete(callback);
+        if (globalSet.size === 0) sharedListeners.delete(event);
+      }
+      const localSet = listenersRef.current.get(event);
+      if (localSet) {
+        localSet.delete(callback);
+        if (localSet.size === 0) listenersRef.current.delete(event);
       }
     };
   }, []);

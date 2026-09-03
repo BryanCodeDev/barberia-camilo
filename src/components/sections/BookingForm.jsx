@@ -44,11 +44,19 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [workstationsLoading, setWorkstationsLoading] = useState(true);
   const [modalMounted, setModalMounted] = useState(false);
   const [createdAppointment, setCreatedAppointment] = useState(null);
+  const slotsAbortController = useRef(null);
+  const bookingAbortController = useRef(null);
   const successTimeoutRef = useRef(null);
 
   useEffect(() => {
     return () => {
       if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+      if (slotsAbortController.current) {
+        slotsAbortController.current.abort();
+      }
+      if (bookingAbortController.current) {
+        bookingAbortController.current.abort();
+      }
     };
   }, []);
 
@@ -115,9 +123,14 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const fetchAvailableSlots = async (date, serviceId) => {
     try {
       setSlotsLoading(true);
+      if (slotsAbortController.current) {
+        slotsAbortController.current.abort();
+      }
+      const controller = new AbortController();
+      slotsAbortController.current = controller;
       const params = new URLSearchParams({ date: toLocalDateString(date) });
       if (serviceId) params.append('service_id', serviceId);
-      const data = await api.get(`/appointments/available-slots?${params.toString()}`);
+      const data = await api.get(`/appointments/available-slots?${params.toString()}`, false, controller.signal);
       let slots = data.slots || [];
 
       const now = new Date();
@@ -136,10 +149,16 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
       return slots;
     } catch (err) {
+      if (err.name === 'AbortError') {
+        return [];
+      }
       console.error('Error fetching slots:', err);
       return [];
     } finally {
       setSlotsLoading(false);
+      if (slotsAbortController.current === controller) {
+        slotsAbortController.current = null;
+      }
     }
   };
 
@@ -230,10 +249,16 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     setSubmitLoading(true);
     setError(null);
 
+    if (bookingAbortController.current) {
+      bookingAbortController.current.abort();
+    }
+    const controller = new AbortController();
+    bookingAbortController.current = controller;
+
     try {
       let clientId;
       try {
-        const clientData = await api.post('/clients', { name: clientName, phone: clientPhone, email: clientEmail });
+        const clientData = await api.post('/clients', { name: clientName, phone: clientPhone, email: clientEmail }, false, controller.signal);
         clientId = clientData.id;
       } catch (clientErr) {
         if (clientErr.data?.clientId) {
@@ -259,7 +284,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         payload.workstation_id = selectedWorkstation.id;
       }
 
-      const appointmentData = await api.post('/appointments', payload);
+      const appointmentData = await api.post('/appointments', payload, false, controller.signal);
       console.log('Appointment created:', appointmentData);
 
       if (appointmentData.appointment?.recommendations && appointmentData.appointment.recommendations.length > 0) {
@@ -270,11 +295,6 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
       setCreatedAppointment(appointmentData.appointment);
       setShowSuccess(true);
-
-      successTimeoutRef.current = setTimeout(() => {
-        setShowSuccess(false);
-        onClose();
-      }, 3000);
     } catch (err) {
       console.error('Error confirming booking:', err);
       setError(err.message || 'Error al agendar la cita');
@@ -284,7 +304,6 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   };
 
   const handleFinish = () => {
-    if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
     setShowSuccess(false);
     onClose();
   };
@@ -743,6 +762,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         onClose={handleFinish}
         appointment={createdAppointment}
         recommendations={recommendations}
+        autoClose
+        autoCloseDelay={3000}
       />
     </div>
   );

@@ -1,6 +1,10 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { api } from '../services/api';
 
+// WARNING: This decodes a JWT without verifying its signature.
+// It is ONLY safe for reading non-sensitive claims from tokens that were
+// previously validated by the backend. Never use decoded payload data
+// for authorization decisions.
 function decodeToken(token) {
   try {
     const payload = token.split('.')[1];
@@ -8,13 +12,14 @@ function decodeToken(token) {
     const jsonPayload = decodeURIComponent(
       atob(base64)
         .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16')).slice(-2))
         .join('')
     );
     return JSON.parse(jsonPayload);
   } catch {
     return null;
   }
+}
 }
 
 const AuthContext = createContext(null);
@@ -57,6 +62,40 @@ export function AuthProvider({ children }) {
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
+
+  const verifyAdminToken = useCallback(async (token) => {
+    if (!token) return false;
+    try {
+      await api.get('/auth/verify', false);
+      return true;
+    } catch {
+      logoutAdmin();
+      return false;
+    }
+  }, [logoutAdmin]);
+
+  const verifyClientToken = useCallback(async (token) => {
+    if (!token) return false;
+    try {
+      await api.get('/auth/verify', true);
+      return true;
+    } catch {
+      logoutClient();
+      return false;
+    }
+  }, [logoutClient]);
+
+  useEffect(() => {
+    if (adminToken) {
+      verifyAdminToken(adminToken);
+    }
+  }, [adminToken, verifyAdminToken]);
+
+  useEffect(() => {
+    if (clientToken) {
+      verifyClientToken(clientToken);
+    }
+  }, [clientToken, verifyClientToken]);
 
   const loginAdmin = useCallback((token) => {
     localStorage.setItem('admin_token', token);
