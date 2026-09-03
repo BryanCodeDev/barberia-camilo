@@ -126,11 +126,11 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
       if (slotsAbortController.current) {
         slotsAbortController.current.abort();
       }
-      const controller = new AbortController();
-      slotsAbortController.current = controller;
+      slotsAbortController.current = new AbortController();
+      const signal = slotsAbortController.current.signal;
       const params = new URLSearchParams({ date: toLocalDateString(date) });
       if (serviceId) params.append('service_id', serviceId);
-      const data = await api.get(`/appointments/available-slots?${params.toString()}`, false, controller.signal);
+      const data = await api.get(`/appointments/available-slots?${params.toString()}`, false, signal);
       let slots = data.slots || [];
 
       const now = new Date();
@@ -149,11 +149,14 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
 
       return slots;
     } catch (err) {
+      if (err.name === 'AbortError') {
+        return [];
+      }
       // handled by UI state
       return [];
     } finally {
       setSlotsLoading(false);
-      if (slotsAbortController.current === controller) {
+      if (slotsAbortController.current) {
         slotsAbortController.current = null;
       }
     }
@@ -249,21 +252,21 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
     if (bookingAbortController.current) {
       bookingAbortController.current.abort();
     }
-    const controller = new AbortController();
-    bookingAbortController.current = controller;
+    bookingAbortController.current = new AbortController();
+    const signal = bookingAbortController.current.signal;
 
     try {
       let clientId;
       try {
-        const clientData = await api.post('/clients', { name: clientName, phone: clientPhone, email: clientEmail }, false, controller.signal);
+        const clientData = await api.post('/clients', { name: clientName, phone: clientPhone, email: clientEmail }, false, signal);
         clientId = clientData.id;
       } catch (clientErr) {
         if (clientErr.data?.clientId) {
           clientId = clientErr.data.clientId;
-      } else {
-        // handled by caller
-        throw new Error(clientErr.message || 'Error al registrar el cliente');
-      }
+        } else {
+          // handled by caller
+          throw new Error(clientErr.message || 'Error al registrar el cliente');
+        }
       }
 
       const payload = {
@@ -281,7 +284,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         payload.workstation_id = selectedWorkstation.id;
       }
 
-      const appointmentData = await api.post('/appointments', payload, false, controller.signal);
+      const appointmentData = await api.post('/appointments', payload, false, signal);
 
       if (appointmentData.appointment?.recommendations && appointmentData.appointment.recommendations.length > 0) {
         setRecommendations(appointmentData.appointment.recommendations);
