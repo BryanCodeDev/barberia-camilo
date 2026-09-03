@@ -281,6 +281,10 @@ const AdminPanel = ({ onClose, business }) => {
           }}
         />
         <div className="absolute inset-0 -z-10 bg-ink/85" />
+        <div
+          className="absolute inset-0 -z-10 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% 20%, rgba(201,168,96,0.12) 0%, transparent 60%)' }}
+        />
         <LoginForm
           fields={[
             { name: 'username', label: 'Usuario', type: 'text', placeholder: 'Ingresa tu usuario', required: true },
@@ -301,9 +305,9 @@ const AdminPanel = ({ onClose, business }) => {
   return (
     <div className="min-h-screen bg-cream">
       {/* Mobile Header */}
-      <div className="md:hidden bg-[#090909]/95 border-b border-[rgba(255,255,255,0.05)] px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+      <div className="md:hidden bg-[#090909]/95 backdrop-blur-md border-b border-[rgba(255,255,255,0.05)] px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#C9A860] flex items-center justify-center overflow-hidden">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-b from-[#E0C47A] to-[#A9812E] flex items-center justify-center overflow-hidden shadow-[0_2px_8px_-2px_rgba(169,129,46,0.5)]">
             <img src="/assets/img/logo.webp" alt="Logo" className="w-6 h-6 object-contain" />
           </div>
           <div>

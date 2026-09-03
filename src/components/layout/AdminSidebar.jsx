@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import {
   LayoutDashboard, Calendar, Users, Scissors, BarChart3,
-  MessageSquare, Settings, LogOut, X, Menu,
-  ChevronDown, ChevronRight, BookOpen
+  MessageSquare, Settings, LogOut, X,
+  ChevronDown, BookOpen
 } from 'lucide-react';
 
 const NAV_SECTIONS = [
@@ -51,23 +51,23 @@ const AdminNavItem = memo(({ item, isActive, isSettings, onSelect, closeDrawer }
       }}
       className={`
         w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium
-        transition-colors duration-200 relative group
+        transition-all duration-200 relative group
         ${isActive && !isSettings
-          ? 'bg-[#151515] text-white'
+          ? 'bg-gradient-to-r from-[#1A1712] to-[#151515] text-white'
           : isSettings
-            ? 'text-[#A3A3A3] hover:text-white hover:bg-[#151515]'
-            : 'text-[#A3A3A3] hover:text-white hover:bg-[#151515]'
+            ? 'text-[#A3A3A3] hover:text-white hover:bg-[#151515] hover:translate-x-0.5'
+            : 'text-[#A3A3A3] hover:text-white hover:bg-[#151515] hover:translate-x-0.5'
         }
       `}
     >
       {isActive && !isSettings && (
-        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[18px] bg-[#C9A860] rounded-r-full" />
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[18px] bg-gradient-to-b from-[#E0C47A] to-[#A9812E] rounded-r-full" />
       )}
       <item.icon className={`
         h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200
         ${isActive && !isSettings
           ? 'text-[#C9A860]'
-          : 'text-[#666666] group-hover:text-[#C9A860] group-hover:translate-x-[1px]'
+          : 'text-[#666666] group-hover:text-[#C9A860]'
         }
       `} />
       <span className="truncate">{item.label}</span>
@@ -82,7 +82,7 @@ const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, o
     <div className="flex flex-col h-full">
       <div className="p-5 sm:p-6">
         <div className="flex items-center gap-3">
-          <div className="w-[44px] h-[44px] rounded-xl bg-[#C9A860] flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="w-[44px] h-[44px] rounded-xl bg-gradient-to-b from-[#E0C47A] to-[#A9812E] flex items-center justify-center flex-shrink-0 overflow-hidden shadow-[0_4px_12px_-4px_rgba(169,129,46,0.5)]">
             <img src="/assets/img/logo.webp" alt="Logo" className="w-8 h-8 object-contain" />
           </div>
           <div className="min-w-0">
@@ -108,14 +108,15 @@ const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, o
                 className="w-full flex items-center justify-between px-3 py-2 text-[11px] font-semibold text-[#666666] uppercase tracking-[0.15em] hover:text-[#A3A3A3] transition-colors"
               >
                 <span>{section.label}</span>
-                {isExpanded ? (
-                  <ChevronDown className="h-3.5 w-3.5 text-[#666666] transition-transform duration-200" />
-                ) : (
-                  <ChevronRight className="h-3.5 w-3.5 text-[#666666] transition-transform duration-200" />
-                )}
+                <ChevronDown
+                  className={`h-3.5 w-3.5 text-[#666666] transition-transform duration-200 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}
+                />
               </button>
-              {isExpanded && (
-                <div className="space-y-0.5 animate-slide-down">
+              <div
+                className="overflow-hidden transition-all duration-300 ease-out"
+                style={{ maxHeight: isExpanded ? `${sectionItems.length * 44 + 8}px` : '0px' }}
+              >
+                <div className="space-y-0.5 pt-0.5">
                   {sectionItems.map((item) => (
                     <AdminNavItem
                       key={item.id}
@@ -133,7 +134,7 @@ const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, o
                     />
                   ))}
                 </div>
-              )}
+              </div>
             </div>
           );
         })}
@@ -164,7 +165,7 @@ const AdminSidebarContent = ({ tabs, activeTab, setActiveTab, onSettingsClick, o
           }}
           className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors duration-200"
         >
-          <LogOut className="h-4 w-4 flex-shrink-0 transition-colors" />
+          <LogOut className="h-4 w-4 flex-shrink-0 transition-transform group-hover:-translate-x-0.5" />
           <span>Cerrar Sesion</span>
         </button>
         {onClose && (
@@ -263,6 +264,7 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, onClose, busine
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed inset-y-0 left-0 w-64 bg-[#090909] border-r border-[rgba(255,255,255,0.05)] z-40 h-screen overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#A9812E]/40 to-transparent" />
         <div className="w-full h-full overflow-y-auto custom-scrollbar">
           {sidebarContent}
         </div>

@@ -26,10 +26,13 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#F6F2EA] flex items-center justify-center p-4 sm:p-6">
-          <div className="max-w-md w-full">
-            <div className="bg-white border border-[#E4DCC9] rounded-lg shadow-lg p-6 sm:p-8 text-center">
-              <div className="w-16 h-16 rounded-full border border-[#A9812E]/60 flex items-center justify-center mx-auto mb-5 bg-[#121113] shadow-lg shadow-[#A9812E]/10">
-                <AlertTriangle className="h-7 w-7 text-[#C9A860]" />
+          <div className="max-w-md w-full animate-fade-in">
+            <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-[0_20px_50px_-20px_rgba(112,66,20,0.25)] p-6 sm:p-8 text-center">
+              <div className="relative w-16 h-16 mx-auto mb-5">
+                <span className="absolute inset-0 rounded-full bg-[#A9812E]/15 animate-ping" />
+                <div className="relative w-16 h-16 rounded-full border border-[#A9812E]/60 flex items-center justify-center bg-[#121113] shadow-lg shadow-[#A9812E]/10">
+                  <AlertTriangle className="h-7 w-7 text-[#C9A860]" />
+                </div>
               </div>
               <h2 className="font-serif text-2xl text-[#1C1A16] mb-2">
                 Algo salió mal
@@ -38,11 +41,11 @@ class ErrorBoundary extends React.Component {
                 Ocurrió un error inesperado. Por favor intenta nuevamente o vuelve al inicio.
               </p>
               {this.state.error && (
-                <details className="text-left mb-6">
-                  <summary className="text-xs text-[#9A9488] cursor-pointer hover:text-[#8B6A22] transition-colors">
+                <details className="text-left mb-6 group">
+                  <summary className="text-xs text-[#9A9488] cursor-pointer hover:text-[#8B6A22] transition-colors select-none">
                     Detalles del error
                   </summary>
-                  <pre className="mt-2 p-3 bg-[#F6F2EA] border border-[#E4DCC9] rounded-lg text-xs text-[#8B2E2E] overflow-x-auto whitespace-pre-wrap break-words">
+                  <pre className="mt-2 p-3 bg-[#F6F2EA] border border-[#E4DCC9] rounded-sm text-xs text-[#8B2E2E] overflow-x-auto whitespace-pre-wrap break-words">
                     {this.state.error.toString()}
                   </pre>
                 </details>
@@ -50,14 +53,14 @@ class ErrorBoundary extends React.Component {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <button
                   onClick={this.handleReset}
-                  className="inline-flex items-center justify-center gap-2 bg-[#A9812E] text-[#121113] px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-[#C9A860] transition-all duration-200 btn-press shadow-sm w-full sm:w-auto"
+                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-b from-[#C9A860] to-[#A9812E] text-[#121113] px-5 py-2.5 rounded-sm font-semibold text-sm shadow-[0_2px_0_rgba(0,0,0,0.15)] hover:from-[#D8BA76] hover:to-[#BC9440] active:translate-y-px active:shadow-none transition-all duration-200 w-full sm:w-auto"
                 >
                   <RefreshCw className="h-4 w-4" />
                   Reintentar
                 </button>
                 <a
                   href="/"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-[#E4DCC9] rounded-lg text-sm font-medium text-[#6B6459] hover:text-[#8B6A22] hover:border-[#A9812E]/60 transition-all w-full sm:w-auto"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-[#E4DCC9] rounded-sm text-sm font-medium text-[#6B6459] hover:text-[#8B6A22] hover:border-[#A9812E]/60 transition-all w-full sm:w-auto"
                 >
                   Volver al Inicio
                 </a>

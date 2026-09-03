@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone, ShieldCheck, Crown, LogOut, Lock,
-  ArrowLeft, Loader2, Calendar, Clock, MessageSquare, X,
+  ArrowLeft, Loader2, Calendar, Clock, MessageSquare,
   Edit3, Trash2, Monitor
 } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
@@ -11,6 +11,24 @@ import Modal from '../components/ui/Modal';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import ErrorBanner from '../components/ui/ErrorBanner';
+
+const StatusBadge = ({ status, getStatusColor, getStatusText }) => (
+  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+    {getStatusText(status)}
+  </span>
+);
+
+const InfoRow = ({ icon: Icon, label, value }) => (
+  <div className="flex items-start gap-3">
+    <div className="p-2 rounded-lg bg-[#151515] border border-[rgba(255,255,255,0.05)]">
+      <Icon className="h-4 w-4 text-[#A3A3A3]" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-xs text-[#666666] uppercase tracking-wider mb-1">{label}</p>
+      <p className="text-sm text-white truncate">{value}</p>
+    </div>
+  </div>
+);
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -162,10 +180,6 @@ const Profile = () => {
     );
   }
 
-  const initials = user?.username
-    ? user.username.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : 'US';
-
   const roleLabel = user?.role === 'admin' ? 'Administrador' : user?.role === 'barber' ? 'Barbero' : 'Cliente';
 
   const formatDate = (dateString) => {
@@ -214,6 +228,10 @@ const Profile = () => {
         }}
       />
       <div className="absolute inset-0 -z-10 bg-[#050505]/85" />
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,96,0.10) 0%, transparent 60%)' }}
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="animate-fade-in">
           <div className="flex items-center gap-3 mb-8">
@@ -240,7 +258,7 @@ const Profile = () => {
           <div className="bg-[#101010] border border-[rgba(201,168,96,0.12)] rounded-2xl p-6 sm:p-8 mb-6">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               <div className="relative flex-shrink-0">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#C9A860] flex items-center justify-center shadow-lg shadow-black/40 overflow-hidden">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-b from-[#E0C47A] to-[#A9812E] flex items-center justify-center shadow-lg shadow-black/40 overflow-hidden">
                   <img src="/assets/img/logo.webp" alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#101010] rounded-full flex items-center justify-center border border-[rgba(201,168,96,0.25)]">
@@ -287,58 +305,18 @@ const Profile = () => {
                 )}
               </div>
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#151515] border border-[rgba(255,255,255,0.05)]">
-                    <User className="h-4 w-4 text-[#A3A3A3]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#666666] uppercase tracking-wider mb-1">Nombre</p>
-                    <p className="text-sm text-white truncate">{clientData?.name || user?.username || 'No disponible'}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#151515] border border-[rgba(255,255,255,0.05)]">
-                    <Mail className="h-4 w-4 text-[#A3A3A3]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#666666] uppercase tracking-wider mb-1">Correo electronico</p>
-                    <p className="text-sm text-white truncate">{clientData?.email || user?.email || 'No disponible'}</p>
-                  </div>
-                </div>
-
+                <InfoRow icon={User} label="Nombre" value={clientData?.name || user?.username || 'No disponible'} />
+                <InfoRow icon={Mail} label="Correo electronico" value={clientData?.email || user?.email || 'No disponible'} />
                 {authRole === 'client' && (
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-[#151515] border border-[rgba(255,255,255,0.05)]">
-                      <Phone className="h-4 w-4 text-[#A3A3A3]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-[#666666] uppercase tracking-wider mb-1">Telefono</p>
-                      <p className="text-sm text-white">{clientPhone || clientData?.phone || 'No disponible'}</p>
-                    </div>
-                  </div>
+                  <InfoRow icon={Phone} label="Telefono" value={clientPhone || clientData?.phone || 'No disponible'} />
                 )}
-
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#151515] border border-[rgba(255,255,255,0.05)]">
-                    <ShieldCheck className="h-4 w-4 text-[#A3A3A3]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#666666] uppercase tracking-wider mb-1">Rol</p>
-                    <p className="text-sm text-white">{roleLabel}</p>
-                  </div>
-                </div>
-
+                <InfoRow icon={ShieldCheck} label="Rol" value={roleLabel} />
                 {authRole === 'client' && clientData && (
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-[#151515] border border-[rgba(255,255,255,0.05)]">
-                      <Calendar className="h-4 w-4 text-[#A3A3A3]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-[#666666] uppercase tracking-wider mb-1">Citas completadas</p>
-                      <p className="text-sm text-white">{appointments.filter(a => a.status === 'completed').length}</p>
-                    </div>
-                  </div>
+                  <InfoRow
+                    icon={Calendar}
+                    label="Citas completadas"
+                    value={appointments.filter(a => a.status === 'completed').length}
+                  />
                 )}
               </div>
             </div>
@@ -383,12 +361,13 @@ const Profile = () => {
               ) : appointments.length > 0 ? (
                 <div className="space-y-4">
                   {appointments.map((apt) => (
-                    <div key={apt.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#151515] border border-[rgba(255,255,255,0.05)]">
+                    <div
+                      key={apt.id}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-[#151515] border border-[rgba(255,255,255,0.05)] hover:border-[rgba(201,168,96,0.25)] transition-colors duration-200"
+                    >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium ${getStatusColor(apt.status)}`}>
-                            {getStatusText(apt.status)}
-                          </span>
+                          <StatusBadge status={apt.status} getStatusColor={getStatusColor} getStatusText={getStatusText} />
                           <span className="text-sm text-[#A3A3A3]">
                             {formatDate(apt.appointment_date)} - {apt.appointment_time}
                           </span>
@@ -446,7 +425,7 @@ const Profile = () => {
               onClick={handleLogout}
               className="group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#EF4444] hover:bg-[#EF4444]/10 transition-all duration-200 w-full"
             >
-              <LogOut className="h-5 w-5" />
+              <LogOut className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
               <div className="text-left">
                 <p className="text-sm font-medium">Cerrar Sesion</p>
                 <p className="text-xs text-[#666666] group-hover:text-[#A3A3A3] transition-colors">

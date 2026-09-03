@@ -11,6 +11,12 @@ import Loader from '../components/ui/Loader';
 import SessionReplacedModal from '../components/common/SessionReplacedModal';
 import { useNavigate } from 'react-router-dom';
 
+const StatusBadge = ({ status, getStatusColor, getStatusText }) => (
+  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
+    {getStatusText(status)}
+  </span>
+);
+
 const ClientPortal = ({ business }) => {
   const navigate = useNavigate();
   const { isAuthenticated: adminAuth } = useAuth('admin');
@@ -173,7 +179,6 @@ const ClientPortal = ({ business }) => {
       localStorage.setItem('client_email', clientEmail);
       setClientId(data.id);
       setClientName(data.name);
-      setLoginStep('logged_in');
       fetchMyAppointments(data.id);
     } catch (err) {
       if (err.data?.error) {
@@ -209,7 +214,6 @@ const ClientPortal = ({ business }) => {
       localStorage.setItem('client_email', email);
       setClientId(data.id);
       setClientName(data.name);
-      setLoginStep('logged_in');
       fetchMyAppointments(data.id);
     } catch (err) {
       if (err.data?.error) {
@@ -313,12 +317,16 @@ const ClientPortal = ({ business }) => {
         }}
       />
       <div className="absolute inset-0 -z-10 bg-[#121113]/85" />
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,96,0.12) 0%, transparent 60%)' }}
+      />
       <SessionReplacedModal
         isOpen={showSessionReplacedModal}
         onClose={handleSessionReplacedClose}
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-10">
+        <div className="text-center mb-10 animate-fade-in">
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-[#A9812E] text-[#C9A860] overflow-hidden">
               <img src="/assets/img/logo.webp" alt="Logo" className="w-6 h-6 object-contain" />
@@ -331,7 +339,7 @@ const ClientPortal = ({ business }) => {
         {!isLoggedIn ? (
           <div>
             {loginMethod === 'email' && (
-              <div className="max-w-md mx-auto">
+              <div className="max-w-md mx-auto animate-fade-in">
                 <div className="bg-ink border border-ink-line rounded-2xl shadow-2xl overflow-hidden">
                   <div className="p-6 sm:p-8 text-center border-b border-ink-line">
                     <div className="w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center shadow-lg shadow-gold/20 overflow-hidden">
@@ -370,7 +378,7 @@ const ClientPortal = ({ business }) => {
 
                     <button
                       onClick={() => setLoginMethod('password')}
-                      className="w-full text-sm text-[#8B6A22] hover:underline flex items-center justify-center"
+                      className="w-full text-sm text-[#8B6A22] hover:underline flex items-center justify-center transition-colors hover:text-[#C9A860]"
                     >
                       <Lock className="h-4 w-4 mr-1" /> Ingresar con contraseña
                     </button>
@@ -380,7 +388,7 @@ const ClientPortal = ({ business }) => {
             )}
 
             {loginMethod === 'otp' && (
-              <>
+              <div className="animate-fade-in">
                 <LoginForm
                   fields={[
                     { name: 'code', label: 'Código', type: 'text', placeholder: '______', required: true, maxLength: 6, inputMode: 'numeric', autoComplete: 'one-time-code', className: 'text-center text-2xl tracking-[0.5em] font-mono' },
@@ -407,7 +415,7 @@ const ClientPortal = ({ business }) => {
                     <button
                       onClick={handleResendCode}
                       disabled={loading}
-                      className="text-sm text-[#8B6A22] hover:underline disabled:opacity-50 flex items-center justify-center mx-auto"
+                      className="text-sm text-[#8B6A22] hover:underline hover:text-[#C9A860] disabled:opacity-50 flex items-center justify-center mx-auto transition-colors"
                     >
                       <RefreshCw className="h-4 w-4 mr-1" /> Reenviar código
                     </button>
@@ -416,16 +424,16 @@ const ClientPortal = ({ business }) => {
                 <div className="mt-4 text-center">
                   <button
                     onClick={() => { setLoginMethod('email'); setError(null); }}
-                    className="text-sm text-[#8B6A22] hover:underline"
+                    className="text-sm text-[#8B6A22] hover:underline hover:text-[#C9A860] transition-colors"
                   >
                     Volver a ingresar correo
                   </button>
                 </div>
-              </>
+              </div>
             )}
 
             {loginMethod === 'password' && (
-              <div className="max-w-md mx-auto">
+              <div className="max-w-md mx-auto animate-fade-in">
                 <div className="bg-ink border border-ink-line rounded-2xl shadow-2xl overflow-hidden">
                   <div className="p-6 sm:p-8 text-center border-b border-ink-line">
                     <div className="w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center shadow-lg shadow-gold/20 overflow-hidden">
@@ -465,7 +473,7 @@ const ClientPortal = ({ business }) => {
 
                     <button
                       onClick={() => { setLoginMethod('email'); setError(null); }}
-                      className="w-full text-sm text-[#8B6A22] hover:underline flex items-center justify-center"
+                      className="w-full text-sm text-[#8B6A22] hover:underline hover:text-[#C9A860] flex items-center justify-center transition-colors"
                     >
                       <Mail className="h-4 w-4 mr-1" /> Ingresar con código por correo
                     </button>
@@ -475,13 +483,13 @@ const ClientPortal = ({ business }) => {
             )}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-in">
             <div className="bg-white border border-[#E4DCC9] rounded-sm shadow-sm p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => navigate('/')}
-                    className="p-2 hover:bg-[#F6F2EA] rounded-xl transition-colors"
+                    className="p-2 hover:bg-[#F6F2EA] rounded-sm transition-colors"
                     title="Volver al inicio"
                   >
                     <ArrowLeft className="h-5 w-5 text-[#6B6459]" />
@@ -508,19 +516,18 @@ const ClientPortal = ({ business }) => {
                 </h3>
               </div>
               {loading ? (
-                <div className="flex items-center justify-center py-16">
+                <div className="flex flex-col items-center justify-center gap-3 py-16">
                   <Loader size="lg" />
+                  <p className="text-sm text-[#6B6459]">Cargando tus citas...</p>
                 </div>
               ) : appointments.length > 0 ? (
-                <div className="divide-y divide-[#E4DCC9]">
+                <div className="divide-y divide-dashed divide-[#E4DCC9]">
                   {appointments.map((apt) => (
                     <div key={apt.id} className="p-4 sm:p-6 hover:bg-[#F6F2EA]/50 transition-colors">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-sm text-xs font-medium ${getStatusColor(apt.status)}`}>
-                              {getStatusText(apt.status)}
-                            </span>
+                            <StatusBadge status={apt.status} getStatusColor={getStatusColor} getStatusText={getStatusText} />
                             <span className="text-sm text-[#6B6459]">{formatDate(apt.appointment_date)} - {apt.appointment_time}</span>
                           </div>
                           <h4 className="font-semibold text-[#1C1A16]">{apt.service_name}</h4>

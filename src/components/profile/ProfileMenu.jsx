@@ -78,12 +78,12 @@ const ProfileMenu = ({ onLogout: onLogoutProp }) => {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[#0A0A0A] border border-[rgba(201,168,96,0.15)] hover:border-[rgba(201,168,96,0.35)] transition-all duration-200 group"
+        className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[#0A0A0A] border border-[rgba(201,168,96,0.15)] hover:border-[rgba(201,168,96,0.4)] transition-all duration-200 group"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
         <div className="relative">
-          <div className="w-8 h-8 rounded-lg bg-[#C9A860] flex items-center justify-center overflow-hidden">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-b from-[#E0C47A] to-[#A9812E] flex items-center justify-center overflow-hidden">
             <img src="/assets/img/logo.webp" alt="Logo" className="w-5 h-5 object-contain" />
           </div>
           <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-[#0A0A0A] rounded-full flex items-center justify-center border border-[rgba(201,168,96,0.25)]">
@@ -121,7 +121,7 @@ const ProfileMenu = ({ onLogout: onLogoutProp }) => {
           <div className="px-5 py-4 border-b border-[rgba(201,168,96,0.10)] bg-[#101010]">
             <div className="flex items-center gap-3">
               <div className="relative flex-shrink-0">
-                <div className="w-12 h-12 rounded-xl bg-[#C9A860] flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-b from-[#E0C47A] to-[#A9812E] flex items-center justify-center overflow-hidden">
                   <img src="/assets/img/logo.webp" alt="Logo" className="w-8 h-8 object-contain" />
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#101010] rounded-full flex items-center justify-center border border-[rgba(201,168,96,0.25)]">
