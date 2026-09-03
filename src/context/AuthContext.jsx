@@ -62,6 +62,34 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
+  const logoutAdmin = useCallback(async () => {
+    const token = adminToken;
+    if (token) {
+      try {
+        await api.post('/auth/logout', {}, false);
+      } catch {
+        // noop: logout local debe seguir funcionando incluso si el backend falla
+      }
+    }
+    localStorage.removeItem('admin_token');
+    setAdminToken(null);
+    setAdminUser(null);
+  }, [adminToken]);
+
+  const logoutClient = useCallback(async () => {
+    const token = clientToken;
+    if (token) {
+      try {
+        await api.post('/auth/logout', {}, true);
+      } catch {
+        // noop: logout local debe seguir funcionando incluso si el backend falla
+      }
+    }
+    localStorage.removeItem('client_token');
+    setClientToken(null);
+    setClientUser(null);
+  }, [clientToken]);
+
   const verifyAdminToken = useCallback(async (token) => {
     if (!token) return false;
     try {
@@ -107,34 +135,6 @@ export function AuthProvider({ children }) {
     setClientToken(token);
     setClientUser(decodeToken(token));
   }, []);
-
-  const logoutAdmin = useCallback(async () => {
-    const token = adminToken;
-    if (token) {
-      try {
-        await api.post('/auth/logout', {}, false);
-      } catch {
-        // noop: logout local debe seguir funcionando incluso si el backend falla
-      }
-    }
-    localStorage.removeItem('admin_token');
-    setAdminToken(null);
-    setAdminUser(null);
-  }, [adminToken]);
-
-  const logoutClient = useCallback(async () => {
-    const token = clientToken;
-    if (token) {
-      try {
-        await api.post('/auth/logout', {}, true);
-      } catch {
-        // noop: logout local debe seguir funcionando incluso si el backend falla
-      }
-    }
-    localStorage.removeItem('client_token');
-    setClientToken(null);
-    setClientUser(null);
-  }, [clientToken]);
 
   const value = {
     adminToken,

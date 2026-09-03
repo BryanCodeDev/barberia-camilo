@@ -91,7 +91,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         const data = await api.get('/workstations');
         setWorkstations(data.filter(w => w.is_active));
       } catch (err) {
-        console.error('Error fetching workstations:', err);
+        // handled by UI state
       } finally {
         setWorkstationsLoading(false);
       }
