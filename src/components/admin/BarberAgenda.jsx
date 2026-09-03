@@ -163,12 +163,12 @@ const formatCOP = (cents) => {
           </div>
           <button
             onClick={refreshNotifications}
-            className="relative p-2.5 border border-cream-line rounded-xl text-sm text-stone hover:text-gold-deep hover:border-gold/60 transition-all duration-200 bg-white"
+            className="relative p-2.5 border border-cream-line rounded-xl text-sm text-stone hover:text-gold-deep hover:border-gold/60 hover:-translate-y-0.5 transition-all duration-200 bg-white"
             title="Notificaciones"
           >
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-status-red text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-status-red text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-fade-in">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -195,8 +195,12 @@ const formatCOP = (cents) => {
             Notificaciones recientes
           </h4>
           <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
-            {notifications.slice(0, 10).map((n) => (
-              <div key={n.id} className={`p-3 rounded-xl border ${n.read_at ? 'bg-cream/30 border-cream-line' : 'bg-gold/5 border-gold/20'}`}>
+            {notifications.slice(0, 10).map((n, idx) => (
+              <div
+                key={n.id}
+                className={`p-3 rounded-xl border animate-fade-in ${n.read_at ? 'bg-cream/30 border-cream-line' : 'bg-gold/5 border-gold/20'}`}
+                style={{ animationDelay: `${idx * 30}ms` }}
+              >
                 <p className="text-sm font-medium text-ink-soft">{n.title}</p>
                 <p className="text-xs text-stone mt-1">{n.message}</p>
                 <p className="text-[10px] text-stone-faint mt-1">{new Date(n.created_at).toLocaleString('es-CO')}</p>

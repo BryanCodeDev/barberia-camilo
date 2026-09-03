@@ -1,8 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Loader2, Pencil, Trash2, User as UserIcon, Mail, Phone } from 'lucide-react';
+import { Plus, Pencil, Trash2, User as UserIcon, Mail, Phone } from 'lucide-react';
 import { api } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
+
+const SkeletonBarberCard = () => (
+  <div className="card-premium p-5">
+    <div className="flex items-center gap-3">
+      <div className="w-11 h-11 rounded-xl skeleton-pulse flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 w-32 skeleton-pulse rounded-lg" />
+        <div className="h-3 w-16 skeleton-pulse rounded-lg" />
+      </div>
+    </div>
+    <div className="mt-4 space-y-2">
+      <div className="h-3 w-40 skeleton-pulse rounded-lg" />
+      <div className="h-3 w-28 skeleton-pulse rounded-lg" />
+    </div>
+  </div>
+);
 
 const BarberManager = ({ userRole }) => {
   const [barbers, setBarbers] = useState([]);
@@ -104,9 +120,10 @@ const BarberManager = ({ userRole }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {loading && (
-          <div className="col-span-full flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-gold" />
-          </div>
+          <>
+            <SkeletonBarberCard />
+            <SkeletonBarberCard />
+          </>
         )}
         {barbers.length === 0 && !loading && (
           <div className="col-span-full text-center py-12">
@@ -116,11 +133,15 @@ const BarberManager = ({ userRole }) => {
             <p className="text-stone text-sm">No hay barberos registrados.</p>
           </div>
         )}
-        {barbers.map(barber => (
-          <div key={barber.id} className="card-premium p-5 group">
+        {!loading && barbers.map((barber, idx) => (
+          <div
+            key={barber.id}
+            className="card-premium p-5 group hover:-translate-y-0.5 transition-all duration-200 animate-fade-in"
+            style={{ animationDelay: `${Math.min(idx, 8) * 40}ms` }}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center border border-gold/20 flex-shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center border border-gold/20 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
                   <UserIcon className="h-5 w-5 text-gold" />
                 </div>
                 <div className="min-w-0">

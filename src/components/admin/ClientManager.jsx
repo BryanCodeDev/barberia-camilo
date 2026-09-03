@@ -1,8 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Loader2, Pencil, Trash2, User, Phone, Mail, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, User, Phone, Mail, Search } from 'lucide-react';
 import { api } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
+
+const SkeletonClientCard = () => (
+  <div className="card-premium p-5">
+    <div className="flex items-center gap-3">
+      <div className="w-11 h-11 rounded-xl skeleton-pulse flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 w-28 skeleton-pulse rounded-lg" />
+        <div className="h-3 w-16 skeleton-pulse rounded-lg" />
+      </div>
+    </div>
+    <div className="mt-4 space-y-2">
+      <div className="h-3 w-32 skeleton-pulse rounded-lg" />
+      <div className="h-3 w-36 skeleton-pulse rounded-lg" />
+    </div>
+  </div>
+);
 
 const ClientManager = ({ userRole }) => {
   const [clients, setClients] = useState([]);
@@ -113,9 +129,11 @@ const ClientManager = ({ userRole }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading && (
-          <div className="col-span-full flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-gold" />
-          </div>
+          <>
+            <SkeletonClientCard />
+            <SkeletonClientCard />
+            <SkeletonClientCard />
+          </>
         )}
         {clients.length === 0 && !loading && (
           <div className="col-span-full text-center py-12">
@@ -125,11 +143,15 @@ const ClientManager = ({ userRole }) => {
             <p className="text-stone text-sm">No hay clientes registrados.</p>
           </div>
         )}
-        {clients.map((client) => (
-          <div key={client.id} className="card-premium p-5 group">
+        {!loading && clients.map((client, idx) => (
+          <div
+            key={client.id}
+            className="card-premium p-5 group hover:-translate-y-0.5 transition-all duration-200 animate-fade-in"
+            style={{ animationDelay: `${Math.min(idx, 8) * 40}ms` }}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center border border-gold/20 flex-shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center border border-gold/20 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
                   <User className="h-5 w-5 text-gold" />
                 </div>
                 <div className="min-w-0">
@@ -188,12 +210,12 @@ const ClientManager = ({ userRole }) => {
             <Input label="Telefono" name="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required placeholder="3001234567" />
             <Input label="Email" name="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="correo@ejemplo.com" />
             <div>
-              <label className="block text-sm font-medium text-[#1C1A16] mb-2">Notas</label>
+              <label className="block text-sm font-medium text-ink-soft mb-2">Notas</label>
               <textarea
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 placeholder="Observaciones adicionales..."
-                className="w-full px-4 py-3 border border-[#E4DCC9] rounded-lg focus:ring-2 focus:ring-[#A9812E]/40 focus:border-[#A9812E] outline-none transition-all text-sm"
+                className="w-full px-4 py-3 border border-cream-line rounded-xl focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none transition-all text-sm text-ink-soft resize-none"
                 rows="3"
               />
             </div>

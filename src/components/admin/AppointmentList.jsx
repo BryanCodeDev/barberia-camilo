@@ -66,20 +66,21 @@ const AppointmentList = ({
 
   return (
     <div className="divide-y divide-cream-line">
-      {appointments.map((appointment) => (
-        <AppointmentCard
-          key={appointment.id}
-          appointment={appointment}
-          onConfirm={onConfirm}
-          onCancel={onCancel}
-          onComplete={onComplete}
-          onNoShow={onNoShow}
-          onDelete={onDelete}
-          onEdit={onEdit}
-          formatDate={formatDate}
-          getStatusColor={getStatusColor}
-          getStatusText={getStatusText}
-        />
+      {appointments.map((appointment, idx) => (
+        <div key={appointment.id} className="animate-fade-in" style={{ animationDelay: `${Math.min(idx, 8) * 40}ms` }}>
+          <AppointmentCard
+            appointment={appointment}
+            onConfirm={onConfirm}
+            onCancel={onCancel}
+            onComplete={onComplete}
+            onNoShow={onNoShow}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            formatDate={formatDate}
+            getStatusColor={getStatusColor}
+            getStatusText={getStatusText}
+          />
+        </div>
       ))}
     </div>
   );

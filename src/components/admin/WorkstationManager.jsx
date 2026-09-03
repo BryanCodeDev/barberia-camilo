@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Loader2, Pencil, Trash2, Monitor, User as UserIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Monitor, User as UserIcon } from 'lucide-react';
 import { api } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
+
+const SkeletonWorkstationCard = () => (
+  <div className="card-premium p-5">
+    <div className="flex items-center gap-3">
+      <div className="w-11 h-11 rounded-xl skeleton-pulse flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 w-28 skeleton-pulse rounded-lg" />
+        <div className="h-3 w-16 skeleton-pulse rounded-lg" />
+      </div>
+    </div>
+    <div className="mt-4 h-3 w-32 skeleton-pulse rounded-lg" />
+  </div>
+);
 
 const WorkstationManager = ({ userRole }) => {
   const [workstations, setWorkstations] = useState([]);
@@ -118,9 +131,10 @@ const WorkstationManager = ({ userRole }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {loading && (
-          <div className="col-span-full flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-gold" />
-          </div>
+          <>
+            <SkeletonWorkstationCard />
+            <SkeletonWorkstationCard />
+          </>
         )}
         {workstations.length === 0 && !loading && (
           <div className="col-span-full text-center py-12">
@@ -130,11 +144,15 @@ const WorkstationManager = ({ userRole }) => {
             <p className="text-stone text-sm">No hay estaciones registradas.</p>
           </div>
         )}
-        {workstations.map(ws => (
-          <div key={ws.id} className="card-premium p-5 group">
+        {!loading && workstations.map((ws, idx) => (
+          <div
+            key={ws.id}
+            className="card-premium p-5 group hover:-translate-y-0.5 transition-all duration-200 animate-fade-in"
+            style={{ animationDelay: `${Math.min(idx, 8) * 40}ms` }}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-status-blue/15 to-status-blue/5 flex items-center justify-center border border-status-blue/20 flex-shrink-0">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-status-blue/15 to-status-blue/5 flex items-center justify-center border border-status-blue/20 flex-shrink-0 transition-transform duration-200 group-hover:scale-105">
                   <Monitor className="h-5 w-5 text-status-blue.deep" />
                 </div>
                 <div className="min-w-0">

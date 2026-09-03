@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, Users, Scissors, Clock, Calendar, TrendingUp } from 'lucide-react';
+import { Users, Scissors, Clock, Calendar, TrendingUp } from 'lucide-react';
 import { api } from '../../services/api';
 
 const WEEKDAYS = ['Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado'];
@@ -73,10 +73,22 @@ const PerformanceView = ({ userRole }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-gold mx-auto mb-3" />
-          <p className="text-sm text-stone">Cargando metricas de desempeno...</p>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-7 w-40 skeleton-pulse rounded-lg mb-2" />
+            <div className="h-4 w-56 skeleton-pulse rounded-lg" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {[1, 2].map((i) => (
+            <div key={i} className="card-premium p-5 sm:p-6 space-y-3">
+              <div className="h-5 w-32 skeleton-pulse rounded-lg mb-4" />
+              {[1, 2, 3].map((j) => (
+                <div key={j} className="h-8 w-full skeleton-pulse rounded-lg" />
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     );

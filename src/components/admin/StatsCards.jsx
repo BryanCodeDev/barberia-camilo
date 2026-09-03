@@ -58,13 +58,13 @@ const StatsCards = ({ stats, loading }) => {
           <div
             key={index}
             className={[
-              'kpi-card group',
+              'kpi-card group hover:-translate-y-0.5 transition-all duration-200',
               style.card,
             ].join(' ')}
             style={{ animationDelay: `${index * 60}ms` }}
           >
             <div className="flex items-center justify-between mb-3">
-              <div className={`p-2 rounded-xl ${style.icon} shadow-sm`}>
+              <div className={`p-2 rounded-xl ${style.icon} shadow-sm transition-transform duration-200 group-hover:scale-105`}>
                 <stat.icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
             </div>

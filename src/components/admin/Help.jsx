@@ -316,6 +316,65 @@ R: El cliente debe ingresar su correo electronico en el portal, recibir un codig
   },
 ];
 
+const parseInlineBold = (text) => {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={i} className="font-semibold text-ink-soft">{part.slice(2, -2)}</strong>;
+    }
+    return <React.Fragment key={i}>{part}</React.Fragment>;
+  });
+};
+
+const renderMarkdown = (content) => {
+  const lines = content.split('\n');
+  const blocks = [];
+  let listBuffer = [];
+  let listType = null;
+
+  const flushList = () => {
+    if (listBuffer.length === 0) return;
+    const Tag = listType === 'ol' ? 'ol' : 'ul';
+    blocks.push(
+      <Tag key={`list-${blocks.length}`} className={`${listType === 'ol' ? 'list-decimal' : 'list-disc'} pl-5 space-y-1 my-3 text-stone`}>
+        {listBuffer.map((item, i) => <li key={i}>{parseInlineBold(item)}</li>)}
+      </Tag>
+    );
+    listBuffer = [];
+    listType = null;
+  };
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('### ')) {
+      flushList();
+      blocks.push(<h4 key={idx} className="font-serif text-lg text-ink-soft mt-5 mb-2 first:mt-0">{trimmed.slice(4)}</h4>);
+      return;
+    }
+    const numberedMatch = trimmed.match(/^(\d+)\.\s(.*)/);
+    if (numberedMatch) {
+      if (listType && listType !== 'ol') flushList();
+      listType = 'ol';
+      listBuffer.push(numberedMatch[2]);
+      return;
+    }
+    if (trimmed.startsWith('- ')) {
+      if (listType && listType !== 'ul') flushList();
+      listType = 'ul';
+      listBuffer.push(trimmed.slice(2));
+      return;
+    }
+    if (trimmed === '') {
+      flushList();
+      return;
+    }
+    flushList();
+    blocks.push(<p key={idx} className="mb-2.5 leading-relaxed text-stone">{parseInlineBold(trimmed)}</p>);
+  });
+  flushList();
+  return blocks;
+};
+
 const Help = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
@@ -363,7 +422,7 @@ const Help = () => {
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                     activeSection === section.id
                       ? 'bg-gold/15 text-gold-deep shadow-sm'
-                      : 'text-stone hover:text-ink-soft hover:bg-cream'
+                      : 'text-stone hover:text-ink-soft hover:bg-cream hover:translate-x-0.5'
                   }`}
                 >
                   <span className="flex-shrink-0">{section.icon}</span>
@@ -392,8 +451,8 @@ const Help = () => {
                     {activeContent.title}
                   </h3>
                 </div>
-                <div className="text-sm text-stone leading-relaxed whitespace-pre-line">
-                  {activeContent.content}
+                <div className="text-sm">
+                  {renderMarkdown(activeContent.content)}
                 </div>
               </div>
             )}

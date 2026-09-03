@@ -471,7 +471,7 @@ const AppointmentManager = ({ userRole, business, setError, fetchStats }) => {
                         <p className="text-xs text-stone-faint text-center py-4">Sin citas</p>
                       ) : (
                         dayAppointments.map((apt) => (
-                          <div key={apt.id} className={`p-2.5 rounded-xl border text-xs transition-all duration-200 hover:shadow-sm ${getStatusColor(apt.status)}`}>
+                          <div key={apt.id} className={`p-2.5 rounded-xl border text-xs transition-all duration-200 hover:shadow-sm hover:-translate-y-0.5 ${getStatusColor(apt.status)}`}>
                             <p className="font-semibold text-ink-soft">{apt.appointment_time}</p>
                             <p className="truncate font-medium text-ink-soft/80">{apt.client_name}</p>
                             <p className="truncate text-stone">{apt.service_name}</p>

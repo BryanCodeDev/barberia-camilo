@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, MessageSquare, Check, X, Clock, Mail, Bell, RefreshCcw } from 'lucide-react';
+import { MessageSquare, Check, X, Clock, Mail, Bell, RefreshCcw } from 'lucide-react';
 import { api } from '../../services/api';
 import useWebSocket from '../../hooks/useWebSocket';
 
@@ -73,10 +73,26 @@ const NotificationsCenter = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-gold mx-auto mb-3" />
-          <p className="text-sm text-stone">Cargando notificaciones...</p>
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-6 w-56 skeleton-pulse rounded-lg mb-2" />
+            <div className="h-4 w-40 skeleton-pulse rounded-lg" />
+          </div>
+        </div>
+        <div className="relative">
+          <div className="absolute left-5 top-0 bottom-0 w-px bg-cream-line" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="relative pl-14">
+                <div className="absolute left-3.5 top-5 w-3 h-3 rounded-full skeleton-pulse" />
+                <div className="card-premium p-4 sm:p-5">
+                  <div className="h-4 w-40 skeleton-pulse rounded-lg mb-2" />
+                  <div className="h-3 w-24 skeleton-pulse rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -126,7 +142,11 @@ const NotificationsCenter = () => {
                   className="relative pl-14 animate-slide-left"
                   style={{ animationDelay: `${index * 40}ms` }}
                 >
-                  <div className="absolute left-3.5 top-5 w-3 h-3 rounded-full bg-gold border-2 border-cream shadow-sm" />
+                  <div className="absolute left-3.5 top-5 w-3 h-3 rounded-full bg-gold border-2 border-cream shadow-sm">
+                    {index === 0 && notification.status === 'sent' && (
+                      <span className="absolute inset-0 rounded-full bg-gold animate-ping" />
+                    )}
+                  </div>
 
                   <div className="card-premium p-4 sm:p-5">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -158,7 +178,7 @@ const NotificationsCenter = () => {
                                type="button"
                                onClick={() => handleResend(notification)}
                                disabled={resendingId === notification.id}
-                               className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-[#8B6A22] bg-[#F6F2EA] border border-[#E4DCC9] px-3 py-1.5 rounded-lg hover:bg-[#A9812E] hover:text-[#121113] transition-colors disabled:opacity-60"
+                               className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-gold-deep bg-cream border border-cream-line px-3 py-1.5 rounded-lg hover:bg-gold hover:text-ink transition-colors disabled:opacity-60"
                              >
                                <RefreshCcw className={`h-3.5 w-3.5 ${resendingId === notification.id ? 'animate-spin' : ''}`} />
                                Reenviar

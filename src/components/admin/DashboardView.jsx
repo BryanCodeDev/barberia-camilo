@@ -104,13 +104,13 @@ const DashboardView = ({
           <div
             key={index}
             className={[
-              'kpi-card group',
+              'kpi-card group hover:-translate-y-0.5 transition-all duration-200',
               `bg-gradient-to-br ${kpi.accent}`,
             ].join(' ')}
             style={{ animationDelay: `${kpi.delay}ms` }}
           >
             <div className="flex items-start justify-between mb-3">
-              <div className={`p-2.5 rounded-xl ${kpi.iconBg} shadow-sm`}>
+              <div className={`p-2.5 rounded-xl ${kpi.iconBg} shadow-sm transition-transform duration-200 group-hover:scale-105`}>
                 <kpi.icon className="h-5 w-5" />
               </div>
               {index === 0 && revenueData && revenueData.change_percent !== null && (

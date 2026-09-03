@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Loader2, Pencil, Trash2, Scissors, Tag, Clock, DollarSign } from 'lucide-react';
+import { Plus, Pencil, Trash2, Scissors, Clock, DollarSign } from 'lucide-react';
 import { api } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
@@ -14,6 +14,16 @@ const CATEGORIES = [
 ];
 
 const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map(c => [c.value, c]));
+
+const SkeletonServiceCard = () => (
+  <div className="card-premium p-5">
+    <div className="h-4 w-40 skeleton-pulse rounded-lg mb-3" />
+    <div className="flex items-center gap-3">
+      <div className="h-3 w-16 skeleton-pulse rounded-lg" />
+      <div className="h-3 w-20 skeleton-pulse rounded-lg" />
+    </div>
+  </div>
+);
 
 const ServiceManager = ({ userRole }) => {
   const [services, setServices] = useState([]);
@@ -125,9 +135,10 @@ const ServiceManager = ({ userRole }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {loading && (
-          <div className="col-span-full flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-gold" />
-          </div>
+          <>
+            <SkeletonServiceCard />
+            <SkeletonServiceCard />
+          </>
         )}
         {services.length === 0 && !loading && (
           <div className="col-span-full text-center py-12">
@@ -137,10 +148,14 @@ const ServiceManager = ({ userRole }) => {
             <p className="text-stone text-sm">No hay servicios registrados.</p>
           </div>
         )}
-        {services.map(service => {
+        {!loading && services.map((service, idx) => {
           const cat = CATEGORY_MAP[service.category];
           return (
-            <div key={service.id} className="card-premium p-5 group">
+            <div
+              key={service.id}
+              className="card-premium p-5 group hover:-translate-y-0.5 transition-all duration-200 animate-fade-in"
+              style={{ animationDelay: `${Math.min(idx, 8) * 40}ms` }}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-2">
