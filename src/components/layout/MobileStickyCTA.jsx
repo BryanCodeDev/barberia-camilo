@@ -3,7 +3,7 @@ import { MessageCircle, CalendarDays } from 'lucide-react';
 import { openBooking } from '../../utils/booking';
 
 const MobileStickyCTA = ({ business }) => {
-  const whatsappNumber = business?.whatsapp || '3015667129';
+  const whatsappNumber = business?.whatsapp || '573123595893';
   const whatsappLink = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
 
   return (

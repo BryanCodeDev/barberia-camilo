@@ -220,7 +220,7 @@ const BarberManager = ({ userRole }) => {
               name="phone"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
-              placeholder="+301 566 7129"
+              placeholder="+57 312 359 5893"
             />
             <label className="flex items-center gap-2.5 text-sm text-stone cursor-pointer">
               <input

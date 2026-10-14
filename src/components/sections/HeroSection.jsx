@@ -17,7 +17,7 @@ const DEFAULT_BUSINESS = {
   name: 'MUSTACHE BARBERSHOP',
   title: 'MUSTACHE',
   address: 'Mosquera, Cundinamarca',
-  phone: '+301 566 7129',
+  phone: '+57 312 359 5893',
 };
 
 // Ajusta estos indicadores con las cifras reales del negocio.
@@ -55,7 +55,7 @@ const HeroSection = ({ business }) => {
     <section
       id="inicio"
       aria-labelledby="hero-title"
-      className="relative isolate min-h-[100svh] overflow-hidden bg-black text-[#F6F2EA] lg:min-h-[760px]"
+      className="relative isolate min-h-[560px] overflow-hidden bg-black text-[#F6F2EA] lg:min-h-[620px]"
     >
       {/* Textura decorativa (escritorio) */}
       <div
@@ -70,9 +70,9 @@ const HeroSection = ({ business }) => {
       />
 
       {/* La imagen es el fondo de toda la sección, en móvil y en escritorio */}
-      <div className="mx-auto min-h-[100svh] max-w-[1600px] lg:min-h-[760px]">
+      <div className="mx-auto max-w-[1600px]">
         {/* Contenido */}
-        <div className="relative z-10 flex min-h-[100svh] flex-col justify-end px-5 pb-16 pt-28 sm:px-10 md:px-14 lg:min-h-[760px] lg:max-w-[56%] lg:justify-center lg:px-16 lg:py-24 xl:px-20">
+        <div className="relative z-10 flex min-h-[560px] flex-col justify-end px-5 pb-10 pt-24 sm:px-10 md:px-14 lg:min-h-[620px] lg:max-w-[56%] lg:justify-center lg:px-16 lg:pb-16 lg:pt-28 xl:px-20">
           <div style={reveal(100)} className="mb-6 flex items-center gap-3 lg:mb-8">
             <span className="h-px w-10 bg-[#A9812E]" />
             <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#C9A860] sm:text-xs">
@@ -142,7 +142,7 @@ const HeroSection = ({ business }) => {
           {/* Confianza */}
           <div
             style={reveal(470)}
-            className="mt-5 inline-flex w-fit items-center gap-2.5 rounded-sm border border-dashed border-[#4A453C] bg-black/30 px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-[#A8A295] backdrop-blur-sm sm:text-[11px] lg:bg-transparent lg:backdrop-blur-none"
+            className="mt-5 hidden w-fit items-center gap-2.5 rounded-sm sm:inline-flex border border-dashed border-[#4A453C] bg-black/30 px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-[#A8A295] backdrop-blur-sm sm:text-[11px] lg:bg-transparent lg:backdrop-blur-none"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-[#5FAE68]" />
             Confirmación inmediata al reservar en línea
@@ -151,7 +151,7 @@ const HeroSection = ({ business }) => {
           {/* Estadísticas */}
           <div
             style={reveal(520)}
-            className="mt-8 grid max-w-md grid-cols-3 gap-4 sm:gap-8"
+            className="mt-6 grid max-w-md grid-cols-3 gap-4 sm:gap-8"
           >
             {STATS.map(({ icon: Icon, value, label }) => (
               <div
@@ -172,7 +172,7 @@ const HeroSection = ({ business }) => {
           {/* Ubicación y contacto */}
           <div
             style={reveal(580)}
-            className="mt-8 flex flex-col gap-4 border-t border-[#2A2723] pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-7"
+            className="mt-6 flex flex-col gap-3 border-t border-[#2A2723] pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-7"
           >
             <div className="flex items-center gap-3">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#A9812E]/30 bg-[#A9812E]/10">

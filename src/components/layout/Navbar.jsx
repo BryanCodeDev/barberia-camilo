@@ -19,7 +19,7 @@ const Navbar = ({ business }) => {
 
   const businessName = business?.name || 'MUSTACHE BARBERSHOP';
   const businessTitle = business?.title || 'MUSTACHE';
-  const whatsappNumber = business?.whatsapp || '3015667129';
+  const whatsappNumber = business?.whatsapp || '573123595893';
   const whatsappLink = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
 
   useEffect(() => {

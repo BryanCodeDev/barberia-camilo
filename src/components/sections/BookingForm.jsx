@@ -71,7 +71,7 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
         name: business.name || 'MUSTACHE BARBERSHOP',
         title: business.title || 'MUSTACHE',
         address: business.address || 'Mosquera, Cundinamarca',
-        address_line: business.address_line || 'KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL',
+        address_line: business.address_line || 'Centro Comercial Meridiano Novaterra, Carrera 3A #17 sur - 96, Mosquera',
       });
     }
   }, [business]);
