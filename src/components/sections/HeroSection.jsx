@@ -17,7 +17,7 @@ const DEFAULT_BUSINESS = {
   name: 'MUSTACHE BARBERSHOP',
   title: 'MUSTACHE',
   address: 'Mosquera, Cundinamarca',
-  phone: '+57 312 359 5893',
+  phone: '+301 566 7129',
 };
 
 // Ajusta estos indicadores con las cifras reales del negocio.
@@ -55,7 +55,7 @@ const HeroSection = ({ business }) => {
     <section
       id="inicio"
       aria-labelledby="hero-title"
-      className="relative isolate min-h-[560px] overflow-hidden bg-black text-[#F6F2EA] lg:min-h-[620px]"
+      className="relative isolate min-h-[480px] overflow-hidden bg-black text-[#F6F2EA] lg:min-h-[540px]"
     >
       {/* Textura decorativa (escritorio) */}
       <div
@@ -72,8 +72,8 @@ const HeroSection = ({ business }) => {
       {/* La imagen es el fondo de toda la sección, en móvil y en escritorio */}
       <div className="mx-auto max-w-[1600px]">
         {/* Contenido */}
-        <div className="relative z-10 flex min-h-[560px] flex-col justify-end px-5 pb-10 pt-24 sm:px-10 md:px-14 lg:min-h-[620px] lg:max-w-[56%] lg:justify-center lg:px-16 lg:pb-16 lg:pt-28 xl:px-20">
-          <div style={reveal(100)} className="mb-6 flex items-center gap-3 lg:mb-8">
+        <div className="relative z-10 flex min-h-[480px] flex-col justify-end px-5 pb-8 pt-20 sm:px-10 md:px-14 lg:min-h-[540px] lg:max-w-[56%] lg:justify-center lg:px-16 lg:pb-12 lg:pt-24 xl:px-20">
+          <div style={reveal(100)} className="mb-4 flex items-center gap-3 lg:mb-5">
             <span className="h-px w-10 bg-[#A9812E]" />
             <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#C9A860] sm:text-xs">
               {localBusiness.title} · Barbería premium
@@ -95,7 +95,7 @@ const HeroSection = ({ business }) => {
           <div
             aria-hidden="true"
             style={reveal(280)}
-            className="my-6 flex items-center gap-3 lg:my-7"
+            className="my-4 flex items-center gap-3 lg:my-5"
           >
             <span className="h-[2px] w-12 bg-[#A9812E]" />
             <Scissors className="h-4 w-4 text-[#C9A860]" />
@@ -113,7 +113,7 @@ const HeroSection = ({ business }) => {
           {/* Acciones */}
           <div
             style={reveal(420)}
-            className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:mt-9"
+            className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
           >
             <button
               type="button"
@@ -151,7 +151,7 @@ const HeroSection = ({ business }) => {
           {/* Estadísticas */}
           <div
             style={reveal(520)}
-            className="mt-6 grid max-w-md grid-cols-3 gap-4 sm:gap-8"
+            className="mt-5 hidden max-w-md grid-cols-3 gap-4 sm:grid sm:gap-8"
           >
             {STATS.map(({ icon: Icon, value, label }) => (
               <div
