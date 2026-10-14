@@ -393,7 +393,7 @@ const Help = () => {
         <div>
           <h2 className="section-title">Manual de Usuario</h2>
           <p className="text-sm text-stone mt-1">
-            Guia completa del sistema Barberia El Bronx
+            Guia completa del sistema Mustache Barbershop
           </p>
         </div>
         <div className="relative">
