@@ -4,9 +4,9 @@ import { BookOpen, ChevronRight, Search, FileText, Users, BarChart3, Calendar, S
 const sections = [
   {
     id: 'overview',
-    title: 'Que es Barberia El Bronx?',
+    title: 'Que es Mustache Barbershop?',
     icon: <FileText className="h-4 w-4" />,
-    content: `Barberia El Bronx es un sistema de gestion integral para barberias. Permite administrar citas, clientes, barberos, estaciones de trabajo, servicios y ver estadisticas del negocio en tiempo real.
+    content: `Mustache Barbershop es un sistema de gestion integral para barberias. Permite administrar citas, clientes, barberos, estaciones de trabajo, servicios y ver estadisticas del negocio en tiempo real.
 
 El sistema esta dividido en dos partes principales:
 - **Panel Administrativo**: Para administradores y barberos. Gestiona toda la operacion del negocio.

@@ -22,8 +22,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   const [selectedService, setSelectedService] = useState(preselectedService);
   const [services, setServices] = useState([]);
   const [localBusiness, setLocalBusiness] = useState({
-    name: "BARBERÍA EL BRONX",
-    title: "EL BRONX",
+    name: "MUSTACHE BARBERSHOP",
+    title: "MUSTACHE",
   });
   const [selectedWorkstation, setSelectedWorkstation] = useState(null);
   const [workstations, setWorkstations] = useState([]);
@@ -68,8 +68,8 @@ const BookingForm = ({ onClose, preselectedService = null, business }) => {
   useEffect(() => {
     if (business) {
       setLocalBusiness({
-        name: business.name || 'BARBERÍA EL BRONX',
-        title: business.title || 'EL BRONX',
+        name: business.name || 'MUSTACHE BARBERSHOP',
+        title: business.title || 'MUSTACHE',
         address: business.address || 'Mosquera, Cundinamarca',
         address_line: business.address_line || 'KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL',
       });

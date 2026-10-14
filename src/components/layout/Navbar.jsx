@@ -17,8 +17,8 @@ const Navbar = ({ business }) => {
 
   const isAuthenticated = isAdminAuth || isClientAuth;
 
-  const businessName = business?.name || 'BARBERÍA EL BRONX';
-  const businessTitle = business?.title || 'EL BRONX';
+  const businessName = business?.name || 'MUSTACHE BARBERSHOP';
+  const businessTitle = business?.title || 'MUSTACHE';
   const whatsappNumber = business?.whatsapp || '3015667129';
   const whatsappLink = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`;
 

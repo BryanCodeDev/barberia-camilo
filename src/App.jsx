@@ -28,8 +28,8 @@ const AppContent = () => {
   }, []);
 
   const businessInfo = useMemo(() => ({
-    name: settings?.business_name || 'BARBERÍA EL BRONX',
-    title: settings?.barber_name || 'EL BRONX',
+    name: settings?.business_name || 'MUSTACHE BARBERSHOP',
+    title: settings?.barber_name || 'MUSTACHE',
     address: settings?.address || 'Mosquera, Cundinamarca',
     address_line: settings?.address || 'KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL',
     phone: settings?.phone || '+301 566 7129',

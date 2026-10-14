@@ -26,7 +26,7 @@ import Help from '../components/admin/Help';
 import ProfileMenu from '../components/profile/ProfileMenu';
 import SessionReplacedModal from '../components/common/SessionReplacedModal';
 
-const defaultBusiness = { name: 'BARBERÍA EL BRONX', title: 'EL BRONX' };
+const defaultBusiness = { name: 'MUSTACHE BARBERSHOP', title: 'MUSTACHE' };
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Resumen', icon: LayoutDashboard, roles: ['admin', 'barber'] },
@@ -296,7 +296,7 @@ const AdminPanel = ({ onClose, business }) => {
           submitLabel="Acceder al Panel"
           headerIcon={Shield}
           headerTitle="Acceso Administrativo"
-          headerSubtitle="Barberia El Bronx - Panel de Control"
+          headerSubtitle="Mustache Barbershop - Panel de Control"
         />
       </div>
     );

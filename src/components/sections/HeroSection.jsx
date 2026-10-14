@@ -4,8 +4,8 @@ import { MapPin, Phone, Star, Award, Users, ChevronDown, Scissors } from 'lucide
 import { openBooking } from '../../utils/booking';
 
 const defaultBusiness = {
-  name: "BARBERÍA EL BRONX",
-  title: "EL BRONX",
+  name: "MUSTACHE BARBERSHOP",
+  title: "MUSTACHE",
   address: "Mosquera, Cundinamarca"
 };
 

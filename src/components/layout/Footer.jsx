@@ -4,7 +4,7 @@ import { Phone, MapPin, Instagram, Facebook, Clock, MessageCircle, Youtube, Musi
 
 const Footer = ({ business }) => {
   const businessInfo = {
-    name: business?.name || "BARBERÍA EL BRONX",
+    name: business?.name || "MUSTACHE BARBERSHOP",
     phone: business?.phone || "+301 566 7129",
     whatsapp: business?.whatsapp || "3015667129",
     email: business?.email || "elbronxofficial@gmail.com",
