@@ -1,218 +1,284 @@
-// src/components/sections/HeroSection.jsx
-import React, { useState, useEffect } from 'react';
-import { MapPin, Phone, Star, Award, Users, ChevronDown, Scissors } from 'lucide-react';
+
+import React, { useEffect, useState } from 'react';
+import {
+  MapPin,
+  Phone,
+  Scissors,
+  ArrowUpRight,
+  ChevronDown,
+  Clock3,
+  Sparkles,
+} from 'lucide-react';
 import { openBooking } from '../../utils/booking';
 
-const defaultBusiness = {
-  name: "MUSTACHE BARBERSHOP",
-  title: "MUSTACHE",
-  address: "Mosquera, Cundinamarca"
+const DEFAULT_BUSINESS = {
+  name: 'MUSTACHE BARBERSHOP',
+  title: 'MUSTACHE',
+  address: 'Mosquera, Cundinamarca',
+  phone: '+301 566 7129',
 };
 
-// Ajusta estos indicadores con las cifras reales del negocio.
-const stats = [
-  { icon: Star, value: '4.9/5', label: 'Valoración de clientes' },
-  { icon: Users, value: '+2.500', label: 'Cortes realizados' },
-  { icon: Award, value: '+10 años', label: 'De trayectoria' },
-];
-
 const HeroSection = ({ business }) => {
-  const [localBusiness, setLocalBusiness] = useState(defaultBusiness);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    if (business) {
-      setLocalBusiness({
-        name: business.name || defaultBusiness.name,
-        title: business.title || defaultBusiness.title,
-        address: business.address || defaultBusiness.address,
-        phone: business.phone || '+301 566 7129',
-      });
-    }
-  }, [business]);
+  const localBusiness = {
+    ...DEFAULT_BUSINESS,
+    ...business,
+  };
 
   useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), 80);
-    return () => clearTimeout(timer);
+    const frame = requestAnimationFrame(() => setMounted(true));
+
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const scrollToServices = () => {
-    const servicesSection = document.getElementById('servicios');
-    if (servicesSection) {
-      servicesSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById('servicios')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
   };
 
-  // Ayudante de animación de entrada escalonada — una única secuencia orquestada
-  const reveal = () =>
-    `transition-all duration-700 ease-out ${
-      mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-    }`;
-  const revealStyle = (delayMs) => ({ transitionDelay: `${delayMs}ms` });
+  const reveal = (delay = 0) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? 'translateY(0)' : 'translateY(20px)',
+    transition: `opacity 700ms ease ${delay}ms, transform 700ms ease ${delay}ms`,
+  });
 
   return (
-    <section className="relative bg-[#121113] text-[#F6F2EA] py-24 md:py-32 overflow-hidden">
+    <section
+      id="inicio"
+      aria-labelledby="hero-title"
+      className="relative isolate min-h-[720px] overflow-hidden bg-[#000000] text-white lg:min-h-[760px]"
+    >
+      {/* Fondo ambiental */}
       <div
-        className="absolute inset-0 z-0"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
         style={{
-          backgroundImage: "url('/assets/img/herosection.webp')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
-      <div className="absolute inset-0 bg-[#121113]/85 z-[1]" />
-      <div
-        className="absolute inset-0 z-[1] pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,96,0.14) 0%, transparent 60%)' }}
-      />
-      <style>{`
-        @keyframes bronx-bounce {
-          0%, 100% { transform: translateY(0); opacity: 0.5; }
-          50% { transform: translateY(6px); opacity: 1; }
-        }
-        @keyframes bronx-shimmer {
-          0% { transform: translateX(-120%); }
-          100% { transform: translateX(220%); }
-        }
-        .bronx-shine::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.35) 35%, transparent 55%);
-          transform: translateX(-120%);
-          pointer-events: none;
-        }
-        .bronx-shine:hover::after {
-          animation: bronx-shimmer 1.1s ease forwards;
-        }
-      `}</style>
-
-      {/* Texturas laterales — estáticas, sutiles, sin movimiento en bucle */}
-      <div
-        className="absolute inset-y-0 right-0 w-24 md:w-40 opacity-[0.06] pointer-events-none"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(45deg, #C9A860 0px, #C9A860 2px, transparent 2px, transparent 18px)',
-        }}
-      />
-      <div
-        className="absolute inset-y-0 left-0 w-24 md:w-40 opacity-[0.045] pointer-events-none"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(45deg, #8B2E2E 0px, #8B2E2E 2px, transparent 2px, transparent 18px)',
+          background:
+            'radial-gradient(ellipse at 15% 45%, rgba(169,129,46,0.12), transparent 45%), linear-gradient(135deg, #000000 0%, #0D0D0D 60%, #000000 100%)',
         }}
       />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center">
+      {/* Textura decorativa */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 hidden w-[42%] opacity-[0.07] lg:block"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(135deg, #C9A860 0px, #C9A860 1px, transparent 1px, transparent 34px)',
+          maskImage:
+            'linear-gradient(to right, black, transparent 85%)',
+        }}
+      />
+
+      <div className="relative mx-auto grid min-h-[720px] max-w-[1600px] lg:min-h-[760px] lg:grid-cols-[0.88fr_1.12fr]">
+        {/* Contenido principal */}
+        <div className="relative z-10 flex flex-col justify-center px-6 pb-12 pt-28 sm:px-10 md:px-14 lg:px-16 lg:py-24 xl:px-20">
+          {/* Identidad de marca */}
           <div
-            className={`inline-flex items-center justify-center gap-3 mb-6 ${reveal()}`}
-            style={revealStyle(0)}
+            style={reveal(100)}
+            className="mb-8 flex items-center gap-3"
           >
-            <span className="h-px w-8 bg-[#3A362F]" />
-            <span className="relative text-xs uppercase tracking-[0.35em] text-[#C9A860]">
-              {localBusiness.title} · Barbería de autor en {localBusiness.address.split(',')[0]}
-              <span className="absolute -bottom-1.5 left-0 h-px w-full bg-gradient-to-r from-transparent via-[#C9A860] to-transparent" />
+            <span className="h-px w-10 bg-[#A9812E]" />
+
+            <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#C9A860] sm:text-xs">
+              Barbería premium
             </span>
-            <span className="h-px w-8 bg-[#3A362F]" />
           </div>
 
+          {/* Título */}
           <h1
-            className={`font-serif font-medium mb-4 tracking-tight leading-[1.05] ${reveal()}`}
-            style={{ ...revealStyle(120), fontSize: 'clamp(2.75rem, 6vw, 4.75rem)' }}
+            id="hero-title"
+            style={reveal(200)}
+            className="max-w-2xl font-serif text-[clamp(3rem,6.3vw,6rem)] font-medium leading-[0.96] tracking-[-0.045em]"
           >
-            {localBusiness.name}
+            Tu estilo.
+            <br />
+
+            <span className="text-[#C9A860]">
+              Tu identidad.
+            </span>
+
+            <br />
+
+            <span className="text-white">
+              Nuestro oficio.
+            </span>
           </h1>
 
-          <p
-            className={`text-sm md:text-base uppercase tracking-[0.25em] text-[#C9A860] mb-8 ${reveal()}`}
-            style={revealStyle(200)}
-          >
-            Precisión, oficio y estilo — en cada cita
-          </p>
-
-          <p
-            className={`text-base md:text-lg text-[#B7B1A3] max-w-2xl mx-auto leading-relaxed mb-10 px-4 ${reveal()}`}
-            style={revealStyle(280)}
-          >
-            Cortes de precisión, diseño de barba y una experiencia de barbería cuidada
-            hasta el último detalle, en {localBusiness.address}.
-          </p>
-
+          {/* Separador ornamental */}
           <div
-            className={`flex flex-col items-center gap-5 mb-14 px-4 ${reveal()}`}
-            style={revealStyle(360)}
+            aria-hidden="true"
+            style={reveal(280)}
+            className="my-7 flex items-center gap-3"
           >
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button
-                onClick={() => openBooking()}
-                className="bronx-shine relative overflow-hidden flex items-center justify-center gap-2 bg-gradient-to-b from-[#C9A860] to-[#A9812E] text-[#121113] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-10px_rgba(169,129,46,0.6)] transition-all duration-300 shadow-[0_2px_0_rgba(0,0,0,0.25),0_10px_24px_-10px_rgba(169,129,46,0.5)]"
-              >
-                <Scissors className="h-4 w-4" />
-                Reservar Cita
-              </button>
-              <button
-                onClick={scrollToServices}
-                className="group flex items-center justify-center gap-2 border border-[#3A362F] text-[#F6F2EA] px-8 py-3.5 rounded-sm font-semibold text-sm md:text-base uppercase tracking-wide hover:border-[#A9812E] hover:text-[#C9A860] hover:-translate-y-0.5 transition-all duration-300"
-              >
-                Ver Servicios
-                <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-              </button>
-            </div>
-
-            {/* Ticket de confianza — refuerza la idea de reserva sin fricción */}
-            <div className="inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] text-[#8A8579] border border-dashed border-[#3A362F] rounded-sm px-4 py-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#5FAE68]" />
-              Confirmación inmediata al reservar en línea
-            </div>
+            <span className="h-[2px] w-12 bg-[#A9812E]" />
+            <Scissors className="h-4 w-4 text-[#C9A860]" />
+            <span className="h-px w-8 bg-[#2A2723]" />
           </div>
 
-          {/* Indicadores de confianza */}
-          <div
-            className={`grid grid-cols-3 gap-4 sm:gap-8 max-w-xl mx-auto mb-14 px-2 ${reveal()}`}
-            style={revealStyle(440)}
+          {/* Descripción */}
+          <p
+            style={reveal(340)}
+            className="max-w-lg text-sm leading-7 text-[#B7B1A3] sm:text-base sm:leading-8"
           >
-            {stats.map(({ icon: Icon, value, label }, idx) => (
-              <div
-                key={idx}
-                className="flex flex-col items-center gap-1.5 border-t border-[#3A362F] pt-4"
-              >
-                <Icon className="h-4 w-4 text-[#C9A860] mb-1" />
-                <div className="font-serif text-xl sm:text-2xl text-[#F6F2EA]">{value}</div>
-                <div className="text-[10px] sm:text-xs uppercase tracking-wide text-[#8A8579] text-center leading-tight">
-                  {label}
-                </div>
+            Cortes con carácter, barba impecable y atención al detalle.
+            Descubre una experiencia de barbería donde cada acabado
+            habla por ti.
+          </p>
+
+          {/* Acciones */}
+          <div
+            style={reveal(420)}
+            className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap"
+          >
+            <button
+              type="button"
+              onClick={() => openBooking()}
+              className="group relative inline-flex min-h-[54px] items-center justify-center gap-3 overflow-hidden rounded-sm bg-gradient-to-r from-[#A9812E] to-[#C9A860] px-7 py-4 text-xs font-bold uppercase tracking-[0.13em] text-black shadow-[0_8px_30px_rgba(169,129,46,0.16)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_14px_36px_rgba(169,129,46,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A860] focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            >
+              <Scissors className="h-4 w-4 transition-transform duration-300 group-hover:rotate-[-12deg]" />
+
+              Reservar cita
+
+              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+              />
+            </button>
+
+            <button
+              type="button"
+              onClick={scrollToServices}
+              className="inline-flex min-h-[54px] items-center justify-center gap-2 rounded-sm border border-[#3A362F] px-7 py-4 text-xs font-semibold uppercase tracking-[0.13em] text-[#F6F2EA] transition duration-300 hover:border-[#C9A860] hover:bg-white/[0.04] hover:text-[#C9A860] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A860]"
+            >
+              Explorar servicios
+
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Ubicación y atención */}
+          <div
+            style={reveal(500)}
+            className="mt-10 flex flex-col gap-4 border-t border-[#2A2723] pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-7"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#A9812E]/30 bg-[#A9812E]/10">
+                <MapPin className="h-4 w-4 text-[#C9A860]" />
+              </span>
+
+              <div>
+                <p className="text-[9px] uppercase tracking-[0.2em] text-[#8A8579]">
+                  Encuéntranos en
+                </p>
+
+                <p className="mt-1 text-xs font-medium text-[#F6F2EA]">
+                  {localBusiness.address}
+                </p>
               </div>
-            ))}
+            </div>
+
+            {localBusiness.phone && (
+              <a
+                href={`tel:${localBusiness.phone.replace(/[^\d+]/g, '')}`}
+                className="group flex items-center gap-3 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A860]"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#2A2723] transition-colors group-hover:border-[#A9812E]/50">
+                  <Phone className="h-4 w-4 text-[#C9A860]" />
+                </span>
+
+                <div>
+                  <p className="text-[9px] uppercase tracking-[0.2em] text-[#8A8579]">
+                    Contáctanos
+                  </p>
+
+                  <p className="mt-1 text-xs font-medium text-[#F6F2EA] transition-colors group-hover:text-[#C9A860]">
+                    {localBusiness.phone}
+                  </p>
+                </div>
+              </a>
+            )}
           </div>
+        </div>
+
+        {/* Imagen protagonista */}
+        <div
+          className="relative min-h-[380px] overflow-hidden sm:min-h-[500px] lg:min-h-full"
+          style={reveal(180)}
+        >
+          <img
+            src="/assets/img/herosection.webp"
+            alt="Identidad visual de Mustache Barber Shop en un ambiente de barbería premium"
+            fetchPriority="high"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+
+          {/* Integración gradual con el fondo */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(to right, #000000 0%, rgba(0,0,0,0.62) 5%, transparent 36%), linear-gradient(to top, rgba(0,0,0,0.60), transparent 32%), linear-gradient(to bottom, rgba(0,0,0,0.14), transparent 25%)',
+            }}
+          />
+
+          {/* Marco decorativo */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-5 border border-[#C9A860]/25 sm:inset-8 lg:inset-10"
+          />
 
           <div
-            className={`flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-[#8A8579] text-sm px-4 ${reveal()}`}
-            style={revealStyle(500)}
+            aria-hidden="true"
+            className="absolute bottom-10 right-10 hidden items-center gap-2 text-[9px] uppercase tracking-[0.3em] text-[#F6F2EA]/80 sm:flex lg:bottom-16 lg:right-16"
           >
-            <div className="flex items-center">
-              <Phone className="h-4 w-4 text-[#C9A860] mr-2" />
-              {localBusiness.phone || '+301 566 7129'}
-            </div>
-            <div className="hidden sm:block w-1 h-1 bg-[#3A362F] rounded-full" />
-            <div className="flex items-center">
-              <MapPin className="h-4 w-4 text-[#C9A860] mr-2" />
-              {localBusiness.address}
-            </div>
+            <Sparkles className="h-3.5 w-3.5 text-[#C9A860]" />
+            Detalles que marcan la diferencia
           </div>
+
+          {/* Esquinas doradas */}
+          <span
+            aria-hidden="true"
+            className="absolute left-5 top-5 h-8 w-8 border-l border-t border-[#C9A860] sm:left-8 sm:top-8 lg:left-10 lg:top-10"
+          />
+
+          <span
+            aria-hidden="true"
+            className="absolute bottom-5 right-5 h-8 w-8 border-b border-r border-[#C9A860] sm:bottom-8 sm:right-8 lg:bottom-10 lg:right-10"
+          />
         </div>
       </div>
 
-      {/* Indicador de scroll */}
+      {/* Indicador de desplazamiento */}
       <button
+        type="button"
         onClick={scrollToServices}
-        aria-label="Ir a servicios"
-        className="hidden sm:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1 text-[#8A8579] hover:text-[#C9A860] transition-colors"
+        aria-label="Desplazarse a los servicios"
+        className="absolute bottom-5 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 text-[9px] uppercase tracking-[0.3em] text-[#9A9488] transition-colors hover:text-[#C9A860] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A860] sm:flex lg:bottom-7"
       >
-        <span className="text-[10px] uppercase tracking-[0.3em]">Descubre más</span>
-        <ChevronDown className="h-4 w-4" style={{ animation: 'bronx-bounce 1.8s ease-in-out infinite' }} />
+        Descubre más
+
+        <ChevronDown className="h-3.5 w-3.5" />
       </button>
+
+      <style>{`
+        @media (prefers-reduced-motion: reduce) {
+          #inicio *,
+          #inicio *::before,
+          #inicio *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+      `}</style>
     </section>
   );
 };
