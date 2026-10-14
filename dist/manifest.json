@@ -1,7 +1,7 @@
 {
-  "short_name": "EL BRONX",
-  "name": "Barbería El Bronx",
-  "description": "Barbería clásica, masculina, elegante y urbana. Cortes de cabello, arreglo de barba y grooming profesional.",
+"short_name": "MUSTACHE",
+"name": "Mustache Barbershop",
+"description": "Barbería clásica, masculina, elegante y urbana. Cortes de cabello, arreglo de barba y grooming profesional.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#121113",

@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+﻿/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -6,65 +6,46 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        serif: ['Fraunces', 'Georgia', 'serif'],
+      },
       colors: {
-        // --- Barber Trébol brand tokens ---
-        // Formalized from the hex values already used across Navbar, Footer,
-        // and the admin components. Semantic names so new/edited components
-        // can reference `bg-ink`, `text-gold`, `border-line`, etc. instead of
-        // repeating raw hex. Existing hardcoded hex values still work fine
-        // (they're the same colors) — this is additive, not a repaint.
         ink: {
-          DEFAULT: '#121113',   // primary dark surface (sidebar, navbar, footer)
-          soft: '#1C1A16',      // secondary dark surface / primary text on cream
-          panel: '#1B1A1B',     // hover surface on dark backgrounds
-          line: '#2A2723',      // borders on dark backgrounds
+          DEFAULT: "#000000",
+          soft: "#1A1A1A",
+          panel: "#0D0D0D",
+          line: "#2A2723",
         },
         cream: {
-          DEFAULT: '#F6F2EA',   // page background
-          line: '#E4DCC9',      // borders on light backgrounds
+          DEFAULT: "#FFFFFF",
+          line: "#E4DCC9",
         },
         gold: {
-          DEFAULT: '#A9812E',   // primary accent / CTA
-          light: '#C9A860',     // hover state, highlights on dark bg
-          deep: '#8B6A22',      // text-on-cream accent (amber status, links)
+          DEFAULT: "#A9812E",
+          light: "#C9A860",
+          deep: "#8B6A22",
         },
         stone: {
-          DEFAULT: '#6B6459',   // secondary text on cream
-          light: '#9A9488',     // secondary text on dark
-          faint: '#B7B1A3',     // tertiary / placeholder text
-          dim: '#6E6A61',       // tertiary text on dark
+          DEFAULT: "#6B6459",
+          light: "#9A9488",
+          faint: "#B7B1A3",
+          dim: "#6E6A61",
         },
         status: {
-          green: { bg: '#EEF5EE', text: '#3E6B3E', deep: '#274627' },
-          red: { bg: '#FBEAEA', text: '#8B2E2E' },
-          blue: { bg: '#EEF3FB', text: '#3B5B8C', deep: '#1E3352' },
-          amber: { bg: '#FBF3E4', text: '#8B6A22', deep: '#4A3812' },
+          green: { bg: "#EEF5EE", text: "#3E6B3E" },
+          red:   { bg: "#FBEAEA", text: "#8B2E2E" },
+          blue:  { bg: "#EEF3FB", text: "#3B5B8C" },
+          amber: { bg: "#FBF3E4", text: "#8B6A22" },
         },
         amber: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
-        }
-      },
-      fontFamily: {
-        // Display serif for headings — a warm, hand-cut face with real
-        // craft character (barbershop-appropriate), distinct from the
-        // generic Playfair-Display-everywhere default.
-        'serif': ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
-        'sans': ['Inter', 'system-ui', 'sans-serif'],
+          50: "#fffbeb", 100: "#fef3c7", 200: "#fde68a", 300: "#fcd34d",
+          400: "#fbbf24", 500: "#f59e0b", 600: "#d97706", 700: "#b45309",
+          800: "#92400e", 900: "#78350f",
+        },
       },
       boxShadow: {
-        'gold-sm': '0 1px 2px 0 rgba(169, 129, 46, 0.08)',
-        'card': '0 1px 3px 0 rgba(28, 26, 22, 0.06), 0 1px 2px -1px rgba(28, 26, 22, 0.06)',
-        'card-hover': '0 10px 25px -5px rgba(28, 26, 22, 0.10), 0 8px 10px -6px rgba(28, 26, 22, 0.08)',
-        'inner-gold': 'inset 0 2px 4px 0 rgba(169, 129, 46, 0.08)',
+        card: "0 1px 3px rgba(28, 26, 22, 0.06), 0 1px 2px rgba(28, 26, 22, 0.04)",
+        "card-hover": "0 10px 25px -5px rgba(28, 26, 22, 0.10), 0 8px 10px -6px rgba(28, 26, 22, 0.08)",
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

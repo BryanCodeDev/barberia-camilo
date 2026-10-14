@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -27,7 +27,7 @@
   }
 
   .btn-danger {
-    @apply bg-status-red text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all duration-200 text-sm font-medium;
+    @apply bg-status-red-text text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all duration-200 text-sm font-medium;
   }
 
   .btn-ghost {
@@ -39,7 +39,7 @@
   }
 
   .input-error {
-    @apply border-status-red focus:ring-status-red/30;
+    @apply border-status-red-text focus:ring-status-red-text/30;
   }
 
   .card {
@@ -63,15 +63,15 @@
   }
 
   .status-pending {
-    @apply bg-status-amber text-status-amber.deep;
+    @apply bg-status-amber-bg text-status-amber-text;
   }
 
   .status-confirmed {
-    @apply bg-status-green text-status-green.deep;
+    @apply bg-status-green-bg text-status-green-text;
   }
 
   .status-cancelled {
-    @apply bg-status-red text-status-red.deep;
+    @apply bg-status-red-bg text-status-red-text;
   }
 
   .section-header {
@@ -103,23 +103,23 @@
   }
 
   .action-btn-confirm {
-    @apply text-[#3E6B3E] hover:bg-[#EEF5EE];
+    @apply text-status-green-text hover:bg-status-green-bg;
   }
 
   .action-btn-cancel {
-    @apply text-[#8B2E2E] hover:bg-[#FBEAEA];
+    @apply text-status-red-text hover:bg-status-red-bg;
   }
 
   .action-btn-complete {
-    @apply text-[#3B5B8C] hover:bg-[#EEF3FB];
+    @apply text-status-blue-text hover:bg-status-blue-bg;
   }
 
   .action-btn-edit {
-    @apply text-[#3B5B8C] hover:bg-[#EEF3FB];
+    @apply text-status-blue-text hover:bg-status-blue-bg;
   }
 
   .action-btn-delete {
-    @apply text-[#8B2E2E] hover:bg-[#FBEAEA];
+    @apply text-status-red-text hover:bg-status-red-bg;
   }
 
   .kpi-card {
@@ -149,147 +149,6 @@
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-slide-down {
-    animation: slideDown 0.3s ease-out;
-  }
-
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-slide-left {
-    animation: slideLeft 0.3s ease-out;
-  }
-
-  @keyframes slideLeft {
-    from {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  .animate-slide-right {
-    animation: slideRight 0.3s ease-out;
-  }
-
-  @keyframes slideRight {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  .animate-scale-in {
-    animation: scaleIn 0.2s ease-out;
-  }
-
-  @keyframes scaleIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  .animate-scale-out {
-    animation: scaleOut 0.2s ease-in forwards;
-  }
-
-  @keyframes scaleOut {
-    from {
-      opacity: 1;
-      transform: scale(1);
-    }
-    to {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-  }
-
-  .animate-fade-out {
-    animation: fadeOut 0.2s ease-in forwards;
-  }
-
-  @keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-  }
-
-  .animate-float {
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-
-  .animate-pulse-soft {
-    animation: pulseSoft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes pulseSoft {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-  }
-
-  .animate-shimmer {
-    animation: shimmer 2s linear infinite;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
   }
 
   .smooth-transition {
@@ -448,4 +307,3 @@
 .group:hover .group-hover\:text-\[\#C9A860\] {
   color: #C9A860;
 }
-
