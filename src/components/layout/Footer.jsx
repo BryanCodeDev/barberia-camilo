@@ -5,18 +5,18 @@ import { Phone, MapPin, Instagram, Facebook, Clock, MessageCircle, Youtube, Musi
 const Footer = ({ business }) => {
   const businessInfo = {
     name: business?.name || "MUSTACHE BARBERSHOP",
-    phone: business?.phone || "+301 566 7129",
-    whatsapp: business?.whatsapp || "3015667129",
+    phone: business?.phone || "+57 312 359 5893",
+    whatsapp: business?.whatsapp || "573123595893",
     email: business?.email || "elbronxofficial@gmail.com",
     address: {
-      street: business?.address || "KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL",
+      street: business?.address || "Centro Comercial Meridiano Novaterra, Carrera 3A #17 sur - 96",
       city: "Mosquera",
       state: "Cundinamarca",
       country: "Colombia",
-      full: business?.address || "KR 3 # 13 - 12 MZ 2 IN L1 CENTRO COMERCIAL EL TREBOL, Mosquera, Cundinamarca"
+      full: business?.address || "Centro Comercial Meridiano Novaterra, Carrera 3A #17 sur - 96, Mosquera, Cundinamarca"
     },
     socialMedia: {
-      instagram: business?.instagram || "elbronx.official",
+      instagram: business?.instagram || "mustache_barbershop",
       facebook: business?.facebook || "elbronx.official",
       tiktok: business?.tiktok || "@elbronxbarber",
       youtube: business?.youtube || "@elbronxofficial"

@@ -57,20 +57,10 @@ const HeroSection = ({ business }) => {
       aria-labelledby="hero-title"
       className="relative isolate min-h-[100svh] overflow-hidden bg-black text-[#F6F2EA] lg:min-h-[760px]"
     >
-      {/* Fondo ambiental (solo escritorio, el móvil usa la foto) */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 hidden lg:block"
-        style={{
-          background:
-            'radial-gradient(ellipse at 15% 45%, rgba(169,129,46,0.12), transparent 45%), linear-gradient(135deg, #000000 0%, #0D0D0D 60%, #000000 100%)',
-        }}
-      />
-
       {/* Textura decorativa (escritorio) */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-0 hidden w-[42%] opacity-[0.07] lg:block"
+        className="pointer-events-none absolute inset-y-0 left-0 z-[1] hidden w-[42%] opacity-[0.07] lg:block"
         style={{
           backgroundImage:
             'repeating-linear-gradient(135deg, #C9A860 0px, #C9A860 1px, transparent 1px, transparent 34px)',
@@ -79,13 +69,10 @@ const HeroSection = ({ business }) => {
         }}
       />
 
-      {/*
-        Móvil: grid desactivado, la imagen es fondo absoluto de toda la sección.
-        Escritorio (lg): dos columnas, texto a la izquierda e imagen a la derecha.
-      */}
-      <div className="mx-auto min-h-[100svh] max-w-[1600px] lg:grid lg:min-h-[760px] lg:grid-cols-[0.88fr_1.12fr]">
+      {/* La imagen es el fondo de toda la sección, en móvil y en escritorio */}
+      <div className="mx-auto min-h-[100svh] max-w-[1600px] lg:min-h-[760px]">
         {/* Contenido */}
-        <div className="relative z-10 flex min-h-[100svh] flex-col justify-end px-5 pb-16 pt-28 sm:px-10 md:px-14 lg:min-h-0 lg:justify-center lg:px-16 lg:py-24 xl:px-20">
+        <div className="relative z-10 flex min-h-[100svh] flex-col justify-end px-5 pb-16 pt-28 sm:px-10 md:px-14 lg:min-h-[760px] lg:max-w-[56%] lg:justify-center lg:px-16 lg:py-24 xl:px-20">
           <div style={reveal(100)} className="mb-6 flex items-center gap-3 lg:mb-8">
             <span className="h-px w-10 bg-[#A9812E]" />
             <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#C9A860] sm:text-xs">
@@ -222,20 +209,19 @@ const HeroSection = ({ business }) => {
           </div>
         </div>
 
-        {/* Imagen: fondo en móvil, columna protagonista en escritorio */}
+        {/* Imagen de fondo */}
         <div
-          aria-hidden={false}
-          className="absolute inset-0 z-0 overflow-hidden lg:relative lg:inset-auto lg:min-h-full"
+          className="absolute inset-0 z-0 overflow-hidden"
           style={reveal(180)}
         >
           <img
             src="/assets/img/herosection.webp"
             alt="Ambiente de barbería premium en Mustache Barbershop"
             fetchPriority="high"
-            className="absolute inset-0 h-full w-full object-cover object-[60%_center] lg:object-center"
+            className="absolute inset-0 h-full w-full object-cover object-[60%_center] lg:object-[70%_center]"
           />
 
-          {/* Móvil: oscurece para que el texto sea legible */}
+          {/* Móvil: oscurece de abajo hacia arriba para que el texto se lea */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 lg:hidden"
@@ -245,17 +231,17 @@ const HeroSection = ({ business }) => {
             }}
           />
 
-          {/* Escritorio: fusión gradual con el fondo */}
+          {/* Escritorio: texto sobre zona oscura a la izquierda, foto visible a la derecha */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 hidden lg:block"
             style={{
               background:
-                'linear-gradient(to right, #000000 0%, rgba(0,0,0,0.62) 5%, transparent 36%), linear-gradient(to top, rgba(0,0,0,0.60), transparent 32%), linear-gradient(to bottom, rgba(0,0,0,0.14), transparent 25%)',
+                'linear-gradient(to right, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.82) 30%, rgba(0,0,0,0.4) 58%, rgba(0,0,0,0.1) 100%), linear-gradient(to top, rgba(0,0,0,0.6), transparent 30%), linear-gradient(to bottom, rgba(0,0,0,0.35), transparent 22%), radial-gradient(ellipse at 15% 45%, rgba(169,129,46,0.12), transparent 45%)',
             }}
           />
 
-          {/* Marco y detalles (escritorio) */}
+          {/* Marco dorado (escritorio) */}
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-10 hidden border border-[#C9A860]/25 lg:block"
