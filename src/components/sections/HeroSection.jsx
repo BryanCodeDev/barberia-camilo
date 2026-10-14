@@ -55,7 +55,7 @@ const HeroSection = ({ business }) => {
     <section
       id="inicio"
       aria-labelledby="hero-title"
-      className="relative isolate min-h-[480px] overflow-hidden bg-black text-[#F6F2EA] lg:min-h-[540px]"
+      className="relative isolate min-h-[440px] overflow-hidden bg-black text-[#F6F2EA] lg:min-h-[500px]"
     >
       {/* Textura decorativa (escritorio) */}
       <div
@@ -72,7 +72,7 @@ const HeroSection = ({ business }) => {
       {/* La imagen es el fondo de toda la sección, en móvil y en escritorio */}
       <div className="mx-auto max-w-[1600px]">
         {/* Contenido */}
-        <div className="relative z-10 flex min-h-[480px] flex-col justify-end px-5 pb-8 pt-20 sm:px-10 md:px-14 lg:min-h-[540px] lg:max-w-[56%] lg:justify-center lg:px-16 lg:pb-12 lg:pt-24 xl:px-20">
+        <div className="relative z-10 flex min-h-[440px] flex-col justify-end px-5 pb-6 pt-16 sm:px-10 md:px-14 lg:min-h-[500px] lg:max-w-[56%] lg:justify-center lg:px-16 lg:pb-10 lg:pt-20 xl:px-20">
           <div style={reveal(100)} className="mb-4 flex items-center gap-3 lg:mb-5">
             <span className="h-px w-10 bg-[#A9812E]" />
             <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#C9A860] sm:text-xs">
@@ -172,7 +172,7 @@ const HeroSection = ({ business }) => {
           {/* Ubicación y contacto */}
           <div
             style={reveal(580)}
-            className="mt-6 flex flex-col gap-3 border-t border-[#2A2723] pt-5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-7"
+            className="mt-5 hidden flex-col gap-3 border-t border-[#2A2723] pt-4 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-7"
           >
             <div className="flex items-center gap-3">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#A9812E]/30 bg-[#A9812E]/10">
@@ -218,7 +218,7 @@ const HeroSection = ({ business }) => {
             src="/assets/img/herosection.webp"
             alt="Ambiente de barbería premium en Mustache Barbershop"
             fetchPriority="high"
-            className="absolute inset-0 h-full w-full object-cover object-[60%_center] lg:object-[70%_center]"
+            className="absolute inset-0 h-full w-full object-cover object-center lg:object-[70%_center]"
           />
 
           {/* Móvil: oscurece de abajo hacia arriba para que el texto se lea */}
